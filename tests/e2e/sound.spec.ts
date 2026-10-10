@@ -4,7 +4,7 @@ test("кнопка звука включает и выключает звук б
 	const errors: string[] = [];
 	page.on("pageerror", (error) => errors.push(error.message));
 
-	await page.goto("./?noforest&noshadows");
+	await page.goto("./?noforest&nograss&noshadows");
 	const toggle = page.locator(".sound-toggle");
 	await expect(toggle).toHaveAttribute("aria-pressed", "false");
 

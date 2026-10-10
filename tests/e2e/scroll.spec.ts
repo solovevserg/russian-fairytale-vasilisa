@@ -28,8 +28,8 @@ async function scrollToChapter(page: Page, id: string) {
 
 test("прокрутка переключает активную главу", async ({ page }) => {
 	// проверяем логику прокрутки, а не графику: облегчённая сцена,
-	// чтобы программный WebGL в headless-браузере не тормозил кадры
-	await page.goto("./?noforest&noshadows");
+	// (без леса и травы), чтобы программный WebGL в headless-браузере не тормозил кадры
+	await page.goto("./?noforest&nograss&noshadows");
 	await expect(page.locator(".scene canvas")).toBeVisible();
 	expect((await storyState(page)).activeChapter).toBe(0);
 

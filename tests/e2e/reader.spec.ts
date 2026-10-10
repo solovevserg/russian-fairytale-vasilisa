@@ -16,8 +16,9 @@ test("автопрокрутка переходит от главы к глав�
 	isMobile,
 }) => {
 	test.skip(isMobile, "колесо мыши — только на десктопе");
-	// readtime=1 — секунда на чтение вместо десяти, чтобы тест был быстрым
-	await page.goto("./?noforest&noshadows&readtime=1");
+	// readtime=1 — секунда на чтение вместо десяти; лес и трава отключены:
+	// в CI WebGL программный, и полная сцена тормозит страницу до таймаутов
+	await page.goto("./?noforest&nograss&noshadows&readtime=1");
 	const play = page.locator(".control-button--primary");
 	await expect(play).toHaveAttribute("aria-pressed", "false");
 
@@ -34,7 +35,7 @@ test("автопрокрутка переходит от главы к глав�
 
 test("тёмная тема переключается и запоминается", async ({ page }) => {
 	await page.emulateMedia({ colorScheme: "light" });
-	await page.goto("./?noforest&noshadows");
+	await page.goto("./?noforest&nograss&noshadows");
 	const html = page.locator("html");
 	await expect(html).toHaveAttribute("data-theme", "light");
 
