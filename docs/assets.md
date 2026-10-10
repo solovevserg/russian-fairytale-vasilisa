@@ -91,10 +91,10 @@
 
 ### Текстуры земли
 
-Скачиваются скриптом `bun run textures:prepare` (`scripts/prepare-textures.ts`) в `public/textures/ground/`.
+Скачиваются скриптом `bun run textures:prepare` (`scripts/prepare-textures.ts`) в `public/textures/ground/` и перекодируются в WebP (нормали — 1K).
 
 | Файл | Что это | Источник | Лицензия |
 | --- | --- | --- | --- |
-| `grass_*` | Forest Ground 01 | [Poly Haven](https://polyhaven.com/a/forrest_ground_01) | CC0 |
-| `forest_*` | Forest Leaves 02 | [Poly Haven](https://polyhaven.com/a/forest_leaves_02) | CC0 |
-| `path_*` | Brown Mud 02 | [Poly Haven](https://polyhaven.com/a/brown_mud_02) | CC0 |
+| `grass_*` | Sparse Grass (2K) | [Poly Haven](https://polyhaven.com/a/sparse_grass) | CC0 |
+| `forest_*` | Forest Ground 01 (1K) | [Poly Haven](https://polyhaven.com/a/forrest_ground_01) | CC0 |
+| `path_*` | Forest Ground 04 (2K) | [Poly Haven](https://polyhaven.com/a/forest_ground_04) | CC0 |
