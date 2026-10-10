@@ -6,6 +6,8 @@
       "name": "izbushka",
       "dependencies": {
         "@dgreenheck/ez-tree": "^1.1.0",
+        "@fontsource/old-standard-tt": "^5.3.0",
+        "@fontsource/ruslan-display": "^5.3.0",
         "@react-three/drei": "^10.7.9",
         "@react-three/fiber": "^9.8.1",
         "react": "^19.3.0",
@@ -57,6 +59,10 @@
     "@dgreenheck/ez-tree": ["@dgreenheck/ez-tree@1.1.0", "", { "peerDependencies": { "three": ">=0.167" } }, "sha512-6pvS6hD6B6h00dm0SnkgYeT4ABU5Y1Z9M44p1tXiV5C0eKrQy2sKECXshoaUv0qAOqYVL68w/PwadUxDFDiHUg=="],
 
     "@dimforge/rapier3d-compat": ["@dimforge/rapier3d-compat@0.12.0", "", {}, "sha512-uekIGetywIgopfD97oDL5PfeezkFpNhwlzlaEYNOA0N6ghdsOvh/HYjSMek5Q2O1PYvRSDFcqFVJl4r4ZBwOow=="],
+
+    "@fontsource/old-standard-tt": ["@fontsource/old-standard-tt@5.3.0", "", {}, "sha512-9cXU8XWqw4Pz9/9Lf6Otf1GPc0y17d96/nP9tzs4PLlq1IFMIxXszL3OLldaoyAn5YGr1r+tIXr0rlbgIeCYrg=="],
+
+    "@fontsource/ruslan-display": ["@fontsource/ruslan-display@5.3.0", "", {}, "sha512-D9h3y6zytztVCiqwpepI0rWL7rNvT9uCIfMj9YTKgSslTHc9uwy0B4M6jwf/2077Rancdvd5RADxDzywMeUq8g=="],
 
     "@mediapipe/tasks-vision": ["@mediapipe/tasks-vision@0.10.17", "", {}, "sha512-CZWV/q6TTe8ta61cZXjfnnHsfWIdFhms03M9T7Cnd5y2mdpylJM0rF1qRq+wsQVRMLz1OYPVEBU9ph2Bx8cxrg=="],
 

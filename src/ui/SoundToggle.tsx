@@ -16,7 +16,7 @@ export function SoundToggle() {
 	return (
 		<button
 			type="button"
-			className={`sound-toggle${!enabled && preferred ? " sound-toggle--hint" : ""}`}
+			className={`control-button sound-toggle${!enabled && preferred ? " sound-toggle--hint" : ""}`}
 			aria-pressed={enabled}
 			aria-label={enabled ? "Выключить звук" : "Включить звук"}
 			onClick={toggle}

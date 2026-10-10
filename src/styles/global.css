@@ -1,11 +1,38 @@
+/* тёмная тема: «чтение при лучине» — тёплый тёмный фон, светлые чернила */
+:root[data-theme="dark"] {
+	--bg: #1b1814;
+	--ink: #e6dac2;
+	--muted: #a8987f;
+	--accent: #e0806a;
+	--orn-red: #c95a42;
+	--orn-gold: #cfa452;
+	--orn-green: #6a9a86;
+	--card: rgb(27 24 20 / 0.9);
+	--reading: rgb(207 164 82 / 0.14);
+	--paper-noise: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27240%27 height=%27240%27%3E%3Cfilter id=%27n%27%3E%3CfeTurbulence type=%27fractalNoise%27 baseFrequency=%27.8%27 numOctaves=%273%27 stitchTiles=%27stitch%27/%3E%3CfeColorMatrix values=%270 0 0 0 .9 0 0 0 0 .8 0 0 0 0 .6 0 0 0 .05 0%27/%3E%3C/filter%3E%3Crect width=%27100%25%27 height=%27100%25%27 filter=%27url(%23n)%27/%3E%3C/svg%3E");
+	color-scheme: dark;
+}
+
 :root {
 	--scene-width: 60%;
+	/* пергамент и чернила */
 	--bg: #f3ead7;
 	--ink: #2b211a;
-	--accent: #9b2c1f;
 	--muted: #6f5e4d;
+	--accent: #9b2c1f;
+	/* палитра орнамента — киноварь, охра-золото, изумруд (Билибин) */
+	--orn-red: #a8321f;
+	--orn-gold: #b98b2e;
+	--orn-green: #2f5d50;
+	--orn-field: #23443a;
+	--orn-light: #f6e7bf;
+	--card: rgb(243 234 215 / 0.92);
+	--reading: rgb(185 139 46 / 0.16);
+	--paper-noise: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27240%27 height=%27240%27%3E%3Cfilter id=%27n%27%3E%3CfeTurbulence type=%27fractalNoise%27 baseFrequency=%27.8%27 numOctaves=%273%27 stitchTiles=%27stitch%27/%3E%3CfeColorMatrix values=%270 0 0 0 .35 0 0 0 0 .25 0 0 0 0 .12 0 0 0 .1 0%27/%3E%3C/filter%3E%3Crect width=%27100%25%27 height=%27100%25%27 filter=%27url(%23n)%27/%3E%3C/svg%3E");
+	--font-display: "Ruslan Display", "Old Standard TT", Georgia, serif;
+	--font-text: "Old Standard TT", "PT Serif", Georgia, "Times New Roman", serif;
 	color-scheme: light;
-	font-family: "PT Serif", Georgia, "Times New Roman", serif;
+	font-family: var(--font-text);
 	color: var(--ink);
 	background: var(--bg);
 }
@@ -17,6 +44,18 @@
 body {
 	margin: 0;
 	background: var(--bg);
+}
+
+.visually-hidden {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	white-space: nowrap;
+	border: 0;
 }
 
 .layout {
@@ -32,34 +71,162 @@ body {
 	background: #1d2428;
 }
 
+/* ── колонка текста ───────────────────────────────────────────── */
+
 .story {
-	padding: 12vh clamp(24px, 4vw, 64px) 40vh;
-	max-width: 42rem;
-	line-height: 1.7;
-	font-size: 1.125rem;
+	position: relative;
+	padding: 10vh clamp(28px, 4vw, 72px) 40vh clamp(48px, 5vw, 88px);
+	max-width: 44rem;
+	font-size: 1.2rem;
+	--lh: 1.75;
+	min-width: 0;
+	line-height: var(--lh);
+	hyphens: auto;
+	text-wrap: pretty;
+	/* лёгкая фактура старой бумаги */
+	background-image: var(--paper-noise);
+}
+
+/* узорная лента по краю колонки, как поля на иллюстрациях Билибина */
+.story::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 12px;
+	width: 22px;
+	border-inline: 1.5px solid var(--orn-red);
+	background:
+		url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='60' viewBox='0 0 22 60'%3E%3Cpath d='M11 0V60' stroke='%23b98b2e' stroke-width='1.4'/%3E%3Cpath d='M11 13q-8-1-8.5-8.5q7 .5 8.5 8.5z' fill='%232f5d50'/%3E%3Cpath d='M11 43q8-1 8.5-8.5q-7 .5-8.5 8.5z' fill='%232f5d50'/%3E%3Ccircle cx='11' cy='28' r='2.6' fill='%23a8321f'/%3E%3Ccircle cx='11' cy='57' r='1.4' fill='%23b98b2e'/%3E%3C/svg%3E")
+		center top / 22px 60px repeat-y;
+	opacity: 0.85;
+}
+
+.story__header {
+	text-align: center;
+	margin-bottom: 4vh;
+}
+
+.story__kicker {
+	margin: 1.2rem 0 0.2rem;
+	font-size: 0.85rem;
+	letter-spacing: 0.25em;
+	text-transform: uppercase;
+	color: var(--muted);
 }
 
 .story__header h1 {
 	margin: 0;
-	font-size: 2.5rem;
+	font-family: var(--font-display);
+	font-weight: 400;
+	font-size: clamp(2.2rem, 3.4vw, 3.2rem);
+	line-height: 1.15;
 	color: var(--accent);
+	text-shadow: 0 1px 0 rgb(185 139 46 / 0.35);
 }
 
 .story__subtitle {
-	margin-top: 0.25rem;
+	margin: 0.4rem 0 1.2rem;
 	color: var(--muted);
 	font-style: italic;
 }
 
+/* ── главы ───────────────────────────────────────────────────── */
+
 .chapter {
 	min-height: 70vh;
-	padding-top: 8vh;
+	padding-top: 6vh;
+	opacity: 0.55;
+	transition: opacity 0.6s ease;
+}
+
+/* глава в фокусе — полная яркость, остальные чуть приглушены */
+.chapter--active {
+	opacity: 1;
+}
+
+.chapter .chapter__caption {
+	margin: 1.4rem 0 0;
+	text-align: center;
+	font-size: 0.9rem;
+	font-style: italic;
+	letter-spacing: 0.08em;
+	color: var(--orn-gold);
 }
 
 .chapter h2 {
+	margin: 0.2rem 0 1.4rem;
+	text-align: center;
+	font-family: var(--font-display);
+	font-weight: 400;
+	font-size: 1.7rem;
+	line-height: 1.25;
 	color: var(--accent);
-	font-size: 1.5rem;
 }
+
+.chapter p {
+	margin: 0 0 1em;
+}
+
+/* ── буквицы и виньетки ──────────────────────────────────────── */
+
+/* буквица обтекается ровно N строками: высота = N строк минус полуинтерлиньяж */
+.has-dropcap::after {
+	content: "";
+	display: block;
+	clear: both;
+}
+
+.dropcap {
+	--lines: 3;
+	float: left;
+	width: calc(var(--lines) * var(--lh) * 1em - 0.45em);
+	height: calc(var(--lines) * var(--lh) * 1em - 0.45em);
+	margin: 0.32em 0.6em 0 0;
+	filter: drop-shadow(0 1px 2px rgb(43 33 26 / 0.25));
+}
+
+.dropcap--grand {
+	--lines: 4;
+}
+
+.dropcap__letter {
+	font-family: var(--font-display);
+	stroke-linejoin: round;
+	paint-order: stroke;
+}
+
+.dropcap__letter--grand {
+	fill: var(--orn-light);
+	stroke: var(--orn-red);
+	stroke-width: 5px;
+}
+
+.dropcap__letter--chapter {
+	fill: var(--orn-red);
+	stroke: var(--orn-light);
+	stroke-width: 5px;
+}
+
+.divider {
+	display: block;
+	width: min(70%, 18rem);
+	height: auto;
+	margin: 0 auto;
+}
+
+.divider--large {
+	width: min(100%, 24rem);
+}
+
+.tailpiece {
+	display: block;
+	width: 7rem;
+	height: auto;
+	margin: 2.5rem auto 0;
+}
+
+/* ── мобильные ───────────────────────────────────────────────── */
 
 @media (max-width: 1023px) {
 	.layout {
@@ -77,11 +244,17 @@ body {
 		z-index: 1;
 		max-width: none;
 		padding: 60vh 16px 40vh;
+		font-size: 1.1rem;
+		background: none;
+	}
+
+	.story::before {
+		display: none;
 	}
 
 	.story__header,
 	.chapter {
-		background: rgb(243 234 215 / 0.88);
+		background: var(--card);
 		border-radius: 12px;
 		padding: 20px;
 		margin-bottom: 40vh;
@@ -90,24 +263,24 @@ body {
 	}
 }
 
-/* Глава в фокусе — полная яркость, остальные чуть приглушены */
-.chapter {
-	opacity: 0.55;
-	transition: opacity 0.6s ease;
-}
+/* ── панель управления поверх сцены ──────────────────────────── */
 
-.chapter--active {
-	opacity: 1;
-}
-
-.sound-toggle {
+.control-bar {
 	position: fixed;
 	left: 16px;
 	bottom: 16px;
 	z-index: 2;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	max-width: calc(100vw - 32px);
+}
+
+.control-button {
 	display: inline-flex;
 	align-items: center;
 	gap: 8px;
+	min-height: 40px;
 	padding: 8px 14px;
 	border: 1px solid rgb(243 234 215 / 0.35);
 	border-radius: 999px;
@@ -117,17 +290,53 @@ body {
 	font-size: 0.95rem;
 	cursor: pointer;
 	backdrop-filter: blur(6px);
-	transition: background 0.2s ease;
+	transition:
+		background 0.2s ease,
+		border-color 0.2s ease;
 }
 
-.sound-toggle:hover,
-.sound-toggle:focus-visible {
+.control-button:hover,
+.control-button:focus-visible {
 	background: rgb(20 18 16 / 0.8);
 }
 
-.sound-toggle:focus-visible {
+.control-button:focus-visible {
 	outline: 2px solid #f0c27a;
 	outline-offset: 2px;
+}
+
+.control-button[aria-pressed="true"] {
+	border-color: #f0c27a;
+}
+
+.control-button--primary {
+	background: rgb(155 44 31 / 0.85);
+	border-color: rgb(240 194 122 / 0.6);
+}
+
+.control-button--primary:hover,
+.control-button--primary:focus-visible {
+	background: rgb(155 44 31 / 1);
+}
+
+.control-button--icon {
+	justify-content: center;
+	width: 40px;
+	padding: 0;
+	font-size: 1.15rem;
+}
+
+/* абзац, который сейчас читается вслух */
+.chapter p {
+	border-radius: 6px;
+	transition:
+		background-color 0.4s ease,
+		box-shadow 0.4s ease;
+}
+
+.chapter p.is-reading {
+	background-color: var(--reading);
+	box-shadow: 0 0 0 6px var(--reading);
 }
 
 /* звук был включён в прошлый визит — мягко напоминаем */
@@ -144,5 +353,10 @@ body {
 @media (prefers-reduced-motion: reduce) {
 	.sound-toggle--hint {
 		animation: none;
+	}
+
+	.chapter,
+	.chapter p {
+		transition: none;
 	}
 }

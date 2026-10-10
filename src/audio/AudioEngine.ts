@@ -34,6 +34,8 @@ interface PlayOptions {
 /** Постоянная времени сглаживания громкости, секунды. */
 const FADE = 0.8;
 const MASTER = 0.9;
+/** Громкость музыки во время озвучки. */
+const DUCK = 0.3;
 const CRACKS: SfxId[] = [
 	"sfx-crack-1",
 	"sfx-crack-2",
@@ -61,9 +63,15 @@ export class AudioEngine {
 	private loops = new Map<LoopId, GainNode>();
 	private buffers = new Map<SfxId, AudioBuffer>();
 	private running = false;
+	/** Музыка приглушена на время озвучки текста. */
+	private ducked = false;
 	private loaded = false;
 	private next = { crack: 0, hut: 0, owl: 0 };
 	private forward = new Vector3();
+
+	setDucked(ducked: boolean) {
+		this.ducked = ducked;
+	}
 
 	get isRunning() {
 		return this.running;
@@ -126,7 +134,7 @@ export class AudioEngine {
 		for (const track of MUSIC_TRACKS) {
 			const channel = this.music.get(track);
 			if (!channel) continue;
-			const target = mix.music[track];
+			const target = mix.music[track] * (this.ducked ? DUCK : 1);
 			channel.gain.gain.setTargetAtTime(target, now, FADE);
 			if (target > 0.01 && channel.element.paused) {
 				channel.element.play().catch(() => {});

@@ -1,5 +1,5 @@
 import { SceneCanvas } from "./scene/SceneCanvas";
-import { SoundToggle } from "./ui/SoundToggle";
+import { ControlBar } from "./ui/ControlBar";
 import { StoryColumn } from "./ui/StoryColumn";
 
 export function App() {
@@ -8,7 +8,7 @@ export function App() {
 			<div className="scene" aria-hidden="true">
 				<SceneCanvas />
 			</div>
-			<SoundToggle />
+			<ControlBar />
 			<StoryColumn />
 		</div>
 	);

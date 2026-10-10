@@ -79,3 +79,12 @@
 | `sfx-owl` | Неясыть | [BigSoundBank: Tawny Owl #1](https://bigsoundbank.com/tawny-owl-1-s1763.html) | Joseph Sardin | CC0 |
 | `sfx-tree-creak` | Скрип дерева | [OpenGameArt: Tree Creaking](https://opengameart.org/content/tree-creaking) | Department64, обработка AntumDeluge | CC0 |
 | `sfx-crack-1…4`, `sfx-hut-creak-1…2` | Треск и скрип дерева (`wood_cracking_*`, `wood_squeak_*`) | [OpenGameArt: 100 CC0 metal and wood SFX](https://opengameart.org/content/100-cc0-metal-and-wood-sfx) | rubberduck | CC0 |
+
+### Шрифты
+
+Подключаются из npm-пакетов Fontsource (файлы лежат в сборке, без внешних CDN), только кириллица и латиница.
+
+| Шрифт | Где | Источник | Автор | Лицензия |
+| --- | --- | --- | --- | --- |
+| Ruslan Display | заголовки, буквицы | [@fontsource/ruslan-display](https://fontsource.org/fonts/ruslan-display) | Denis Masharov | OFL-1.1 |
+| Old Standard TT | основной текст | [@fontsource/old-standard-tt](https://fontsource.org/fonts/old-standard-tt) | Alexey Kryukov | OFL-1.1 |

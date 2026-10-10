@@ -1,0 +1,30 @@
+import { create } from "zustand";
+
+export type Theme = "light" | "dark";
+
+/** Ключ хранилища; та же логика продублирована во встроенном скрипте index.html. */
+export const THEME_KEY = "izbushka:theme";
+
+function initialTheme(): Theme {
+	if (typeof document === "undefined") return "light";
+	return document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+}
+
+interface ThemeState {
+	theme: Theme;
+	toggle: () => void;
+}
+
+export const useThemeStore = create<ThemeState>((set, get) => ({
+	theme: initialTheme(),
+	toggle: () => {
+		const theme: Theme = get().theme === "dark" ? "light" : "dark";
+		document.documentElement.dataset.theme = theme;
+		try {
+			window.localStorage.setItem(THEME_KEY, theme);
+		} catch {
+			// хранилище недоступно — тема просто не запомнится
+		}
+		set({ theme });
+	},
+}));
