@@ -9,7 +9,7 @@ function initialTime(): number {
 }
 
 interface SceneState {
-	/** Время суток, часы 0..24. Позже будет управляться прокруткой. */
+	/** Время суток, часы 0..24. Управляется прокруткой (CameraRig), ?time=HH фиксирует. */
 	timeOfDay: number;
 	/** Сила ветра, 0..1. */
 	wind: number;

@@ -89,3 +89,13 @@ body {
 		backdrop-filter: blur(4px);
 	}
 }
+
+/* Глава в фокусе — полная яркость, остальные чуть приглушены */
+.chapter {
+	opacity: 0.55;
+	transition: opacity 0.6s ease;
+}
+
+.chapter--active {
+	opacity: 1;
+}

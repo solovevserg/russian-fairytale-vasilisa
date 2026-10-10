@@ -1,5 +1,6 @@
 import { Canvas } from "@react-three/fiber";
 import { debugFlags } from "../debugFlags";
+import { CameraRig } from "./CameraRig";
 import { Forest } from "./forest/Forest";
 import { Hut } from "./Hut";
 import { Lighting } from "./sky/Lighting";
@@ -16,12 +17,12 @@ export function SceneCanvas() {
 			shadows={debugFlags.noShadows ? false : "percentage"}
 			dpr={[1, 2]}
 			camera={{ position: [7.5, 2.2, 11.5], fov: 55, near: 0.1, far: 600 }}
-			onCreated={({ camera, gl }) => {
-				camera.lookAt(0, 4.2, 0);
+			onCreated={({ gl }) => {
 				// для отладки производительности из консоли: __renderer.info.render
 				if (import.meta.env.DEV) Object.assign(window, { __renderer: gl });
 			}}
 		>
+			<CameraRig />
 			<SkyDome />
 			<Lighting />
 			<TerrainMesh />

@@ -54,8 +54,8 @@ export function heightAt(x: number, z: number): number {
 /** Плотность леса в точке: 0 — деревьев нет (поляна, тропа), 1 — чаща. */
 export function forestDensity(x: number, z: number): number {
 	const nearPath = smoothstep(
-		PATH_HALF_WIDTH + 1,
-		PATH_HALF_WIDTH + 4,
+		PATH_HALF_WIDTH + 2.5,
+		PATH_HALF_WIDTH + 6,
 		distanceToPath(x, z),
 	);
 	const clearing = smoothstep(

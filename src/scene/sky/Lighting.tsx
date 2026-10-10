@@ -20,6 +20,7 @@ const moonDir = new Vector3();
  */
 export function Lighting() {
 	const scene = useThree((state) => state.scene);
+	const camera = useThree((state) => state.camera);
 	const light = useRef<DirectionalLight>(null);
 	const hemi = useRef<HemisphereLight>(null);
 
@@ -39,7 +40,11 @@ export function Lighting() {
 
 		if (scene.fog instanceof FogExp2) {
 			scene.fog.color.set(palette.horizon);
-			scene.fog.density = palette.fogDensity;
+			// туман стелется по земле: с высоты над кронами видно дальше
+			const altitude = Math.min(Math.max((camera.position.y - 8) / 27, 0), 1);
+			scene.fog.density =
+				palette.fogDensity *
+				(1 - 0.7 * altitude * altitude * (3 - 2 * altitude));
 		}
 
 		const l = light.current;
