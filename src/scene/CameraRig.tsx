@@ -1,14 +1,26 @@
 import { useFrame, useThree } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
-import type { PerspectiveCamera } from "three";
+import { type PerspectiveCamera, Vector3 } from "three";
 import { useSceneStore } from "../state/sceneStore";
 import { useStoryStore } from "../state/storyStore";
 import { currentSample } from "../story/currentSample";
 import { KEYFRAMES } from "../story/keyframes";
 import { createTimeline, shapeProgress } from "../story/timeline";
+import { PARALLAX_LOOK, PARALLAX_SHIFT, pointer } from "./pointerParallax";
+import { heightAt } from "./terrain";
 
 /** Скорость догоняния прокрутки: больше — резче. */
 const DAMPING = 2.5;
+/** Скорость, с которой камера следует за мышью. */
+const PARALLAX_DAMPING = 3;
+/** Минимальная высота камеры над землёй, м. */
+const MIN_HEIGHT = 0.35;
+
+const UP = new Vector3(0, 1, 0);
+const forward = new Vector3();
+const right = new Vector3();
+const up = new Vector3();
+const lookAt = new Vector3();
 
 // ?time=HH фиксирует время суток (для отладки освещения)
 const timeLocked =
@@ -24,6 +36,7 @@ export function CameraRig() {
 	const timeline = useMemo(() => createTimeline(KEYFRAMES), []);
 	const sample = currentSample;
 	const smoothed = useRef<number | null>(null);
+	const parallax = useRef({ x: 0, y: 0 });
 
 	useFrame((_, delta) => {
 		const target = shapeProgress(useStoryStore.getState().progress);
@@ -34,8 +47,31 @@ export function CameraRig() {
 			(target - current) * (1 - Math.exp(-DAMPING * Math.min(delta, 0.1)));
 
 		timeline.sample(smoothed.current, sample);
-		camera.position.copy(sample.position);
-		camera.lookAt(sample.target);
+
+		// лёгкий параллакс от мыши: камера сдвигается за курсором и чуть
+		// доворачивает взгляд; амплитуда — доля расстояния до цели
+		const p = parallax.current;
+		const k = 1 - Math.exp(-PARALLAX_DAMPING * Math.min(delta, 0.1));
+		p.x += (pointer.x - p.x) * k;
+		p.y += (pointer.y - p.y) * k;
+		forward.subVectors(sample.target, sample.position);
+		const amplitude = forward.length() * PARALLAX_SHIFT;
+		forward.normalize();
+		right.crossVectors(forward, UP).normalize();
+		up.crossVectors(right, forward).normalize();
+		camera.position
+			.copy(sample.position)
+			.addScaledVector(right, p.x * amplitude)
+			.addScaledVector(up, -p.y * amplitude * 0.6);
+		camera.position.y = Math.max(
+			camera.position.y,
+			heightAt(camera.position.x, camera.position.z) + MIN_HEIGHT,
+		);
+		lookAt
+			.copy(sample.target)
+			.addScaledVector(right, p.x * amplitude * PARALLAX_LOOK)
+			.addScaledVector(up, -p.y * amplitude * PARALLAX_LOOK * 0.6);
+		camera.lookAt(lookAt);
 		if (Math.abs(camera.fov - sample.fov) > 1e-3) {
 			camera.fov = sample.fov;
 			camera.updateProjectionMatrix();
