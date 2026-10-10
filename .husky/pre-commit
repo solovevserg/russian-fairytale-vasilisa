@@ -1,0 +1,6 @@
+# Bun может не быть в PATH у GUI-клиентов git — добавляем стандартный путь установки
+export PATH="$HOME/.bun/bin:$PATH"
+
+bunx lint-staged
+bun run typecheck
+bun run test
