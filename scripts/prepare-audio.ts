@@ -132,7 +132,7 @@ async function download(url: string, file: string) {
 		headers: {
 			// Wikimedia требует описательный User-Agent: https://meta.wikimedia.org/wiki/User-Agent_policy
 			"User-Agent":
-				"izbushka-audio-prep/1.0 (https://github.com/; art project build script)",
+				"izbushka-audio-prep/1.0 (https://github.com/solovevserg/russian-fairytale-vasilisa)",
 		},
 	});
 	if (!response.ok) throw new Error(`${response.status} ${url}`);

@@ -60,7 +60,10 @@ mkdirSync(OUT, { recursive: true });
 for (const [name, { id, resolution }] of Object.entries(TEXTURES)) {
 	const files = (await (
 		await fetch(`https://api.polyhaven.com/files/${id}`, {
-			headers: { "User-Agent": "izbushka-texture-prep/1.0" },
+			headers: {
+				"User-Agent":
+					"izbushka-texture-prep/1.0 (https://github.com/solovevserg/russian-fairytale-vasilisa)",
+			},
 		})
 	).json()) as PolyHavenFiles;
 	for (const [suffix, map] of Object.entries(MAPS)) {

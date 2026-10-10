@@ -65,7 +65,7 @@
 | Юнит-тесты | `bun test` | встроенный раннер Bun, Jest-совместимый API |
 | E2E-тесты | Playwright | e2e + визуальные снимки |
 | CI/CD | GitHub Actions (`oven-sh/setup-bun`) | проверка PR + деплой в GitHub Pages |
-| Хостинг | GitHub Pages | `https://<user>.github.io/izbushka/` |
+| Хостинг | GitHub Pages | `https://solovevserg.github.io/russian-fairytale-vasilisa/` |
 
 Примечание: Playwright запускается через `bunx playwright test`. Сам тест-раннер Playwright официально поддерживается на Node, поэтому в CI Node остаётся установленным (на ранерах GitHub он есть по умолчанию). Если запуск под Bun окажется нестабильным — раннер Playwright работает на Node, всё остальное на Bun.
 
@@ -355,8 +355,8 @@ dev, build, preview, check, typecheck, test (bun test), test:e2e (playwright), a
 
 ### GitHub Pages
 
-- Репозиторий: **`izbushka`** → сайт `https://<user>.github.io/izbushka/`.
-- `vite.config.ts`: `base: '/izbushka/'`.
+- Репозиторий: **[`solovevserg/russian-fairytale-vasilisa`](https://github.com/solovevserg/russian-fairytale-vasilisa)** → сайт `https://solovevserg.github.io/russian-fairytale-vasilisa/`.
+- `vite.config.ts`: `base: '/russian-fairytale-vasilisa/'`.
 - Все пути к ассетам — через `import.meta.env.BASE_URL`.
 - Большие бинарные ассеты (модели, звук) — обычным git, пока репозиторий < 1 ГБ; Git LFS не используем (GitHub Pages не отдаёт LFS-файлы при деплое через Actions без доп. шага).
 

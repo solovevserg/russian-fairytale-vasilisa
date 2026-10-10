@@ -226,6 +226,19 @@ body {
 	margin: 2.5rem auto 0;
 }
 
+.story__credits {
+	margin-top: 12vh;
+	padding-top: 1.5rem;
+	border-top: 1px solid color-mix(in srgb, var(--orn-gold) 40%, transparent);
+	font-size: 0.85rem;
+	line-height: 1.6;
+	color: var(--muted);
+}
+
+.story__credits a {
+	color: var(--accent);
+}
+
 /* ── мобильные ───────────────────────────────────────────────── */
 
 @media (max-width: 1023px) {

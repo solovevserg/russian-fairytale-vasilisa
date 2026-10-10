@@ -109,6 +109,30 @@ export function StoryColumn() {
 					speaking={speaking?.[0] === i ? speaking[1] : null}
 				/>
 			))}
+			<Credits />
 		</main>
+	);
+}
+
+const REPO = "https://github.com/solovevserg/russian-fairytale-vasilisa";
+
+/** Источники и лицензии — CC-BY требует указывать авторов прямо на сайте. */
+function Credits() {
+	return (
+		<footer className="story__credits">
+			<p>
+				Музыка — М. П. Мусоргский, «Картинки с выставки» (записи Musopen,
+				общественное достояние). Звуки леса — OpenGameArt и BigSoundBank (CC0).
+				Текстуры земли — Poly Haven (CC0). Деревья — ez-tree (MIT). Шрифты —
+				Ruslan Display и Old Standard TT (OFL).
+			</p>
+			<p>
+				<a href={`${REPO}/blob/main/docs/assets.md`}>
+					Все источники и лицензии
+				</a>
+				{" · "}
+				<a href={REPO}>Исходный код</a>
+			</p>
+		</footer>
 	);
 }

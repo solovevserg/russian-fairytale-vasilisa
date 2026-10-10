@@ -12,7 +12,7 @@ export default defineConfig({
 	retries: process.env.CI ? 1 : 0,
 	reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : "list",
 	use: {
-		baseURL: `http://localhost:${PORT}/izbushka/`,
+		baseURL: `http://localhost:${PORT}/russian-fairytale-vasilisa/`,
 		trace: "on-first-retry",
 	},
 	projects: [
@@ -21,7 +21,7 @@ export default defineConfig({
 	],
 	webServer: {
 		command: `bun run build && bun run preview --port ${PORT} --strictPort`,
-		url: `http://localhost:${PORT}/izbushka/`,
+		url: `http://localhost:${PORT}/russian-fairytale-vasilisa/`,
 		reuseExistingServer: !process.env.CI,
 	},
 });
