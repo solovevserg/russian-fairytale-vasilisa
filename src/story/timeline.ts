@@ -1,5 +1,5 @@
 import { CatmullRomCurve3, Vector3 } from "three";
-import type { SceneKeyframe } from "./keyframes";
+import { MUSIC_TRACKS, type MusicTrack, type SceneKeyframe } from "./keyframes";
 
 /**
  * Прогресс истории по положению глав: дробный индекс 0..N-1.
@@ -53,6 +53,8 @@ export interface TimelineSample {
 	fov: number;
 	timeOfDay: number;
 	wind: number;
+	/** Громкость каждого музыкального трека 0..1 (кроссфейд между главами). */
+	music: Record<MusicTrack, number>;
 }
 
 export interface Timeline {
@@ -71,6 +73,9 @@ export function createSample(): TimelineSample {
 		fov: 50,
 		timeOfDay: 0,
 		wind: 0,
+		music: Object.fromEntries(
+			MUSIC_TRACKS.map((track) => [track, 0]),
+		) as Record<MusicTrack, number>,
 	};
 }
 
@@ -109,6 +114,13 @@ export function createTimeline(keyframes: SceneKeyframe[]): Timeline {
 				keyframes[i + 1]?.wind ?? keyframes[i].wind,
 				t,
 			);
+			const from = keyframes[i].music;
+			const to = keyframes[i + 1]?.music ?? from;
+			for (const track of MUSIC_TRACKS) {
+				const a = from.track === track ? from.volume : 0;
+				const b = to.track === track ? to.volume : 0;
+				out.music[track] = lerp(a, b, t);
+			}
 			return out;
 		},
 	};

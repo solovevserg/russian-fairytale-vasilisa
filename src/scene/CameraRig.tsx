@@ -3,8 +3,9 @@ import { useMemo, useRef } from "react";
 import type { PerspectiveCamera } from "three";
 import { useSceneStore } from "../state/sceneStore";
 import { useStoryStore } from "../state/storyStore";
+import { currentSample } from "../story/currentSample";
 import { KEYFRAMES } from "../story/keyframes";
-import { createSample, createTimeline, shapeProgress } from "../story/timeline";
+import { createTimeline, shapeProgress } from "../story/timeline";
 
 /** Скорость догоняния прокрутки: больше — резче. */
 const DAMPING = 2.5;
@@ -21,7 +22,7 @@ const timeLocked =
 export function CameraRig() {
 	const camera = useThree((s) => s.camera) as PerspectiveCamera;
 	const timeline = useMemo(() => createTimeline(KEYFRAMES), []);
-	const sample = useMemo(createSample, []);
+	const sample = currentSample;
 	const smoothed = useRef<number | null>(null);
 
 	useFrame((_, delta) => {

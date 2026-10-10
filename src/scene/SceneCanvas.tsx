@@ -1,4 +1,5 @@
 import { Canvas } from "@react-three/fiber";
+import { AudioDirector } from "../audio/AudioDirector";
 import { debugFlags } from "../debugFlags";
 import { CameraRig } from "./CameraRig";
 import { Forest } from "./forest/Forest";
@@ -23,6 +24,7 @@ export function SceneCanvas() {
 			}}
 		>
 			<CameraRig />
+			<AudioDirector />
 			<SkyDome />
 			<Lighting />
 			<TerrainMesh />

@@ -62,3 +62,20 @@
 | --- | --- | --- | --- | --- | --- |
 | @dgreenheck/ez-tree | генерация деревьев | [GitHub](https://github.com/dgreenheck/ez-tree) | Daniel Greenheck | MIT | — |
 | «Василиса Прекрасная» | текст | А. Н. Афанасьев, «Народные русские сказки», № 104 | — | общественное достояние | сокращения, см. [scenario.md](scenario.md) |
+
+### Звук
+
+Исходники скачивает и перекодирует `bun run audio:prepare` (`scripts/prepare-audio.ts`): нормализация громкости, Opus/WebM + MP3.
+
+| Файл (`public/audio/`) | Что это | Источник | Автор | Лицензия |
+| --- | --- | --- | --- | --- |
+| `music-castle` | Мусоргский, «Картинки с выставки»: II. Il vecchio castello | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Modest_Mussorgsky_-_pictures_at_an_exhibition_-_ii._il_vecchio_castello_-_andante.ogg) | М. П. Мусоргский; запись [Musopen](https://musopen.org) | общественное достояние |
+| `music-catacombs` | VIII. Catacombae. Sepulcrum romanum | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Modest_Mussorgsky_-_pictures_at_an_exhibition_-_viii._catacombae._sepulcrum_romanum_-_largo.ogg) | Мусоргский; Musopen | общественное достояние |
+| `music-cum-mortuis` | Cum mortuis in lingua mortua | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Modest_Mussorgsky_-_pictures_at_an_exhibition_-_cum_mortuis_in_lingua_mortua_-_andante_non_troppo,_con_lamento.ogg) | Мусоргский; Musopen | общественное достояние |
+| `music-hut` | IX. Избушка на курьих ножках (Баба-Яга) | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Modest_Mussorgsky_-_pictures_at_an_exhibition_-_ix._la_cabane_sur_des_pattes_de_poule_-_allegro_con_brio,_feroce_-_andante_mosso_-_allegro_molto.ogg) | Мусоргский; Musopen | общественное достояние |
+| `amb-forest-day` | Лесной эмбиент (петля) | [OpenGameArt: Forest Ambience](https://opengameart.org/content/forest-ambience) | TinyWorlds | CC0 |
+| `amb-crickets` | Сверчки ночью (петля) | [OpenGameArt: Crickets Ambient Noise](https://opengameart.org/content/crickets-ambient-noise-loopable) | Wolfgang_ (Ted Kerr) | CC0 |
+| `amb-wind` | Ветер (петля) | [OpenGameArt: wind whoosh loop](https://opengameart.org/content/wind-whoosh-loop) | SketchMan3 | CC0 |
+| `sfx-owl` | Неясыть | [BigSoundBank: Tawny Owl #1](https://bigsoundbank.com/tawny-owl-1-s1763.html) | Joseph Sardin | CC0 |
+| `sfx-tree-creak` | Скрип дерева | [OpenGameArt: Tree Creaking](https://opengameart.org/content/tree-creaking) | Department64, обработка AntumDeluge | CC0 |
+| `sfx-crack-1…4`, `sfx-hut-creak-1…2` | Треск и скрип дерева (`wood_cracking_*`, `wood_squeak_*`) | [OpenGameArt: 100 CC0 metal and wood SFX](https://opengameart.org/content/100-cc0-metal-and-wood-sfx) | rubberduck | CC0 |

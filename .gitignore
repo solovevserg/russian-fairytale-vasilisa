@@ -12,3 +12,4 @@ blob-report/
 Thumbs.db
 .idea/
 .playwright-mcp/
+.cache/

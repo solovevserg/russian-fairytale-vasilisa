@@ -73,3 +73,26 @@ describe("timeline", () => {
 		}
 	});
 });
+
+describe("музыка в таймлайне", () => {
+	const timeline = createTimeline(KEYFRAMES);
+
+	test("на кадре звучит только трек главы", () => {
+		KEYFRAMES.forEach((k, i) => {
+			const { music } = timeline.sample(i);
+			for (const [track, volume] of Object.entries(music)) {
+				expect(volume).toBeCloseTo(
+					track === k.music.track ? k.music.volume : 0,
+				);
+			}
+		});
+	});
+
+	test("между главами с разной музыкой — кроссфейд", () => {
+		// «Красный всадник» (castle) → «Поляна» (catacombs)
+		const { music } = timeline.sample(3.5);
+		expect(music.castle).toBeGreaterThan(0);
+		expect(music.catacombs).toBeGreaterThan(0);
+		expect(music.hut).toBe(0);
+	});
+});

@@ -99,3 +99,50 @@ body {
 .chapter--active {
 	opacity: 1;
 }
+
+.sound-toggle {
+	position: fixed;
+	left: 16px;
+	bottom: 16px;
+	z-index: 2;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 14px;
+	border: 1px solid rgb(243 234 215 / 0.35);
+	border-radius: 999px;
+	background: rgb(20 18 16 / 0.55);
+	color: #f3ead7;
+	font: inherit;
+	font-size: 0.95rem;
+	cursor: pointer;
+	backdrop-filter: blur(6px);
+	transition: background 0.2s ease;
+}
+
+.sound-toggle:hover,
+.sound-toggle:focus-visible {
+	background: rgb(20 18 16 / 0.8);
+}
+
+.sound-toggle:focus-visible {
+	outline: 2px solid #f0c27a;
+	outline-offset: 2px;
+}
+
+/* звук был включён в прошлый визит — мягко напоминаем */
+.sound-toggle--hint {
+	animation: sound-hint 2.4s ease-in-out infinite;
+}
+
+@keyframes sound-hint {
+	50% {
+		box-shadow: 0 0 0 6px rgb(240 194 122 / 0.25);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.sound-toggle--hint {
+		animation: none;
+	}
+}
