@@ -349,8 +349,8 @@ dev, build, preview, check, typecheck, test (bun test), test:e2e (playwright), a
   4. `bun test`
   5. `bun run build`
   6. Playwright (браузеры кешируются), отчёт и диффы скриншотов — артефактом при падении.
-- `deploy.yml` — на push в `main`: сборка и публикация через `actions/upload-pages-artifact` + `actions/deploy-pages`.
-- Ветка `main` защищена, изменения — через PR с зелёным CI.
+- `deploy.yml` — на push в `master`: сборка и публикация через `actions/upload-pages-artifact` + `actions/deploy-pages`.
+- Ветка `master` защищена, изменения — через PR с зелёным CI.
 - Dependabot для Actions (и для npm-зависимостей — Dependabot поддерживает `bun.lock`).
 
 ### GitHub Pages

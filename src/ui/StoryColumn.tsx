@@ -127,7 +127,7 @@ function Credits() {
 				Ruslan Display и Old Standard TT (OFL).
 			</p>
 			<p>
-				<a href={`${REPO}/blob/main/docs/assets.md`}>
+				<a href={`${REPO}/blob/master/docs/assets.md`}>
 					Все источники и лицензии
 				</a>
 				{" · "}
