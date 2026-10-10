@@ -2,11 +2,14 @@ import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
 import type { MeshStandardMaterial } from "three";
 import { useSceneStore } from "../state/sceneStore";
+import { ChimneySmoke } from "./effects/ChimneySmoke";
 import { paletteAt } from "./sky/timeOfDay";
 
 // Заглушка избушки на курьих ножках из примитивов. На этапе 5 заменяется моделью.
 const LEG_COLOR = "#c9a36b";
 const WOOD_COLOR = "#5b3d27";
+/** Труба на скате крыши (координаты внутри сруба). */
+const CHIMNEY: [number, number, number] = [0.8, 2.3, -0.55];
 
 function Leg({ x }: { x: number }) {
 	return (
@@ -62,11 +65,19 @@ export function Hut() {
 				<mesh position={[0, 0.1, 1.51]}>
 					<planeGeometry args={[0.8, 0.7]} />
 					<meshStandardMaterial
-						color="#ffb347"
+						ref={windowMaterial}
+						color="#3a2410"
 						emissive="#ff9a2e"
-						emissiveIntensity={1.5}
 					/>
 				</mesh>
+				{/* труба */}
+				<mesh position={CHIMNEY} castShadow>
+					<boxGeometry args={[0.45, 1.3, 0.45]} />
+					<meshStandardMaterial color="#4a3b30" roughness={1} />
+				</mesh>
+				<group position={[CHIMNEY[0], CHIMNEY[1] + 0.7, CHIMNEY[2]]}>
+					<ChimneySmoke />
+				</group>
 			</group>
 		</group>
 	);

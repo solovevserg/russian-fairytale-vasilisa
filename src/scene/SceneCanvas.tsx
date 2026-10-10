@@ -1,7 +1,12 @@
 import { Canvas } from "@react-three/fiber";
 import { AudioDirector } from "../audio/AudioDirector";
 import { debugFlags } from "../debugFlags";
+import { BabaYaga } from "./actors/BabaYaga";
+import { Birds } from "./actors/Birds";
+import { Riders } from "./actors/Riders";
+import { Vasilisa } from "./actors/Vasilisa";
 import { CameraRig } from "./CameraRig";
+import { Fence } from "./Fence";
 import { Forest } from "./forest/Forest";
 import { Hut } from "./Hut";
 import { Lighting } from "./sky/Lighting";
@@ -34,6 +39,11 @@ export function SceneCanvas() {
 				<Torch position={[-2.4, 0, 2.6]} />
 				<Torch position={[2.4, 0, 2.6]} phase={2.3} />
 			</group>
+			<Fence />
+			<Vasilisa />
+			<BabaYaga />
+			<Riders />
+			<Birds />
 		</Canvas>
 	);
 }

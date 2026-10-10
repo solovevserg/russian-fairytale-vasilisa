@@ -24,10 +24,10 @@ const PALETTE_KEYS: [number, SkyPalette][] = [
 			horizon: "#141c26",
 			sunColor: "#ffb070",
 			sunIntensity: 0,
-			moonIntensity: 0.85,
+			moonIntensity: 1.1,
 			hemiSky: "#3a5070",
 			hemiGround: "#0b0d0c",
-			hemiIntensity: 0.4,
+			hemiIntensity: 0.6,
 			fogDensity: 0.03,
 			night: 1,
 		},
@@ -39,10 +39,10 @@ const PALETTE_KEYS: [number, SkyPalette][] = [
 			horizon: "#1c2433",
 			sunColor: "#ff9a5a",
 			sunIntensity: 0,
-			moonIntensity: 0.65,
+			moonIntensity: 0.9,
 			hemiSky: "#3a4a66",
 			hemiGround: "#0b0d0c",
-			hemiIntensity: 0.4,
+			hemiIntensity: 0.6,
 			fogDensity: 0.032,
 			night: 1,
 		},
@@ -144,10 +144,10 @@ const PALETTE_KEYS: [number, SkyPalette][] = [
 			horizon: "#141c26",
 			sunColor: "#ffb070",
 			sunIntensity: 0,
-			moonIntensity: 0.85,
+			moonIntensity: 1.1,
 			hemiSky: "#3a5070",
 			hemiGround: "#0b0d0c",
-			hemiIntensity: 0.4,
+			hemiIntensity: 0.6,
 			fogDensity: 0.03,
 			night: 1,
 		},
@@ -190,18 +190,25 @@ export function paletteAt(hours: number): SkyPalette {
 	};
 }
 
+/** Направление восхода: от тропы к избушке (см. PATH_DIRECTION в terrain.ts). */
+const SUNRISE = { x: -0.55, z: -0.835 };
+
 /**
- * Направление на солнце (единичный вектор). Восход ~6:00 на востоке (+X),
- * полдень на юге (-Z), закат ~18:00 на западе (-X).
+ * Направление на солнце (единичный вектор). Восход ~6:00 со стороны избушки
+ * (если смотреть с тропы), полдень высоко, закат ~18:00 — за тропой.
  */
 export function sunDirection(hours: number, target = new Vector3()): Vector3 {
 	const angle = ((normalizeHours(hours) - 6) / 24) * Math.PI * 2;
 	const maxElevation = 0.85;
+	// в «местных» осях восток = +X; затем поворачиваем так, чтобы солнце
+	// вставало со стороны избушки, если смотреть с тропы
+	const x = Math.cos(angle);
+	const z = -Math.sin(angle) * 0.6 - 0.3;
 	return target
 		.set(
-			Math.cos(angle),
+			x * SUNRISE.x - z * SUNRISE.z,
 			Math.sin(angle) * maxElevation,
-			-Math.sin(angle) * 0.6 - 0.3,
+			x * SUNRISE.z + z * SUNRISE.x,
 		)
 		.normalize();
 }

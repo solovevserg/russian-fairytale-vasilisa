@@ -62,8 +62,8 @@ describe("timeline", () => {
 	});
 
 	test("ночь → утро идёт через рассвет, а не назад через вечер", () => {
-		// между «Прологом» (22:00) и «Огонь погас» (3:00) — полночь
-		expect(timeline.sample(0.4).timeOfDay).toBeCloseTo(0, 5);
+		// между «Прологом» (22:00) и «Огонь погас» (1:00) — полночь
+		expect(timeline.sample(2 / 3).timeOfDay).toBeCloseTo(0, 5);
 	});
 
 	test("камера не уходит под землю", () => {
@@ -89,10 +89,36 @@ describe("музыка в таймлайне", () => {
 	});
 
 	test("между главами с разной музыкой — кроссфейд", () => {
-		// «Красный всадник» (castle) → «Поляна» (catacombs)
-		const { music } = timeline.sample(3.5);
+		// «Восход» (castle) → «Поляна» (catacombs)
+		const { music } = timeline.sample(4.5);
 		expect(music.castle).toBeGreaterThan(0);
 		expect(music.catacombs).toBeGreaterThan(0);
 		expect(music.hut).toBe(0);
+	});
+});
+
+describe("Василиса в таймлайне", () => {
+	const timeline = createTimeline(KEYFRAMES);
+	const index = (id: string) => KEYFRAMES.findIndex((k) => k.id === id);
+
+	test("нет в прологе, есть с куколкой в «Огонь погас»", () => {
+		expect(timeline.sample(index("prologue")).vasilisa.visible).toBe(false);
+		const { vasilisa } = timeline.sample(index("fire"));
+		expect(vasilisa.visible).toBe(true);
+		expect(vasilisa.prop).toBe("doll");
+	});
+
+	test("между кадрами идёт по тропе к избушке", () => {
+		const a = timeline.sample(index("fire")).vasilisa;
+		const mid = { ...timeline.sample(index("fire") + 0.5).vasilisa };
+		const b = timeline.sample(index("white-rider")).vasilisa;
+		const r = (v: { x: number; z: number }) => Math.hypot(v.x, v.z);
+		expect(r(mid)).toBeLessThan(r(a));
+		expect(r(mid)).toBeGreaterThan(r(b));
+	});
+
+	test("в «Задачах» спит, в эпилоге уходит с черепом", () => {
+		expect(timeline.sample(index("tasks")).vasilisa.pose).toBe("sleep");
+		expect(timeline.sample(index("epilogue")).vasilisa.prop).toBe("skull");
 	});
 });

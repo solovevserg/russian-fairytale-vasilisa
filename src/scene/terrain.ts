@@ -34,14 +34,41 @@ export function wildness(x: number, z: number): number {
 	return smoothstep(CLEARING_RADIUS, CLEARING_RADIUS + BLEND_WIDTH, r);
 }
 
+/** Боковое смещение оси тропы: лёгкая извилистость, растущая от поляны. */
+function pathWiggle(along: number): number {
+	return noise(along / 14, 7.3) * Math.min(along / 10, 1) * 3;
+}
+
 /** Расстояние от точки до тропинки (луч из центра поляны). */
 export function distanceToPath(x: number, z: number): number {
 	const along = x * PATH_DIRECTION.x + z * PATH_DIRECTION.z;
 	if (along < 0) return Math.hypot(x, z);
-	// знаковое расстояние поперёк тропы + лёгкая извилистость, растущая от поляны
 	const across = x * PATH_DIRECTION.z - z * PATH_DIRECTION.x;
-	const wiggle = noise(along / 14, 7.3) * Math.min(along / 10, 1) * 3;
-	return Math.abs(across - wiggle);
+	return Math.abs(across - pathWiggle(along));
+}
+
+export interface PathFrame {
+	/** Точка на оси тропы */
+	x: number;
+	z: number;
+	/** Единичный вектор «к избушке» вдоль тропы */
+	toHutX: number;
+	toHutZ: number;
+}
+
+/** Точка на оси тропы в `distance` метрах от избушки и направление к избушке. */
+export function pathFrame(distance: number): PathFrame {
+	const point = (d: number) => {
+		const w = pathWiggle(d);
+		return {
+			x: PATH_DIRECTION.x * d + PATH_DIRECTION.z * w,
+			z: PATH_DIRECTION.z * d - PATH_DIRECTION.x * w,
+		};
+	};
+	const p = point(distance);
+	const q = point(Math.max(distance - 0.5, 0));
+	const len = Math.hypot(q.x - p.x, q.z - p.z) || 1;
+	return { ...p, toHutX: (q.x - p.x) / len, toHutZ: (q.z - p.z) / len };
 }
 
 export function heightAt(x: number, z: number): number {

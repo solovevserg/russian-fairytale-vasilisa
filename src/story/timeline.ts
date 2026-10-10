@@ -1,5 +1,11 @@
 import { CatmullRomCurve3, Vector3 } from "three";
-import { MUSIC_TRACKS, type MusicTrack, type SceneKeyframe } from "./keyframes";
+import { heightAt } from "../scene/terrain";
+import {
+	MUSIC_TRACKS,
+	type MusicTrack,
+	type SceneKeyframe,
+	type VasilisaState,
+} from "./keyframes";
 
 /**
  * Прогресс истории по положению глав: дробный индекс 0..N-1.
@@ -55,6 +61,20 @@ export interface TimelineSample {
 	wind: number;
 	/** Громкость каждого музыкального трека 0..1 (кроссфейд между главами). */
 	music: Record<MusicTrack, number>;
+	/** Глаза черепов 0..1 */
+	skulls: number;
+	/** Волшебный свет куколки 0..1 */
+	magic: number;
+	vasilisa: {
+		visible: boolean;
+		/** Позиция на земле (y считает сцена по рельефу) */
+		x: number;
+		z: number;
+		heading: number;
+		pose: VasilisaState["pose"];
+		prop: VasilisaState["prop"];
+	};
+	babaYaga: SceneKeyframe["babaYaga"];
 }
 
 export interface Timeline {
@@ -76,8 +96,57 @@ export function createSample(): TimelineSample {
 		music: Object.fromEntries(
 			MUSIC_TRACKS.map((track) => [track, 0]),
 		) as Record<MusicTrack, number>,
+		skulls: 0,
+		magic: 0,
+		vasilisa: {
+			visible: false,
+			x: 0,
+			z: 0,
+			heading: 0,
+			pose: "stand",
+			prop: null,
+		},
+		babaYaga: null,
 	};
 }
+
+/** Интерполяция угла по кратчайшей дуге. */
+export function lerpAngle(a: number, b: number, t: number): number {
+	const delta = Math.atan2(Math.sin(b - a), Math.cos(b - a));
+	return a + delta * t;
+}
+
+/**
+ * Василиса между кадрами: если она есть в обоих — идёт из точки в точку,
+ * иначе появляется/исчезает на середине перехода.
+ */
+function sampleVasilisa(
+	a: VasilisaState | null,
+	b: VasilisaState | null,
+	t: number,
+	out: TimelineSample["vasilisa"],
+) {
+	const nearest = t < 0.5 ? a : b;
+	if (a && b) {
+		out.visible = true;
+		out.x = lerp(a.at[0], b.at[0], t);
+		out.z = lerp(a.at[1], b.at[1], t);
+		out.heading = lerpAngle(a.heading, b.heading, t);
+	} else if (nearest) {
+		out.visible = true;
+		out.x = nearest.at[0];
+		out.z = nearest.at[1];
+		out.heading = nearest.heading;
+	} else {
+		out.visible = false;
+	}
+	if (nearest) {
+		out.pose = nearest.pose;
+		out.prop = nearest.prop;
+	}
+}
+
+const MIN_CAMERA_HEIGHT = 0.4;
 
 /** Таймлайн сцены: камера по сплайнам Катмулла-Рома, остальное — линейно. */
 export function createTimeline(keyframes: SceneKeyframe[]): Timeline {
@@ -102,6 +171,11 @@ export function createTimeline(keyframes: SceneKeyframe[]): Timeline {
 			const t = p - i;
 			const u = last === 0 ? 0 : p / last;
 			positions.getPoint(u, out.position);
+			// сплайн между низкими кадрами может нырнуть под землю — держим камеру над рельефом
+			out.position.y = Math.max(
+				out.position.y,
+				heightAt(out.position.x, out.position.z) + MIN_CAMERA_HEIGHT,
+			);
 			targets.getPoint(u, out.target);
 			out.fov = lerp(
 				keyframes[i].camera.fov,
@@ -121,6 +195,12 @@ export function createTimeline(keyframes: SceneKeyframe[]): Timeline {
 				const b = to.track === track ? to.volume : 0;
 				out.music[track] = lerp(a, b, t);
 			}
+			const k0 = keyframes[i];
+			const k1 = keyframes[i + 1] ?? k0;
+			out.skulls = lerp(k0.skulls, k1.skulls, t);
+			out.magic = lerp(k0.magic, k1.magic, t);
+			sampleVasilisa(k0.vasilisa, k1.vasilisa, t, out.vasilisa);
+			out.babaYaga = t < 0.5 ? k0.babaYaga : k1.babaYaga;
 			return out;
 		},
 	};
