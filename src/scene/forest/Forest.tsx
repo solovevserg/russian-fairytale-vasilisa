@@ -19,7 +19,7 @@ const LAYOUT = {
 	maxTrees: { edge: 90, deep: 200 },
 };
 
-function VariantInstances({
+export function VariantInstances({
 	assets,
 	placements,
 }: {

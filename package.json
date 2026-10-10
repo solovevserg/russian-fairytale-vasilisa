@@ -13,6 +13,7 @@
 		"test": "bun test tests/unit",
 		"test:e2e": "playwright test",
 		"audio:prepare": "bun scripts/prepare-audio.ts",
+		"textures:prepare": "bun scripts/prepare-textures.ts",
 		"prepare": "husky"
 	},
 	"dependencies": {

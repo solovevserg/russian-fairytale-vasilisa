@@ -9,4 +9,5 @@ export const debugFlags = {
 	noLeaves: params.has("noleaves"),
 	noBranches: params.has("nobranches"),
 	noForest: params.has("noforest"),
+	noGrass: params.has("nograss"),
 };

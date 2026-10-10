@@ -1,4 +1,5 @@
 import { Canvas } from "@react-three/fiber";
+import { Suspense } from "react";
 import { AudioDirector } from "../audio/AudioDirector";
 import { debugFlags } from "../debugFlags";
 import { BabaYaga } from "./actors/BabaYaga";
@@ -14,6 +15,7 @@ import { SkyDome } from "./sky/SkyDome";
 import { TerrainMesh } from "./TerrainMesh";
 import { Torch } from "./Torch";
 import { heightAt } from "./terrain";
+import { Vegetation } from "./vegetation/Vegetation";
 
 const GROUND_Y = heightAt(0, 0);
 
@@ -32,8 +34,11 @@ export function SceneCanvas() {
 			<AudioDirector />
 			<SkyDome />
 			<Lighting />
-			<TerrainMesh />
+			<Suspense fallback={null}>
+				<TerrainMesh />
+			</Suspense>
 			{!debugFlags.noForest && <Forest />}
+			{!debugFlags.noGrass && <Vegetation />}
 			<group position={[0, GROUND_Y, 0]}>
 				<Hut />
 				<Torch position={[-2.4, 0, 2.6]} />

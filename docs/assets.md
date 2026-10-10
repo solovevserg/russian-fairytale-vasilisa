@@ -88,3 +88,13 @@
 | --- | --- | --- | --- | --- |
 | Ruslan Display | заголовки, буквицы | [@fontsource/ruslan-display](https://fontsource.org/fonts/ruslan-display) | Denis Masharov | OFL-1.1 |
 | Old Standard TT | основной текст | [@fontsource/old-standard-tt](https://fontsource.org/fonts/old-standard-tt) | Alexey Kryukov | OFL-1.1 |
+
+### Текстуры земли
+
+Скачиваются скриптом `bun run textures:prepare` (`scripts/prepare-textures.ts`) в `public/textures/ground/`.
+
+| Файл | Что это | Источник | Лицензия |
+| --- | --- | --- | --- |
+| `grass_*` | Forest Ground 01 | [Poly Haven](https://polyhaven.com/a/forrest_ground_01) | CC0 |
+| `forest_*` | Forest Leaves 02 | [Poly Haven](https://polyhaven.com/a/forest_leaves_02) | CC0 |
+| `path_*` | Brown Mud 02 | [Poly Haven](https://polyhaven.com/a/brown_mud_02) | CC0 |
