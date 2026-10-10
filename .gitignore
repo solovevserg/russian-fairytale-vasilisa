@@ -11,3 +11,4 @@ blob-report/
 .DS_Store
 Thumbs.db
 .idea/
+.playwright-mcp/
