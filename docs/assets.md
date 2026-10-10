@@ -98,3 +98,13 @@
 | `grass_*` | Sparse Grass (2K) | [Poly Haven](https://polyhaven.com/a/sparse_grass) | CC0 |
 | `forest_*` | Forest Ground 01 (1K) | [Poly Haven](https://polyhaven.com/a/forrest_ground_01) | CC0 |
 | `path_*` | Forest Ground 04 (2K) | [Poly Haven](https://polyhaven.com/a/forest_ground_04) | CC0 |
+
+### Модели (подготовлены, в сцену ещё не встроены)
+
+Исходники скачаны с Sketchfab в `.cache/models` (не в репозитории); `bun run models:prepare` (`scripts/prepare-models.ts`) упрощает геометрию, сжимает текстуры в WebP и геометрию Meshopt → `public/models/`.
+
+| Файл | Модель | Автор | Лицензия | Изменения |
+| --- | --- | --- | --- | --- |
+| `hut.glb` | [A hut on chicken legs](https://sketchfab.com/3d-models/a-hut-on-chicken-legs-b0117d56bb9b401f91442a1ce7f81329) | vet.doc | CC-BY 4.0 | текстуры WebP 1024², Meshopt |
+| `baba-yaga.glb` | [Witch](https://sketchfab.com/3d-models/witch-2a7672475d514543b618b5a82fd5582b) | MAXDESIGN | CC-BY 4.0 | текстуры WebP, анимация прорежена, Meshopt |
+| `vasilisa.glb` | [Red Slavic Folk Dress](https://sketchfab.com/3d-models/red-slavic-folk-dress-dc0fbf4dc6db4f3da414c5738ad02255) | akot777 | CC-BY 4.0 | упрощена 487k → ~56k треугольников, раскрашена цветами вершин (`scripts/vasilisaPaint.ts`), веточка из руки удалена |
