@@ -1,3 +1,9 @@
+import { useFrame } from "@react-three/fiber";
+import { useRef } from "react";
+import type { MeshStandardMaterial } from "three";
+import { useSceneStore } from "../state/sceneStore";
+import { paletteAt } from "./sky/timeOfDay";
+
 // Заглушка избушки на курьих ножках из примитивов. На этапе 5 заменяется моделью.
 const LEG_COLOR = "#c9a36b";
 const WOOD_COLOR = "#5b3d27";
@@ -31,6 +37,14 @@ function Leg({ x }: { x: number }) {
 }
 
 export function Hut() {
+	const windowMaterial = useRef<MeshStandardMaterial>(null);
+
+	useFrame(() => {
+		const night = paletteAt(useSceneStore.getState().timeOfDay).night;
+		if (windowMaterial.current)
+			windowMaterial.current.emissiveIntensity = 0.2 + night * 2.5;
+	});
+
 	return (
 		<group>
 			<Leg x={-0.9} />

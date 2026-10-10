@@ -1,0 +1,25 @@
+import { create } from "zustand";
+
+function initialTime(): number {
+	if (typeof window === "undefined") return 19;
+	const fromUrl = Number.parseFloat(
+		new URLSearchParams(window.location.search).get("time") ?? "",
+	);
+	return Number.isFinite(fromUrl) ? fromUrl : 19;
+}
+
+interface SceneState {
+	/** Время суток, часы 0..24. Позже будет управляться прокруткой. */
+	timeOfDay: number;
+	/** Сила ветра, 0..1. */
+	wind: number;
+	setTimeOfDay: (hours: number) => void;
+	setWind: (wind: number) => void;
+}
+
+export const useSceneStore = create<SceneState>((set) => ({
+	timeOfDay: initialTime(),
+	wind: 0.5,
+	setTimeOfDay: (timeOfDay) => set({ timeOfDay }),
+	setWind: (wind) => set({ wind }),
+}));
