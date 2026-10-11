@@ -4,6 +4,11 @@ import { useMemo, useRef } from "react";
 import type { Group, PointLight } from "three";
 import { currentSample } from "../../story/currentSample";
 import { departureAt } from "../../story/departure";
+import {
+	homecomingAt,
+	homecomingClock,
+	homecomingRoute,
+} from "../../story/homecoming";
 import { enableShadows, MODEL_URLS } from "../models";
 import { paletteAt } from "../sky/timeOfDay";
 import { heightAt } from "../terrain";
@@ -57,12 +62,16 @@ export function Vasilisa() {
 	const motion = useRef({ x: 0, z: 0, phase: 0, speed: 0 });
 	const moonlight = useRef<PointLight>(null);
 	const departure = useRef({ start: -1, x: 0, z: 0, heading: 0 });
+	const homecoming = useRef({ x: 0, z: 0, heading: 0, walked: 0 });
+	/** Где героиня была в прошлом кадре (null — не была видна). */
+	const last = useRef<{ x: number; z: number; heading: number } | null>(null);
 
 	useFrame(({ clock }, delta) => {
 		const v = currentSample.vasilisa;
 		const r = root.current;
 		if (!r || !body.current) return;
 		setShown(r, v.visible);
+		if (!v.visible) last.current = null;
 		if (!v.visible) {
 			if (moonlight.current) moonlight.current.intensity = 0;
 			return;
@@ -77,8 +86,27 @@ export function Vasilisa() {
 		} else {
 			d.start = -1;
 		}
-		const x = leaving ? d.x : v.x;
-		const z = leaving ? d.z : v.z;
+
+		// «Эпилог»: дальше по тропе с того места, где она сейчас, и вокруг избы
+		const h = homecoming.current;
+		const home = homecomingClock;
+		const returning = v.pose === "return";
+		if (returning) {
+			if (home.start < 0) {
+				const from = last.current ?? { x: v.x, z: v.z, heading: v.heading };
+				home.start = clock.elapsedTime;
+				home.route = homecomingRoute([from.x, from.z], from.heading);
+			}
+			if (home.route)
+				homecomingAt(home.route, clock.elapsedTime - home.start, h);
+		} else {
+			home.start = -1;
+		}
+
+		const x = leaving ? d.x : returning ? h.x : v.x;
+		const z = leaving ? d.z : returning ? h.z : v.z;
+		const heading = leaving ? d.heading : returning ? h.heading : v.heading;
+		last.current = { x, z, heading };
 
 		// скорость — по смещению за кадр, сглаженная
 		const m = motion.current;
@@ -92,7 +120,7 @@ export function Vasilisa() {
 		m.phase += dt * (walking ? 4 + m.speed * 2 : 0);
 
 		r.position.set(x, heightAt(x, z) + v.elevation, z);
-		r.rotation.y = leaving ? d.heading : v.heading;
+		r.rotation.y = heading;
 
 		// шаг: лёгкое покачивание и подпрыгивание; во сне — лежит на спине
 		const step = Math.sin(m.phase);

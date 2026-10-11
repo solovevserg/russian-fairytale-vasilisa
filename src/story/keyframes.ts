@@ -18,8 +18,11 @@ export interface VasilisaState {
 	at: [number, number];
 	/** Поворот вокруг Y: 0 — лицом к +Z */
 	heading: number;
-	/** leave — однократный уход по тропе (см. departure.ts) */
-	pose: "walk" | "stand" | "sleep" | "leave";
+	/**
+	 * leave — однократный уход по тропе (см. departure.ts), return — дорога
+	 * домой и обход избы (см. homecoming.ts)
+	 */
+	pose: "walk" | "stand" | "sleep" | "leave" | "return";
 	/** Что в руках */
 	prop: "doll" | "skull" | null;
 	/** Высота над землёй, м (например, на крыльце избушки). */
@@ -333,14 +336,17 @@ export const KEYFRAMES: SceneKeyframe[] = [
 		magic: 0,
 	},
 	{
-		// к вечеру следующего дня Василиса дома — та же камера, что в зачине
+		// к вечеру следующего дня Василиса дома; камера идёт следом, потом
+		// поднимается и смотрит с высоты на избушку (homecoming.ts)
 		id: "epilogue",
 		timeOfDay: 19.5,
 		house: true,
 		camera: HOME_CAMERA,
 		wind: 0.3,
 		music: { track: "castle", volume: 0.6 },
-		vasilisa: atHome("skull"),
+		// продолжает путь с того места, где была, и обходит избу (homecoming.ts);
+		// здесь — только запасная точка для статичного кадра
+		vasilisa: { ...atHome("skull"), pose: "return" },
 		babaYaga: null,
 		rider: null,
 		skulls: 0.3,

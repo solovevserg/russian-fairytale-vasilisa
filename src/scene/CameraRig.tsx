@@ -5,6 +5,12 @@ import { debugFlags } from "../debugFlags";
 import { useSceneStore } from "../state/sceneStore";
 import { useStoryStore } from "../state/storyStore";
 import { currentSample } from "../story/currentSample";
+import {
+	HOMECOMING,
+	homecomingCamera,
+	homecomingClock,
+	homecomingNight,
+} from "../story/homecoming";
 import { KEYFRAMES } from "../story/keyframes";
 import { delayedTimeProgress, stepLight } from "../story/lightDelay";
 import { riderStarts } from "../story/riderClock";
@@ -32,6 +38,10 @@ const right = new Vector3();
 const up = new Vector3();
 const lookAt = new Vector3();
 const timeSample = createSample();
+const epiloguePosition = new Vector3();
+const epilogueTarget = new Vector3();
+/** Как быстро камера переходит на съёмку эпилога и обратно. */
+const EPILOGUE_BLEND = 1.2;
 
 // ?time=HH фиксирует время суток (для отладки освещения)
 const timeLocked =
@@ -49,6 +59,8 @@ export function CameraRig() {
 	const smoothed = useRef<number | null>(null);
 	const parallax = useRef({ x: 0, y: 0 });
 	const lightProgress = useRef<number | null>(null);
+	/** Доля съёмки эпилога (0 — камера по таймлайну, 1 — по homecoming.ts). */
+	const epilogue = useRef(0);
 
 	useFrame(({ clock }, delta) => {
 		const target = shapeProgress(useStoryStore.getState().progress);
@@ -75,6 +87,25 @@ export function CameraRig() {
 				lightProgress.current,
 				timeSample,
 			).timeOfDay;
+		}
+
+		// эпилог снимается по своим часам: следом за Василисой, потом с высоты
+		const home = homecomingClock;
+		const filming = home.start >= 0 && home.route !== null;
+		if (filming && home.route) {
+			const t = clock.elapsedTime - home.start;
+			homecomingCamera(home.route, t, epiloguePosition, epilogueTarget);
+			// пока камера летит к избушке — вечер сменяется ночью
+			const night = homecomingNight(home.route, t);
+			sample.timeOfDay += (HOMECOMING.nightHour - sample.timeOfDay) * night;
+		}
+		epilogue.current +=
+			((filming ? 1 : 0) - epilogue.current) *
+			(1 - Math.exp(-EPILOGUE_BLEND * Math.min(delta, 0.1)));
+		if (debugFlags.instant) epilogue.current = filming ? 1 : 0;
+		if (epilogue.current > 1e-3) {
+			sample.position.lerp(epiloguePosition, epilogue.current);
+			sample.target.lerp(epilogueTarget, epilogue.current);
 		}
 
 		// без мыши (телефон, планшет) — медленное покачивание вместо неё
