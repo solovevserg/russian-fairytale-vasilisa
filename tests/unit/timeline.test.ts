@@ -61,9 +61,9 @@ describe("timeline", () => {
 		});
 	});
 
-	test("ночь → утро идёт через рассвет, а не назад через вечер", () => {
-		// между «Прологом» (22:00) и «Огонь погас» (1:00) — полночь
-		expect(timeline.sample(2 / 3).timeOfDay).toBeCloseTo(0, 5);
+	test("время идёт вперёд: из дня пролога в ночь — через вечер и полночь", () => {
+		// между «Прологом» (13:00) и «Огонь погас» (1:00) — полночь
+		expect(timeline.sample(11 / 12).timeOfDay).toBeCloseTo(0, 5);
 	});
 
 	test("камера не уходит под землю", () => {
@@ -120,5 +120,23 @@ describe("Василиса в таймлайне", () => {
 	test("в «Задачах» спит, в эпилоге уходит с черепом", () => {
 		expect(timeline.sample(index("tasks")).vasilisa.pose).toBe("sleep");
 		expect(timeline.sample(index("epilogue")).vasilisa.prop).toBe("skull");
+	});
+});
+
+describe("изба Василисы", () => {
+	const timeline = createTimeline(KEYFRAMES);
+	const index = (id: string) => KEYFRAMES.findIndex((k) => k.id === id);
+	test("есть в начале и в конце пути, на тропе со второй главы — нет", () => {
+		expect(timeline.sample(index("prologue")).house).toBe(true);
+		expect(timeline.sample(index("fire")).house).toBe(true);
+		for (const id of [
+			"white-rider",
+			"red-rider",
+			"sunrise",
+			"clearing",
+			"skull",
+		])
+			expect(timeline.sample(index(id)).house).toBe(false);
+		expect(timeline.sample(index("epilogue")).house).toBe(true);
 	});
 });

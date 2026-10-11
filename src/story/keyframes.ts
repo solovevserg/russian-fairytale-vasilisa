@@ -52,6 +52,10 @@ export interface SceneKeyframe {
 	magic: number;
 	/** Множитель плотности тумана (1 — как в палитре времени суток). */
 	fog?: number;
+	/** Изба Василисы в сцене (только у начала и в конце пути). */
+	house?: boolean;
+	/** Не быстрее чем за столько секунд меняется время суток при подходе к главе. */
+	timeFade?: number;
 }
 
 /** Точка на высоте `height` над землёй. */
@@ -135,9 +139,10 @@ const HOME_CAMERA = {
 // солнце встаёт со стороны избушки.
 export const KEYFRAMES: SceneKeyframe[] = [
 	{
-		// Василиса с куколкой у своей избы, в начале тропы; в окнах — свет
+		// Василиса с куколкой у своей избы, в начале тропы; день
 		id: "prologue",
-		timeOfDay: 22,
+		timeOfDay: 13,
+		house: true,
 		camera: HOME_CAMERA,
 		wind: 0.6,
 		music: { track: "castle", volume: 0.55 },
@@ -151,6 +156,7 @@ export const KEYFRAMES: SceneKeyframe[] = [
 		// девочка идёт по тропе при лунном свете с куколкой в руках; камера впереди
 		id: "fire",
 		timeOfDay: 1,
+		house: true,
 		camera: {
 			position: onPath(35, 1.5, 0.7),
 			target: onPath(40, 1.0),
@@ -221,6 +227,8 @@ export const KEYFRAMES: SceneKeyframe[] = [
 		// с высоты птичьего полёта: Василиса выходит на поляну с избой, закат
 		id: "clearing",
 		timeOfDay: 17.3,
+		// «целый день шла»: от утра до заката — не рывком, а за несколько секунд
+		timeFade: 6.5,
 		// из-за избушки, с высоты: видны стены, вся поляна и Василиса у входа
 		camera: { position: [-10, 16, 2], target: [3, 0.5, 5], fov: 45 },
 		wind: 0.35,
@@ -328,6 +336,7 @@ export const KEYFRAMES: SceneKeyframe[] = [
 		// к вечеру следующего дня Василиса дома — та же камера, что в зачине
 		id: "epilogue",
 		timeOfDay: 19.5,
+		house: true,
 		camera: HOME_CAMERA,
 		wind: 0.3,
 		music: { track: "castle", volume: 0.6 },

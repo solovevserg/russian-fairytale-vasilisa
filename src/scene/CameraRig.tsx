@@ -6,7 +6,7 @@ import { useSceneStore } from "../state/sceneStore";
 import { useStoryStore } from "../state/storyStore";
 import { currentSample } from "../story/currentSample";
 import { KEYFRAMES } from "../story/keyframes";
-import { delayedTimeProgress } from "../story/lightDelay";
+import { delayedTimeProgress, stepLight } from "../story/lightDelay";
 import { riderStarts } from "../story/riderClock";
 import { createSample, createTimeline, shapeProgress } from "../story/timeline";
 import {
@@ -69,9 +69,7 @@ export function CameraRig() {
 		const lp = lightProgress.current ?? timeTarget;
 		lightProgress.current = debugFlags.instant
 			? timeTarget
-			: lp +
-				(timeTarget - lp) *
-					(1 - Math.exp(-LIGHT_DAMPING * Math.min(delta, 0.1)));
+			: stepLight(lp, timeTarget, delta, LIGHT_DAMPING);
 		if (Math.abs(lightProgress.current - smoothed.current) > 1e-4) {
 			sample.timeOfDay = timeline.sample(
 				lightProgress.current,

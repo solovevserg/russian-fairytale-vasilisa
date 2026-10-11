@@ -67,6 +67,8 @@ export interface TimelineSample {
 	magic: number;
 	/** Множитель плотности тумана */
 	fog: number;
+	/** Изба Василисы в сцене */
+	house: boolean;
 	vasilisa: {
 		visible: boolean;
 		/** Позиция на земле (y считает сцена по рельефу) */
@@ -103,6 +105,7 @@ export function createSample(): TimelineSample {
 		skulls: 0,
 		magic: 0,
 		fog: 1,
+		house: false,
 		vasilisa: {
 			visible: false,
 			x: 0,
@@ -210,6 +213,7 @@ export function createTimeline(keyframes: SceneKeyframe[]): Timeline {
 			out.fog = lerp(k0.fog ?? 1, k1.fog ?? 1, t);
 			sampleVasilisa(k0.vasilisa, k1.vasilisa, t, out.vasilisa);
 			out.babaYaga = t < 0.5 ? k0.babaYaga : k1.babaYaga;
+			out.house = (t < 0.5 ? k0 : k1).house ?? false;
 			return out;
 		},
 	};

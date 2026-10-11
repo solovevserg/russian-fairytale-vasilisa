@@ -42,3 +42,22 @@ export function delayedTimeProgress(
 	}
 	return result;
 }
+
+/**
+ * Шаг «прогресса света» за кадр: экспоненциально догоняет цель, но в переходе
+ * к главе с `timeFade` — не быстрее одного перехода за `timeFade` секунд.
+ */
+export function stepLight(
+	current: number,
+	target: number,
+	delta: number,
+	damping: number,
+): number {
+	const dt = Math.min(delta, 0.1);
+	const next = current + (target - current) * (1 - Math.exp(-damping * dt));
+	const segment = Math.floor(Math.min(current, next));
+	const fade = KEYFRAMES[segment + 1]?.timeFade;
+	if (!fade || segment < 0) return next;
+	const limit = delta / fade;
+	return current + Math.max(-limit, Math.min(limit, next - current));
+}

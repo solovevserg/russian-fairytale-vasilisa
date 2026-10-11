@@ -3,6 +3,7 @@ import { useFrame } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
 import type { MeshStandardMaterial, PointLight } from "three";
 import { useSceneStore } from "../state/sceneStore";
+import { currentSample } from "../story/currentSample";
 import { enableShadows, MODEL_URLS, materialsOf } from "./models";
 import { paletteAt } from "./sky/timeOfDay";
 import { HOME } from "./terrain";
@@ -31,6 +32,13 @@ export function House() {
 	const glow = useRef<PointLight>(null);
 
 	useFrame(() => {
+		// с середины пути избы нет вовсе — иначе видна в ракурсах на тропе;
+		// свет не прячем, а гасим: смена числа ламп пересобирает шейдеры
+		model.visible = currentSample.house;
+		if (!currentSample.house) {
+			if (glow.current) glow.current.intensity = 0;
+			return;
+		}
 		const night = paletteAt(useSceneStore.getState().timeOfDay).night;
 		for (const m of windows) {
 			m.emissive.set("#ffb45c");
