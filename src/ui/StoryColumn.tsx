@@ -189,7 +189,8 @@ function Credits({ content }: { content: Content }) {
 				{c.author[0]}
 				<a href={AUTHOR_URL}>{c.author[1]}</a>
 				{c.author[2]}
-				<a href="https://claude.ai">Claude</a>.
+				<a href="https://claude.ai">Claude</a>
+				{c.author[3] ?? "."}
 			</p>
 			<p>
 				<a href={`${REPO}/blob/master/docs/assets.md`}>{c.allSources}</a>

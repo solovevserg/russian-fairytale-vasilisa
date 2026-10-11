@@ -44,6 +44,12 @@ async function voiceFor(lang: string): Promise<SpeechSynthesisVoice | null> {
 	return voice;
 }
 
+/** Есть ли в браузере голос для языка — без него кнопку озвучки не показываем. */
+export async function hasVoiceFor(lang: string): Promise<boolean> {
+	if (!isSpeechSupported()) return false;
+	return (await voiceFor(lang)) !== null;
+}
+
 /** true — фраза прозвучала; false — синтез не сработал (нет голосов, ошибка). */
 function speakOne(
 	text: string,
@@ -86,6 +92,8 @@ export async function narrate(
 	if ((await loadVoices()).length === 0) return false;
 	const lang = currentContent().speechLang;
 	const voice = await voiceFor(lang);
+	// чужим голосом не читаем: китайский текст русским голосом — каша
+	if (!voice) return false;
 	const stop = () => window.speechSynthesis.cancel();
 	signal.addEventListener("abort", stop, { once: true });
 	try {

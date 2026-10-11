@@ -449,6 +449,67 @@ body {
 	font-size: 1.15rem;
 }
 
+/* меню языков: на компьютере панель внизу — список раскрывается вверх */
+.lang-menu {
+	position: relative;
+}
+
+.lang-menu__list {
+	position: absolute;
+	left: 0;
+	bottom: calc(100% + 8px);
+	z-index: 3;
+	display: grid;
+	gap: 2px;
+	min-width: 150px;
+	margin: 0;
+	padding: 6px;
+	list-style: none;
+	border: 1px solid rgb(243 234 215 / 0.35);
+	border-radius: 14px;
+	background: rgb(20 18 16 / 0.85);
+	backdrop-filter: blur(6px);
+}
+
+.lang-menu__item {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	width: 100%;
+	padding: 8px 10px;
+	border: 0;
+	border-radius: 9px;
+	background: transparent;
+	color: #f3ead7;
+	/* каждое название — своим письмом, даже когда страница по-китайски */
+	font-family: "Old Standard TT", "Noto Serif SC", "Songti SC", SimSun, serif;
+	font-size: 0.95rem;
+	text-align: left;
+	cursor: pointer;
+}
+
+.lang-menu__item:hover,
+.lang-menu__item:focus-visible {
+	background: rgb(243 234 215 / 0.12);
+	outline: none;
+}
+
+.lang-menu__item[aria-current="true"] {
+	color: #f0c27a;
+}
+
+/* китайский: у старинных шрифтов нет иероглифов — системные с засечками */
+:lang(zh) {
+	--font-display:
+		"Noto Serif SC", "Source Han Serif SC", "Songti SC", STSong, SimSun, serif;
+	--font-text:
+		"Noto Serif SC", "Source Han Serif SC", "Songti SC", STSong, SimSun, serif;
+}
+
+.control-button__short {
+	display: none;
+}
+
 /* абзац, который сейчас читается вслух */
 .chapter p {
 	border-radius: 6px;
@@ -492,6 +553,12 @@ body {
 		bottom: auto;
 		left: 12px;
 		right: 12px;
+	}
+
+	/* панель наверху — список раскрывается вниз */
+	.lang-menu__list {
+		top: calc(100% + 8px);
+		bottom: auto;
 	}
 }
 
@@ -571,5 +638,21 @@ body {
 		font-size: 1.35em;
 		line-height: 1;
 		color: var(--orn-red);
+	}
+}
+
+/* мобильные: «Читать» вместо «Читать сказку» (полная подпись — для скринридеров) */
+@media (max-width: 1023px) {
+	.control-button__full {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		clip-path: inset(50%);
+		white-space: nowrap;
+	}
+
+	.control-button__short {
+		display: inline;
 	}
 }

@@ -1,11 +1,27 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useContent } from "../i18n/content";
 import { useLangStore } from "../i18n/lang";
 import { autoReader } from "../reader/autoReader";
-import { isSpeechSupported } from "../reader/narrator";
+import { hasVoiceFor } from "../reader/narrator";
 import { useReaderStore } from "../reader/readerStore";
+import { LangMenu } from "./LangMenu";
 import { SoundToggle } from "./SoundToggle";
 import { useThemeStore } from "./theme";
+
+/** Есть ли голос для языка (голоса грузятся асинхронно — до ответа кнопки нет). */
+function useVoiceAvailable(lang: string): boolean {
+	const [available, setAvailable] = useState(false);
+	useEffect(() => {
+		let alive = true;
+		hasVoiceFor(lang).then((ok) => {
+			if (alive) setAvailable(ok);
+		});
+		return () => {
+			alive = false;
+		};
+	}, [lang]);
+	return available;
+}
 
 /** Панель поверх сцены: чтение, озвучка, звук, тема, язык. */
 export function ControlBar() {
@@ -15,10 +31,9 @@ export function ControlBar() {
 	const theme = useThemeStore((s) => s.theme);
 	const toggleTheme = useThemeStore((s) => s.toggle);
 	const lang = useLangStore((s) => s.lang);
-	const setLang = useLangStore((s) => s.setLang);
 	const content = useContent();
 	const ui = content.ui;
-	const speech = isSpeechSupported();
+	const speech = useVoiceAvailable(content.speechLang);
 
 	// язык документа и заголовок вкладки — вслед за выбранным языком
 	useEffect(() => {
@@ -35,7 +50,17 @@ export function ControlBar() {
 				onClick={() => autoReader.toggle()}
 			>
 				<span aria-hidden="true">{playing ? "❚❚" : "▶"}</span>
-				<span>{playing ? ui.pause : ui.read}</span>
+				{playing ? (
+					<span>{ui.pause}</span>
+				) : (
+					<>
+						<span className="control-button__full">{ui.read}</span>
+						{/* на мобильных — короче, чтобы панель влезла в одну строку */}
+						<span className="control-button__short" aria-hidden="true">
+							{ui.readShort}
+						</span>
+					</>
+				)}
 			</button>
 			{speech && (
 				<button
@@ -61,19 +86,7 @@ export function ControlBar() {
 			>
 				<span aria-hidden="true">{theme === "dark" ? "☀" : "☾"}</span>
 			</button>
-			<button
-				type="button"
-				className="control-button control-button--icon control-button--lang"
-				aria-label={ui.langSwitchTitle}
-				title={ui.langSwitchTitle}
-				onClick={() => {
-					// озвучка на прежнем языке прерывается вместе с автопрокруткой
-					if (useReaderStore.getState().playing) autoReader.stop();
-					setLang(lang === "ru" ? "en" : "ru");
-				}}
-			>
-				<span aria-hidden="true">{ui.langSwitch}</span>
-			</button>
+			<LangMenu />
 		</div>
 	);
 }

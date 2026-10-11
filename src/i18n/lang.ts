@@ -1,18 +1,40 @@
 import { create } from "zustand";
 
-export type Lang = "ru" | "en";
+export type Lang = "ru" | "en" | "es" | "zh";
+
+/** Языки в меню: флаг и самоназвание (не переводятся). */
+export const LANGS: { id: Lang; flag: string; name: string }[] = [
+	{ id: "ru", flag: "🇷🇺", name: "Русский" },
+	{ id: "en", flag: "🇬🇧", name: "English" },
+	{ id: "es", flag: "🇪🇸", name: "Español" },
+	{ id: "zh", flag: "🇨🇳", name: "中文" },
+];
 
 const LANG_KEY = "izbushka:lang";
+
+function isLang(value: string | null): value is Lang {
+	return LANGS.some((l) => l.id === value);
+}
+
+/** Первый из языков браузера, который у нас есть; иначе английский. */
+export function pickLang(preferred: readonly string[]): Lang {
+	for (const tag of preferred) {
+		const base = tag.toLowerCase().slice(0, 2);
+		if (isLang(base)) return base;
+	}
+	return "en";
+}
 
 function initialLang(): Lang {
 	if (typeof window === "undefined") return "ru";
 	try {
 		const saved = window.localStorage.getItem(LANG_KEY);
-		if (saved === "ru" || saved === "en") return saved;
+		if (isLang(saved)) return saved;
 	} catch {
 		// хранилище недоступно — берём язык браузера
 	}
-	return window.navigator.language.toLowerCase().startsWith("ru") ? "ru" : "en";
+	const nav = window.navigator;
+	return pickLang(nav.languages?.length ? nav.languages : [nav.language]);
 }
 
 interface LangState {

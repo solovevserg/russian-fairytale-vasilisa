@@ -55,7 +55,8 @@ test("язык переключается на лету и запоминает�
 	const title = page.getByRole("heading", { level: 1 });
 	await expect(title).toHaveText("Василиса Прекрасная");
 
-	await page.getByRole("button", { name: "Read in English" }).click();
+	await page.getByRole("button", { name: "Язык: Русский" }).click();
+	await page.getByRole("button", { name: "English" }).click();
 	await expect(title).toHaveText("Vasilisa the Beautiful");
 	await expect(page.locator("html")).toHaveAttribute("lang", "en");
 	await expect(
@@ -64,6 +65,16 @@ test("язык переключается на лету и запоминает�
 
 	await page.reload();
 	await expect(title).toHaveText("Vasilisa the Beautiful");
-	await page.getByRole("button", { name: "Читать по-русски" }).click();
+	await page.getByRole("button", { name: "Language: English" }).click();
+	await page.getByRole("button", { name: "中文" }).click();
+	await expect(title).toHaveText("美丽的瓦西丽莎");
+	await expect(page.locator("html")).toHaveAttribute("lang", "zh");
+
+	await page.getByRole("button", { name: "语言: 中文" }).click();
+	await page.getByRole("button", { name: "Español" }).click();
+	await expect(title).toHaveText("Vasilisa la Hermosa");
+
+	await page.getByRole("button", { name: "Idioma: Español" }).click();
+	await page.getByRole("button", { name: "Русский" }).click();
 	await expect(title).toHaveText("Василиса Прекрасная");
 });

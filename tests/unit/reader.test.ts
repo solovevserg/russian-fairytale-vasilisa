@@ -8,6 +8,11 @@ import {
 import { chapters } from "../../src/story/chapters";
 
 describe("readingSeconds", () => {
+	test("китайский текст без пробелов читается не мгновенно", () => {
+		const zh = { id: "x", title: "", paragraphs: ["字".repeat(150)] };
+		expect(readingSeconds(zh)).toBeGreaterThan(MIN_READING_SECONDS * 2);
+	});
+
 	test("не меньше минимальной паузы", () => {
 		for (const chapter of chapters) {
 			expect(readingSeconds(chapter)).toBeGreaterThanOrEqual(
@@ -54,5 +59,13 @@ describe("splitSentences", () => {
 
 	test("хвост без точки не теряется", () => {
 		expect(splitSentences("Раз. Два")).toEqual(["Раз.", "Два"]);
+	});
+
+	test("понимает китайскую пунктуацию", () => {
+		expect(splitSentences("太阳升起来了。“去取火！”她喊道。")).toEqual([
+			"太阳升起来了。",
+			"“去取火！”",
+			"她喊道。",
+		]);
 	});
 });
