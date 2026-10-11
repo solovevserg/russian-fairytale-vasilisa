@@ -1,12 +1,12 @@
+import { chaptersEn } from "./chapters/en";
+import { chaptersEs } from "./chapters/es";
 import {
-	type Chapter,
-	chapters,
+	chaptersRu as chapters,
 	STORY_SUBTITLE,
 	STORY_TITLE,
-} from "../story/chapters";
-import { chaptersEn } from "../story/chaptersEn";
-import { chaptersEs } from "../story/chaptersEs";
-import { chaptersZh } from "../story/chaptersZh";
+} from "./chapters/ru";
+import type { Chapter } from "./chapters/types";
+import { chaptersZh } from "./chapters/zh";
 import { type Lang, useLangStore } from "./lang";
 
 const ORDINALS_RU = [

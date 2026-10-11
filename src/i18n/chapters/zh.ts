@@ -1,6 +1,6 @@
-import type { Chapter } from "./chapters";
+import type { Chapter } from "./types";
 
-/** Китайская (упрощённое письмо) версия глав (те же id, что и в chapters.ts). */
+/** Китайская (упрощённое письмо) версия глав (те же id, что и в ru.ts). */
 export const chaptersZh: Chapter[] = [
 	{
 		id: "prologue",

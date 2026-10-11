@@ -1,6 +1,6 @@
-import type { Chapter } from "./chapters";
+import type { Chapter } from "./types";
 
-/** Английская версия глав (те же id, что и в chapters.ts). */
+/** Английская версия глав (те же id, что и в ru.ts). */
 export const chaptersEn: Chapter[] = [
 	{
 		id: "prologue",

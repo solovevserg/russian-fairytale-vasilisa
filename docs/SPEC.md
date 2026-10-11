@@ -232,8 +232,11 @@ interface SceneKeyframe {
 src/
   main.tsx
   App.tsx                  # макет: Canvas + колонка текста
+  i18n/
+    chapters/              # тексты глав: ru.ts, en.ts, es.ts, zh.ts (одни id)
+    content.ts             # тексты интерфейса на всех языках
   story/
-    chapters.ts            # тексты глав (или .md)
+    chapters.ts            # порядок и id глав (русская версия как основная)
     keyframes.ts           # ключевые кадры сцены
     timeline.ts            # интерполяция кадров, события (чистые функции — покрыты bun test)
   state/
