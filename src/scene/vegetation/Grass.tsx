@@ -1,3 +1,4 @@
+import { useFrame } from "@react-three/fiber";
 import { useLayoutEffect, useMemo, useRef } from "react";
 import {
 	BufferGeometry,
@@ -9,6 +10,7 @@ import {
 	Object3D,
 } from "three";
 import { windUniforms } from "../forest/wind";
+import { quality } from "../quality";
 import { createRandom } from "../random";
 import { type PlantPlacement, scatter } from "./layout";
 
@@ -183,6 +185,25 @@ function GrassChunk({
 	material: MeshStandardMaterial;
 }) {
 	const mesh = useRef<InstancedMesh>(null);
+	const center = useMemo(() => {
+		const c = { x: 0, z: 0 };
+		for (const p of plants) {
+			c.x += p.x / plants.length;
+			c.z += p.z / plants.length;
+		}
+		return c;
+	}, [plants]);
+
+	// дальние участки не рисуем: трава там меньше пикселя и тонет в тумане
+	useFrame(({ camera }) => {
+		const m = mesh.current;
+		if (!m) return;
+		const distance =
+			Math.hypot(camera.position.x - center.x, camera.position.z - center.z) -
+			CHUNK * 0.7;
+		m.visible = distance < quality.grassDistance;
+	});
+
 	useLayoutEffect(() => {
 		const m = mesh.current;
 		if (!m) return;
@@ -238,7 +259,17 @@ export function GrassField({
 	rootColor,
 }: GrassFieldProps) {
 	const chunks = useMemo(
-		() => chunked(scatter({ seed, radius, spacing, density, scale })),
+		() =>
+			chunked(
+				scatter({
+					seed,
+					radius,
+					spacing,
+					// на слабых устройствах травы меньше
+					density: (x, z) => density(x, z) * quality.grass,
+					scale,
+				}),
+			),
 		[seed, radius, spacing, density, scale],
 	);
 	const geometry = useMemo(() => tuftGeometry(tuft), [tuft]);

@@ -6,6 +6,7 @@ import {
 	type MeshPhongMaterial,
 	RGBADepthPacking,
 } from "three";
+import { quality } from "../quality";
 import type { TreeVariantSpec } from "./variants";
 import { applyWind } from "./wind";
 
@@ -26,20 +27,32 @@ export interface TreeVariantAssets {
 
 type TreeJson = (typeof TreePreset)[keyof typeof TreePreset];
 
-/** detail: 1 — исходный пресет, меньше — меньше листьев (но крупнее) и сегментов. */
-function simplify(json: TreeJson, detail: number): TreeJson {
+/**
+ * detail: 1 — исходный пресет, меньше — меньше листьев (но крупнее);
+ * branchDetail — во сколько раз меньше сегментов у веток.
+ */
+function simplify(
+	json: TreeJson,
+	detail: number,
+	branchDetail?: number,
+): TreeJson {
+	// без явной детализации веток — прежние пределы, чтобы деревья у поляны не менялись;
+	// на слабых устройствах ветки проще (quality.branches)
+	const sections = (branchDetail ?? Math.max(detail, 0.5)) * quality.branches;
+	const minSections =
+		branchDetail === undefined && quality.branches === 1 ? 3 : 2;
 	const copy: TreeJson = structuredClone(json);
 	const { branch, leaves } = copy;
 	for (const level of Object.keys(
 		branch.sections,
 	) as (keyof typeof branch.sections)[]) {
 		branch.sections[level] = Math.max(
-			3,
-			Math.round(branch.sections[level] * Math.max(detail, 0.5)),
+			minSections,
+			Math.round(branch.sections[level] * sections),
 		);
 		branch.segments[level] = Math.max(
 			3,
-			Math.round(branch.segments[level] * Math.max(detail, 0.6)),
+			Math.round(branch.segments[level] * Math.max(sections, 0.6)),
 		);
 	}
 	leaves.count = Math.max(1, Math.round(leaves.count * detail));
@@ -54,7 +67,7 @@ function triangleCount(geometry: BufferGeometry): number {
 /** Генерирует дерево ez-tree, масштабирует до нужной высоты и навешивает ветер. */
 export function createTreeVariant(spec: TreeVariantSpec): TreeVariantAssets {
 	const json = structuredClone(TreePreset[spec.preset]);
-	const options = simplify(json, spec.detail);
+	const options = simplify(json, spec.detail, spec.branchDetail);
 	options.seed = spec.seed;
 	if (spec.barkType) options.bark.type = spec.barkType;
 	if (spec.leafTint !== undefined) options.leaves.tint = spec.leafTint;

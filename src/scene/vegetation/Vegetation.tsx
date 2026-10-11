@@ -3,6 +3,7 @@ import { createTreeVariant } from "../forest/createTreeVariant";
 import { VariantInstances } from "../forest/Forest";
 import type { TreeVariantSpec } from "../forest/variants";
 import type { TreePlacement } from "../forestLayout";
+import { quality } from "../quality";
 import { GrassField } from "./Grass";
 import { bushDensity, grassDensity, scatter, tallGrassDensity } from "./layout";
 
@@ -33,6 +34,7 @@ const BUSH_SPECS: TreeVariantSpec[] = [
 		weight: 1,
 		zone: "edge",
 		detail: 0.35,
+		branchDetail: 0.2,
 		leafTint: 0x6f8a4e,
 	},
 	{
@@ -43,6 +45,7 @@ const BUSH_SPECS: TreeVariantSpec[] = [
 		weight: 1,
 		zone: "edge",
 		detail: 0.35,
+		branchDetail: 0.2,
 		leafTint: 0x7d8f50,
 	},
 	{
@@ -53,6 +56,7 @@ const BUSH_SPECS: TreeVariantSpec[] = [
 		weight: 1,
 		zone: "edge",
 		detail: 0.35,
+		branchDetail: 0.2,
 		leafTint: 0x5f7a48,
 	},
 ];
@@ -64,7 +68,7 @@ function Bushes() {
 			seed: 3,
 			radius: 42,
 			spacing: 2.2,
-			density: bushDensity,
+			density: (x, z) => bushDensity(x, z) * quality.bushes,
 			scale: [0.7, 1.25],
 		});
 		const byVariant = variants.map(() => [] as TreePlacement[]);
@@ -95,6 +99,7 @@ function Bushes() {
 					key={assets.spec.id}
 					assets={assets}
 					placements={groups[i]}
+					castShadow={false}
 				/>
 			))}
 		</group>

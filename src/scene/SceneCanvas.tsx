@@ -1,5 +1,6 @@
+import { PerformanceMonitor } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { AudioDirector } from "../audio/AudioDirector";
 import { debugFlags } from "../debugFlags";
 import { BabaYaga } from "./actors/BabaYaga";
@@ -11,6 +12,7 @@ import { Fence } from "./Fence";
 import { Forest } from "./forest/Forest";
 import { House } from "./House";
 import { Hut } from "./Hut";
+import { quality } from "./quality";
 import { Lighting } from "./sky/Lighting";
 import { SkyDome } from "./sky/SkyDome";
 import { TerrainMesh } from "./TerrainMesh";
@@ -20,17 +22,38 @@ import { Vegetation } from "./vegetation/Vegetation";
 
 const GROUND_Y = heightAt(0, 0);
 
+const [MIN_DPR, MAX_DPR] = quality.dpr;
+const DPR_STEP = 0.25;
+
 export function SceneCanvas() {
+	// разрешение холста подстраивается под fps: проседает — снижаем, есть запас — поднимаем
+	const [dpr, setDpr] = useState(() =>
+		Math.min(window.devicePixelRatio || 1, MAX_DPR),
+	);
+	const step = (direction: 1 | -1) =>
+		setDpr((value) =>
+			Math.min(
+				Math.max(value + direction * DPR_STEP, MIN_DPR),
+				Math.min(window.devicePixelRatio || 1, MAX_DPR),
+			),
+		);
+
 	return (
 		<Canvas
-			shadows={debugFlags.noShadows ? false : "percentage"}
-			dpr={[1, 2]}
+			shadows={quality.shadows ? "percentage" : false}
+			dpr={dpr}
+			gl={{ antialias: quality.antialias, powerPreference: "high-performance" }}
 			camera={{ position: [7.5, 2.2, 11.5], fov: 55, near: 0.1, far: 600 }}
 			onCreated={({ gl }) => {
 				// для отладки производительности из консоли: __renderer.info.render
 				if (import.meta.env.DEV) Object.assign(window, { __renderer: gl });
 			}}
 		>
+			<PerformanceMonitor
+				bounds={() => [40, 58]}
+				onDecline={() => step(-1)}
+				onIncline={() => step(1)}
+			/>
 			<CameraRig />
 			<AudioDirector />
 			<SkyDome />

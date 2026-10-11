@@ -14,6 +14,11 @@ export interface TreeVariantSpec {
 	zone: ForestZone;
 	/** Детализация 0..1: у поляны выше, в глубине леса — ниже. */
 	detail: number;
+	/**
+	 * Детализация веток 0..1, если отличается от `detail`: у кустов и дальних
+	 * деревьев ветки почти не видны под листвой и в тумане.
+	 */
+	branchDetail?: number;
 	barkType?: string;
 	leafTint?: number;
 	barkTint?: number;
@@ -81,6 +86,7 @@ export const TREE_VARIANTS: TreeVariantSpec[] = [
 		weight: 3,
 		zone: "deep",
 		detail: 0.25,
+		branchDetail: 0.3,
 		leafTint: 0x4e664b,
 	},
 	{
@@ -91,6 +97,7 @@ export const TREE_VARIANTS: TreeVariantSpec[] = [
 		weight: 2,
 		zone: "deep",
 		detail: 0.25,
+		branchDetail: 0.3,
 		leafTint: 0x56704f,
 	},
 ];

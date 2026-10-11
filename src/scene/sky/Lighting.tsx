@@ -8,6 +8,7 @@ import {
 } from "three";
 import { useSceneStore } from "../../state/sceneStore";
 import { currentSample } from "../../story/currentSample";
+import { quality } from "../quality";
 import { moonDirection, paletteAt, sunDirection } from "./timeOfDay";
 
 const LIGHT_DISTANCE = 60;
@@ -79,7 +80,7 @@ export function Lighting() {
 			<directionalLight
 				ref={light}
 				castShadow
-				shadow-mapSize={[2048, 2048]}
+				shadow-mapSize={[quality.shadowMapSize, quality.shadowMapSize]}
 				shadow-bias={-0.0004}
 				shadow-normalBias={0.04}
 				shadow-camera-near={10}

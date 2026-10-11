@@ -4,6 +4,7 @@ import { type InstancedMesh, Object3D } from "three";
 import { debugFlags } from "../../debugFlags";
 import { useSceneStore } from "../../state/sceneStore";
 import { layoutForest, type TreePlacement } from "../forestLayout";
+import { quality } from "../quality";
 import { createTreeVariant, type TreeVariantAssets } from "./createTreeVariant";
 import { TREE_VARIANTS } from "./variants";
 import { windUniforms } from "./wind";
@@ -16,15 +17,18 @@ const LAYOUT = {
 	outerRadius: 65,
 	edgeWidth: 14,
 	minDistance: 3.2,
-	maxTrees: { edge: 90, deep: 200 },
+	maxTrees: { edge: 90, deep: Math.round(200 * quality.deepTrees) },
 };
 
 export function VariantInstances({
 	assets,
 	placements,
+	castShadow = true,
 }: {
 	assets: TreeVariantAssets;
 	placements: TreePlacement[];
+	/** false — только принимает тени (кусты: их тень теряется в траве). */
+	castShadow?: boolean;
 }) {
 	const branches = useRef<InstancedMesh>(null);
 	const leaves = useRef<InstancedMesh>(null);
@@ -48,7 +52,7 @@ export function VariantInstances({
 
 	const count = placements.length;
 	// тени отбрасывают только деревья у поляны: дальние скрыты туманом, а тени удваивают нагрузку
-	const shadows = assets.spec.zone === "edge" && !debugFlags.noShadows;
+	const shadows = assets.spec.zone === "edge" && quality.shadows;
 	return (
 		<>
 			<instancedMesh
@@ -56,7 +60,7 @@ export function VariantInstances({
 				ref={branches}
 				args={[assets.branches.geometry, assets.branches.material, count]}
 				customDepthMaterial={assets.branches.depthMaterial}
-				castShadow={shadows}
+				castShadow={shadows && castShadow && quality.branchShadows}
 				receiveShadow={shadows}
 			/>
 			<instancedMesh
@@ -64,7 +68,7 @@ export function VariantInstances({
 				ref={leaves}
 				args={[assets.leaves.geometry, assets.leaves.material, count]}
 				customDepthMaterial={assets.leaves.depthMaterial}
-				castShadow={shadows}
+				castShadow={shadows && castShadow}
 				receiveShadow={shadows}
 			/>
 		</>
@@ -143,6 +147,11 @@ export function Forest() {
 	);
 
 	useFrame((_, delta) => {
+		// на слабых устройствах лес и трава стоят неподвижно
+		if (!quality.wind) {
+			windUniforms.uWindStrength.value = 0;
+			return;
+		}
 		windUniforms.uTime.value += delta;
 		const wind = useSceneStore.getState().wind;
 		windUniforms.uWindStrength.value = 0.15 + wind * 0.9;
