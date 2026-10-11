@@ -452,12 +452,14 @@ export const KEYFRAMES: SceneKeyframe[] = [
 		id: "epilogue",
 		timeOfDay: 19.5,
 		house: true,
+		houseLit: false,
 		camera: HOME_CAMERA,
 		wind: 0.3,
 		music: { track: "castle", volume: 0.6 },
 		// продолжает путь с того места, где была, и обходит избу (homecoming.ts);
 		// здесь — только запасная точка для статичного кадра
 		vasilisa: { ...atHome("skull"), pose: "return" },
+		// огонь погас ещё до её ухода — окна тёмные, свет несёт череп
 		babaYaga: null,
 		rider: null,
 		skulls: 0.3,
