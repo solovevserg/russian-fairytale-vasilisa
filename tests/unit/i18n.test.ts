@@ -5,22 +5,21 @@ import {join} from "node:path";
 import {CONTENT} from "../../src/i18n/content";
 import {LANGS, pickLang} from "../../src/i18n/lang";
 import LOCALE_RU from "../../src/i18n/locales/ru.json" with {type: "json"};
+import {CHAPTER_IDS} from "../../src/story/chapters";
 
 describe("переводы", () => {
 	const ru = CONTENT.ru;
 	const en = CONTENT.en;
 
-	const others = LANGS.filter((l) => l.id !== "ru").map((l) => CONTENT[l.id]);
-
-	test("главы на всех языках совпадают по id и числу абзацев", () => {
-		for (const other of others) {
-			expect(other.chapters.map((c) => c.id)).toEqual(
-				ru.chapters.map((c) => c.id),
-			);
-			other.chapters.forEach((c, i) => {
-				expect(c.paragraphs.length).toBe(ru.chapters[i].paragraphs.length);
-				expect(c.title.length).toBeGreaterThan(0);
-			});
+	test("главы перевода — ровно CHAPTER_IDS, у каждой есть название", () => {
+		// набор абзацев сверяет тест ключей ниже (paragraphs[n] у каждой главы)
+		expect(Object.keys(LOCALE_RU.chapters).sort()).toEqual(
+			[...CHAPTER_IDS].sort(),
+		);
+		for (const l of LANGS) {
+			for (const chapter of CONTENT[l.id].chapters) {
+				expect(chapter.title.length).toBeGreaterThan(0);
+			}
 		}
 	});
 
@@ -36,13 +35,13 @@ describe("переводы", () => {
 		expect(CONTENT.zh.caption(3)).toBe("第三章");
 	});
 
-	/** Пути ко всем строкам файла перевода (кроме глав — их проверяет тест выше). */
+	/** Пути ко всем строкам файла перевода; у массивов — путь и длина. */
 	function keyPaths(value: unknown, path = ""): string[] {
 		if (Array.isArray(value)) return [`${path}[${value.length}]`];
 		if (value && typeof value === "object")
-			return Object.entries(value)
-				.filter(([key]) => !(path === "" && key === "chapters"))
-				.flatMap(([key, v]) => keyPaths(v, path ? `${path}.${key}` : key));
+			return Object.entries(value).flatMap(([key, v]) =>
+				keyPaths(v, path ? `${path}.${key}` : key),
+			);
 		return [path];
 	}
 

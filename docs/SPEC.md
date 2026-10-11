@@ -265,7 +265,7 @@ src/
     types.ts               # интерфейс Locale — каждый JSON проверяется на него
     content.ts             # импорт JSON (satisfies Record<Lang, Locale>), подписи глав
   story/
-    chapters.ts            # порядок и id глав (русская версия как основная)
+    chapters.ts            # CHAPTER_IDS — порядок и id глав; главы с русским текстом
     keyframes.ts           # ключевые кадры сцены
     timeline.ts            # интерполяция кадров, события (чистые функции — покрыты bun test)
   state/

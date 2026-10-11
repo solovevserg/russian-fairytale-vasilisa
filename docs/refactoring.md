@@ -104,12 +104,14 @@ src/lib/
 Сейчас порядок глав задан дважды: `id` в `src/i18n/locales/ru.json` и `id` в
 `KEYFRAMES`. Они связаны только индексом, а `id` — просто `string`.
 
-- `story/chapterIds.ts`: `export const CHAPTER_IDS = ["prologue", …, "epilogue"] as const; type ChapterId`.
+- ~~`CHAPTER_IDS` и `type ChapterId`~~ — сделано: в `story/chapters.ts`.
 - Сцена: `SCENES: Record<ChapterId, SceneKeyframe>`; массив `KEYFRAMES`
   выводится из `CHAPTER_IDS.map(id => SCENES[id])`. Пропущенная или лишняя
   глава — ошибка типов, а не тихий сдвиг.
-- Тексты: главы в `locales/*.json` проверять по `ChapterId` (юнит-тест: те
-  же id в том же порядке, что `CHAPTER_IDS`).
+- ~~Тексты: главы в `locales/*.json` проверять по `ChapterId`~~ — сделано:
+  `chapters` в JSON — объект `{<id>: {title, paragraphs}}`, тип
+  `Record<ChapterId, ChapterText>`; пропущенная глава — ошибка компиляции,
+  лишняя — юнит-тест. Порядок — только из `CHAPTER_IDS`.
 - Подписи «Глава первая…», навигация `STOPS`, якоря `#fire` — выводятся из
   `CHAPTER_IDS`.
 - ~~`ORDINALS_*` — перенести в файлы языков~~ — сделано: переводы лежат в

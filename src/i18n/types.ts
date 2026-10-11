@@ -1,11 +1,17 @@
-/** Глава сказки: id (общий для всех языков, по нему — кадр сцены) и текст. */
-export interface Chapter {
-	/** Идентификатор главы — одинаковый во всех языках, по нему выбирается кадр сцены. */
-	id: string;
+import type {ChapterId} from "../story/chapters";
+
+/** Текст главы на одном языке. */
+export interface ChapterText {
 	/** Название главы. */
 	title: string;
 	/** Абзацы текста по порядку. */
 	paragraphs: string[];
+}
+
+/** Глава сказки: id (общий для всех языков, по нему — кадр сцены) и текст. */
+export interface Chapter extends ChapterText {
+	/** Идентификатор главы — одинаковый во всех языках, по нему выбирается кадр сцены. */
+	id: ChapterId;
 }
 
 /**
@@ -98,6 +104,9 @@ export interface Locale {
 			sourceCode: string;
 		};
 	};
-	/** Главы по порядку; id и порядок одинаковы во всех языках. */
-	chapters: Chapter[];
+	/**
+	 * Тексты глав по id. Порядок глав задаёт CHAPTER_IDS
+	 * (src/story/chapters.ts), а не порядок ключей в файле.
+	 */
+	chapters: Record<ChapterId, ChapterText>;
 }

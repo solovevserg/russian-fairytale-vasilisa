@@ -1,4 +1,4 @@
-import type {Chapter} from "../story/chapters";
+import type {ChapterText} from "../i18n/types";
 
 /** Минимальная пауза на чтение главы, с. */
 export const MIN_READING_SECONDS = 10;
@@ -10,7 +10,7 @@ const HANZI_PER_WORD = 1.5;
 const HANZI = /\p{Script=Han}/gu;
 
 /** Сколько секунд дать на чтение главы без озвучки. */
-export function readingSeconds(chapter: Chapter): number {
+export function readingSeconds(chapter: ChapterText): number {
 	const text = [chapter.title, ...chapter.paragraphs].join(" ");
 	// в китайском нет пробелов — считаем иероглифы
 	const hanzi = text.match(HANZI)?.length ?? 0;
