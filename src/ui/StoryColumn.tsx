@@ -180,6 +180,7 @@ function Credits({ content }: { content: Content }) {
 			<h2 className="story__credits-name">
 				<a href={AUTHOR_URL}>{c.authorName}</a>
 			</h2>
+			<p className="story__credits-dedication">{c.dedication}</p>
 			<p className="story__credits-with">
 				{c.withClaude[0]}
 				<a href="https://claude.ai">Claude</a>

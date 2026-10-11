@@ -340,10 +340,18 @@ body {
 	text-decoration: none;
 }
 
-.story__credits-with {
-	margin: 0 0 1.6rem;
+.story__credits .story__credits-dedication {
+	margin: 0.2rem 0 0.8rem;
+	font-size: 1.15rem;
 	font-style: italic;
 	color: var(--ink);
+}
+
+.story__credits-with {
+	margin: 0 0 1.6rem;
+	font-size: 0.85rem;
+	font-style: italic;
+	color: var(--muted);
 }
 
 /* ── мобильные ───────────────────────────────────────────────── */
@@ -546,7 +554,8 @@ body {
 /* у иероглифов нет курсива — наклон браузера выглядит грязно */
 :lang(zh) .story__subtitle,
 :lang(zh) .chapter .chapter__caption,
-:lang(zh) .story__credits-with {
+:lang(zh) .story__credits-with,
+:lang(zh) .story__credits .story__credits-dedication {
 	font-style: normal;
 }
 

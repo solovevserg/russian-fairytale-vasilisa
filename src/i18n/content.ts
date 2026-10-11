@@ -99,6 +99,8 @@ export interface Content {
 			/** Надзаголовок титров и имя автора — заголовок. */
 			authorRole: string;
 			authorName: string;
+			/** Посвящение — под именем автора. */
+			dedication: string;
 			/** Текст вокруг ссылки на Claude: «создано вместе с » + Claude + «». */
 			withClaude: [before: string, after: string];
 			allSources: string;
@@ -154,6 +156,7 @@ export const CONTENT: Record<Lang, Content> = {
 					"3D-модели (изменены: упрощены, сжаты, Василиса раскрашена, изба перекрашена):",
 				authorRole: "Автор проекта",
 				authorName: "Сергей Соловьёв",
+				dedication: "Посвящается моей жене Стефании",
 				withClaude: ["создано вместе с ", ""],
 				allSources: "Все источники и лицензии",
 				sourceCode: "Исходный код",
@@ -201,6 +204,7 @@ export const CONTENT: Record<Lang, Content> = {
 					"3D models (modified: simplified, compressed, Vasilisa painted, cabin recoloured):",
 				authorRole: "Project author",
 				authorName: "Sergei Solovev",
+				dedication: "Dedicated to my wife Stefania",
 				withClaude: ["made together with ", ""],
 				allSources: "All sources and licenses",
 				sourceCode: "Source code",
@@ -251,6 +255,7 @@ export const CONTENT: Record<Lang, Content> = {
 					"Modelos 3D (modificados: simplificados, comprimidos, Vasilisa pintada, cabaña recoloreada):",
 				authorRole: "Autor del proyecto",
 				authorName: "Serguéi Solovióv",
+				dedication: "Dedicado a mi esposa Stefania",
 				withClaude: ["hecho junto con ", ""],
 				allSources: "Todas las fuentes y licencias",
 				sourceCode: "Código fuente",
@@ -293,6 +298,7 @@ export const CONTENT: Record<Lang, Content> = {
 				models: "3D 模型（已修改：简化、压缩，瓦西丽莎上色，木屋重新配色）：",
 				authorRole: "项目作者",
 				authorName: "谢尔盖·索洛维约夫",
+				dedication: "献给我的妻子斯特凡尼娅",
 				withClaude: ["与 ", " 共同创建"],
 				allSources: "全部来源与许可",
 				sourceCode: "源代码",
