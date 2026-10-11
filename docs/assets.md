@@ -61,6 +61,7 @@
 | Ресурс | Где используется | Источник | Автор | Лицензия | Изменения |
 | --- | --- | --- | --- | --- | --- |
 | Skull (`public/models/skull.glb`) | черепа на частоколе, череп-светоч | [Poly Pizza](https://poly.pizza/m/YgmRBtFlcF) | Quaternius | CC0 | отцентрован, высота 0,25 м, цвет кости |
+| Bird (`public/models/bird.glb`) | стая над лесом и поляной (тело и крылья — инстансы, крылья машут у «плеча») | [Poly Pizza](https://poly.pizza/m/8Ph79kHbt9s) | Poly by Google | CC-BY 3.0 | оси сцены (размах — X, вперёд — Z), размах 1,2 м, цвет — почти чёрный |
 | Cabin (`public/models/house.glb`) | изба Василисы в зачине и концовке | [Poly Pizza](https://poly.pizza/m/5xli1AZx7tL) | Poly by Google | CC-BY 3.0 | отцентрована, высота 5 м, меши слиты, брёвна и кровля перекрашены |
 | @dgreenheck/ez-tree | генерация деревьев | [GitHub](https://github.com/dgreenheck/ez-tree) | Daniel Greenheck | MIT | — |
 | «Василиса Прекрасная» | текст | А. Н. Афанасьев, «Народные русские сказки», № 104 | — | общественное достояние | сокращения, см. [scenario.md](scenario.md) |

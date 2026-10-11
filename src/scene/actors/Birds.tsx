@@ -1,3 +1,4 @@
+import { useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
 import {
@@ -6,9 +7,11 @@ import {
 	Float32BufferAttribute,
 	type InstancedMesh,
 	Matrix4,
+	type Mesh,
 	Object3D,
 } from "three";
 import { currentSample } from "../../story/currentSample";
+import { MODEL_URLS } from "../models";
 import { createRandom } from "../random";
 import { paletteAt } from "../sky/timeOfDay";
 
@@ -26,18 +29,48 @@ interface Bird {
 	direction: 1 | -1;
 }
 
-function wingGeometry(side: 1 | -1): BufferGeometry {
-	const g = new BufferGeometry();
-	// треугольное крыло: от тела наружу, кончик чуть отведён назад
-	g.setAttribute(
-		"position",
-		new Float32BufferAttribute(
-			[0, 0, 0.14, 0, 0, -0.1, side * 0.6, 0, -0.08],
-			3,
-		),
-	);
-	g.computeVertexNormals();
-	return g;
+/** Полуширина тела птицы, м: дальше от оси — крылья (машут у «плеча»). */
+const BODY_HALF = 0.09;
+
+/**
+ * Модель птицы (Poly by Google, крылья раскинуты) — на тело и два крыла по
+ * центрам треугольников; крылья сдвинуты так, что «плечо» — в нуле.
+ */
+function splitBird(source: BufferGeometry): {
+	body: BufferGeometry;
+	left: BufferGeometry;
+	right: BufferGeometry;
+} {
+	const g = source.index ? source.toNonIndexed() : source.clone();
+	const pos = g.getAttribute("position");
+	const parts = {
+		body: [] as number[],
+		left: [] as number[],
+		right: [] as number[],
+	};
+	for (let i = 0; i < pos.count; i += 3) {
+		const cx = (pos.getX(i) + pos.getX(i + 1) + pos.getX(i + 2)) / 3;
+		const part = cx > BODY_HALF ? "right" : cx < -BODY_HALF ? "left" : "body";
+		const shift =
+			part === "right" ? BODY_HALF : part === "left" ? -BODY_HALF : 0;
+		for (let k = 0; k < 3; k++)
+			parts[part].push(
+				pos.getX(i + k) - shift,
+				pos.getY(i + k),
+				pos.getZ(i + k),
+			);
+	}
+	const make = (array: number[]) => {
+		const geometry = new BufferGeometry();
+		geometry.setAttribute("position", new Float32BufferAttribute(array, 3));
+		geometry.computeVertexNormals();
+		return geometry;
+	};
+	return {
+		body: make(parts.body),
+		left: make(parts.left),
+		right: make(parts.right),
+	};
 }
 
 /**
@@ -59,13 +92,27 @@ export function Birds() {
 			direction: random() < 0.75 ? 1 : -1,
 		}));
 	}, []);
-	const left = useMemo(() => wingGeometry(-1), []);
-	const right = useMemo(() => wingGeometry(1), []);
+	const { scene } = useGLTF(MODEL_URLS.bird);
+	const { body, left, right } = useMemo(() => {
+		let geometry: BufferGeometry | null = null;
+		scene.updateMatrixWorld(true);
+		scene.traverse((child) => {
+			const mesh = child as Mesh;
+			if (mesh.isMesh && !geometry)
+				geometry = mesh.geometry.clone().applyMatrix4(mesh.matrixWorld);
+		});
+		return splitBird(geometry ?? new BufferGeometry());
+	}, [scene]);
 	const bodies = useRef<InstancedMesh>(null);
 	const leftWings = useRef<InstancedMesh>(null);
 	const rightWings = useRef<InstancedMesh>(null);
 	const temp = useMemo(
-		() => ({ dummy: new Object3D(), wing: new Matrix4(), base: new Matrix4() }),
+		() => ({
+			dummy: new Object3D(),
+			wing: new Matrix4(),
+			base: new Matrix4(),
+			shoulder: new Matrix4(),
+		}),
 		[],
 	);
 
@@ -73,7 +120,7 @@ export function Birds() {
 		const t = clock.elapsedTime;
 		const night = paletteAt(currentSample.timeOfDay).night;
 		const presence = Math.max(0, 1 - Math.max(0, night - 0.5) * 2.5);
-		const { dummy, wing, base } = temp;
+		const { dummy, wing, base, shoulder } = temp;
 		birds.forEach((b, i) => {
 			const angle = b.phase + (b.direction * t * b.speed) / b.radius;
 			const x = b.centerX + Math.cos(angle) * b.radius;
@@ -95,9 +142,14 @@ export function Birds() {
 			const gliding = Math.sin(t * 0.5 + b.phase * 3) > 0.6;
 			const flap = gliding ? 0.08 : Math.sin(t * b.flapRate + b.phase) * 0.6;
 			// без новых матриц в каждом кадре — одна рабочая на все крылья
-			wing.makeRotationZ(flap).premultiply(base);
+			// крыло поворачивается у «плеча» — на краю тела
+			wing.makeRotationZ(flap);
+			shoulder.makeTranslation(-BODY_HALF, 0, 0).premultiply(base);
+			wing.premultiply(shoulder);
 			leftWings.current?.setMatrixAt(i, wing);
-			wing.makeRotationZ(-flap).premultiply(base);
+			wing.makeRotationZ(-flap);
+			shoulder.makeTranslation(BODY_HALF, 0, 0).premultiply(base);
+			wing.premultiply(shoulder);
 			rightWings.current?.setMatrixAt(i, wing);
 		});
 		for (const mesh of [
@@ -113,11 +165,10 @@ export function Birds() {
 		<group>
 			<instancedMesh
 				ref={bodies}
-				args={[undefined, undefined, COUNT]}
+				args={[body, undefined, COUNT]}
 				frustumCulled={false}
 			>
-				<sphereGeometry args={[0.07, 6, 4]} />
-				<meshStandardMaterial color={COLOR} roughness={1} />
+				<meshStandardMaterial color={COLOR} roughness={0.9} side={DoubleSide} />
 			</instancedMesh>
 			<instancedMesh
 				ref={leftWings}

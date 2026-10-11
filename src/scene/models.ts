@@ -10,6 +10,7 @@ export const MODEL_URLS = {
 	vasilisa: `${base}vasilisa.glb`,
 	skull: `${base}skull.glb`,
 	house: `${base}house.glb`,
+	bird: `${base}bird.glb`,
 } as const;
 
 for (const url of Object.values(MODEL_URLS)) useGLTF.preload(url);

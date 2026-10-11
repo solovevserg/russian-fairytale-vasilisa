@@ -168,6 +168,7 @@ const MODELS = [
 		"CC BY 4.0",
 	],
 	["https://poly.pizza/m/5xli1AZx7tL", "Cabin", "Poly by Google", "CC BY 3.0"],
+	["https://poly.pizza/m/8Ph79kHbt9s", "Bird", "Poly by Google", "CC BY 3.0"],
 ] as const;
 
 /** Источники и лицензии — CC-BY требует указывать авторов прямо на сайте. */

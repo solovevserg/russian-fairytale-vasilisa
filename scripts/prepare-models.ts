@@ -137,3 +137,56 @@ if (wanted("house")) {
 	});
 	await finish(doc, "house");
 }
+
+// Птица в полёте — «Bird» (Poly by Google, CC-BY 3.0): крылья раскинуты.
+// В исходнике размах — по Y, верх — по Z, тело — по X; переводим в оси сцены
+// (размах — X, верх — Y, вперёд — Z), размах 1.2 м, центр — в теле.
+if (wanted("bird")) {
+	const doc = await io.read(`${SRC}/bird-poly-google.glb`);
+	await doc.transform(flatten(), join(), weld());
+	const SPAN = 1.2;
+	// границы — по самим вершинам (узлы ниже сбрасываются в единичные)
+	const min = [Infinity, Infinity, Infinity];
+	const max = [-Infinity, -Infinity, -Infinity];
+	for (const mesh of doc.getRoot().listMeshes())
+		for (const prim of mesh.listPrimitives()) {
+			const a = prim.getAttribute("POSITION");
+			const v: number[] = [];
+			for (let i = 0; i < (a?.getCount() ?? 0); i++) {
+				a?.getElement(i, v);
+				for (let k = 0; k < 3; k++) {
+					min[k] = Math.min(min[k], v[k]);
+					max[k] = Math.max(max[k], v[k]);
+				}
+			}
+		}
+	const s = SPAN / (max[1] - min[1]);
+	const c = min.map((v, i) => (v + max[i]) / 2);
+	for (const node of doc.getRoot().listNodes()) {
+		node
+			.setTranslation([0, 0, 0])
+			.setRotation([0, 0, 0, 1])
+			.setScale([1, 1, 1]);
+	}
+	for (const mesh of doc.getRoot().listMeshes()) {
+		for (const prim of mesh.listPrimitives()) {
+			for (const name of ["POSITION", "NORMAL"] as const) {
+				const a = prim.getAttribute(name);
+				if (!a) continue;
+				const v: number[] = [];
+				for (let i = 0; i < a.getCount(); i++) {
+					const [x, y, z] = a.getElement(i, v);
+					// (x, y, z) → (y, z, x): циклическая перестановка — поворот
+					a.setElement(
+						i,
+						name === "POSITION"
+							? [(y - c[1]) * s, (z - c[2]) * s, (x - c[0]) * s]
+							: [y, z, x],
+					);
+				}
+			}
+		}
+	}
+	recolor(doc, { blinn3SG: [0.03, 0.028, 0.026] });
+	await finish(doc, "bird");
+}

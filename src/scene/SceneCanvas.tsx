@@ -80,7 +80,9 @@ export function SceneCanvas() {
 				<BabaYaga />
 			</Suspense>
 			<Riders />
-			<Birds />
+			<Suspense fallback={null}>
+				<Birds />
+			</Suspense>
 		</Canvas>
 	);
 }
