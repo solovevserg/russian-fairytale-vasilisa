@@ -112,6 +112,14 @@ function heading(v: Vector3) {
  */
 export function BabaYaga() {
 	const flyingWitch = useWitch();
+	// в полёте тени на себя не принимает: на телефонах карта теней
+	// обновляется через кадр, и быстрая ступа ловила свою же тень из
+	// прошлого кадра — мерцала
+	useEffect(() => {
+		flyingWitch.object.traverse((child) => {
+			child.receiveShadow = false;
+		});
+	}, [flyingWitch]);
 	const standingWitch = useWitch();
 	const flying = useRef<Group>(null);
 	const standing = useRef<Group>(null);
