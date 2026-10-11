@@ -39,6 +39,76 @@ const LEFT_PALM: [number, number, number] = [0.226, 1.045, 0.2];
 const DOLL_MAGIC_OFFSET: [number, number, number] = [-0.42, 0.2, 0.12];
 /** Как медленно идёт дальше, дойдя до кадра (onward), м/с. */
 const ONWARD_SPEED = 0.35;
+/**
+ * Черты лица поверх модели (у неё нет текстуры, а вершин на лице мало, чтобы
+ * нарисовать их цветом): в единицах исходной модели — лицо смотрит в +Z,
+ * середина лица x ≈ 0.1, высота y = −0.951 + h · 1.899 (h — доля роста),
+ * глубина z — по замерам поверхности лица (scripts: вершины модели).
+ */
+const FACE_Y = (h: number) => -0.951 + h * 1.899;
+const EYES: [number, number, number][] = [
+	[0.068, FACE_Y(0.915), 0.088],
+	[0.132, FACE_Y(0.915), 0.088],
+];
+const BROWS: [number, number, number, number][] = [
+	// x, y, z, наклон
+	[0.066, FACE_Y(0.929), 0.093, 0.15],
+	[0.134, FACE_Y(0.929), 0.093, -0.15],
+];
+const MOUTH: [number, number, number] = [0.1, FACE_Y(0.877), 0.088];
+
+/** Глаза, брови и губы — маленькие приплюснутые сферы на поверхности лица. */
+function Face() {
+	return (
+		<group>
+			{EYES.map((p) => (
+				<group key={p[0]} position={p}>
+					{/* белок и радужка */}
+					<mesh scale={[1.7, 1, 0.45]}>
+						<sphereGeometry args={[0.0085, 12, 8]} />
+						<meshStandardMaterial color="#f2ece2" roughness={0.4} />
+					</mesh>
+					<mesh position={[0, -0.001, 0.0035]} scale={[1, 1, 0.4]}>
+						<sphereGeometry args={[0.0065, 12, 8]} />
+						<meshStandardMaterial color="#3b5a7a" roughness={0.3} />
+					</mesh>
+					<mesh position={[0, -0.001, 0.0055]} scale={[1, 1, 0.4]}>
+						<sphereGeometry args={[0.0032, 10, 6]} />
+						<meshStandardMaterial color="#141010" roughness={0.2} />
+					</mesh>
+					{/* веко-ресницы сверху */}
+					<mesh position={[0, 0.0075, 0.002]} scale={[1.9, 0.35, 0.5]}>
+						<sphereGeometry args={[0.0085, 12, 6]} />
+						<meshStandardMaterial color="#3a2414" roughness={0.8} />
+					</mesh>
+				</group>
+			))}
+			{BROWS.map(([x, y, z, tilt]) => (
+				<mesh
+					key={x}
+					position={[x, y, z]}
+					rotation-z={tilt}
+					scale={[2.6, 0.45, 0.5]}
+				>
+					<sphereGeometry args={[0.0085, 12, 6]} />
+					<meshStandardMaterial color="#6e4a26" roughness={0.9} />
+				</mesh>
+			))}
+			{/* губы: верхняя и нижняя */}
+			<group position={MOUTH}>
+				<mesh position={[0, 0.0028, 0]} scale={[2.2, 0.55, 0.6]}>
+					<sphereGeometry args={[0.0075, 12, 6]} />
+					<meshStandardMaterial color="#b4504a" roughness={0.5} />
+				</mesh>
+				<mesh position={[0, -0.0028, 0.0005]} scale={[1.9, 0.7, 0.65]}>
+					<sphereGeometry args={[0.0075, 12, 6]} />
+					<meshStandardMaterial color="#c4605a" roughness={0.45} />
+				</mesh>
+			</group>
+		</group>
+	);
+}
+
 /** Где палка черепа-светоча проходит через руку. */
 const LANTERN_GRIP: [number, number, number] = [0.22, 1.0, 0.05];
 
@@ -225,7 +295,10 @@ export function Vasilisa() {
 	return (
 		<group ref={root}>
 			<group ref={body}>
-				<primitive object={model} scale={SCALE} position={MODEL_OFFSET} />
+				<group scale={SCALE} position={MODEL_OFFSET}>
+					<primitive object={model} />
+					<Face />
+				</group>
 				<group ref={doll} position={LEFT_PALM}>
 					<Doll />
 				</group>

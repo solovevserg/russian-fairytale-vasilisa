@@ -55,6 +55,9 @@ const INTRO_BACK = 7;
 const INTRO_FLY = 6;
 const INTRO_SKIP = 0.6;
 const back = new Vector3();
+/** За сколько секунд камера на титрах набирает высоту и как быстро возвращается. */
+const CREDITS_RISE = 25;
+const CREDITS_RETURN = 2;
 const creditsPosition = new Vector3();
 const creditsTarget = new Vector3();
 /** Как быстро камера переходит на съёмку эпилога и обратно. */
@@ -80,7 +83,9 @@ export function CameraRig() {
 	/** Доля съёмки эпилога (0 — камера по таймлайну, 1 — по homecoming.ts). */
 	const epilogue = useRef(0);
 	/** Сглаженные доли «на титуле» и «ушли к титрам» (см. storyStore). */
-	const edges = useRef<{ title: number; credits: number } | null>(null);
+	const edges = useRef<{ title: number } | null>(null);
+	/** Подъём камеры на титрах: 0 — там, где кончился эпилог, 1 — высоко. */
+	const rise = useRef(0);
 	/** Сколько осталось подлёта при открытии сайта: 1 — в начале, 0 — на месте. */
 	const intro = useRef<number | null>(null);
 
@@ -138,25 +143,37 @@ export function CameraRig() {
 		// титул — камера дальше от Василисы, к прологу подлетает ближе;
 		// титры — взлетает высоко над избушкой (даже если эпилог не досмотрен)
 		const story = useStoryStore.getState();
-		const e = edges.current ?? { title: story.title, credits: story.credits };
+		const e = edges.current ?? { title: story.title };
 		edges.current = e;
 		const ke = debugFlags.instant
 			? 1
 			: 1 - Math.exp(-DAMPING * Math.min(delta, 0.1));
 		e.title += (story.title - e.title) * ke;
-		e.credits += (story.credits - e.credits) * ke;
 		if (e.title > 1e-3) {
 			const k = e.title * e.title * (3 - 2 * e.title);
 			sample.position.x += TITLE_SHIFT[0] * k;
 			sample.position.y += TITLE_SHIFT[1] * k;
 			sample.position.z += TITLE_SHIFT[2] * k;
 		}
-		if (e.credits > 1e-3) {
+		// на титрах — медленно, за CREDITS_RISE секунд, с того места, где
+		// закончился эпилог; ушли с титров — быстро обратно
+		const onCredits = story.edge === "credits";
+		rise.current = Math.min(
+			Math.max(
+				rise.current +
+					(onCredits ? 1 / CREDITS_RISE : -1 / CREDITS_RETURN) *
+						Math.min(delta, 0.1),
+				0,
+			),
+			1,
+		);
+		if (debugFlags.instant) rise.current = onCredits ? 1 : 0;
+		if (rise.current > 1e-4) {
 			creditsCamera(creditsPosition, creditsTarget);
-			// сначала набирает высоту, потом смещается к избушке
-			const k = e.credits * e.credits * (3 - 2 * e.credits);
+			const r = rise.current;
+			const k = r * r * (3 - 2 * r);
 			sample.position.lerp(creditsPosition, k);
-			sample.target.lerp(creditsTarget, Math.min(k * 1.5, 1));
+			sample.target.lerp(creditsTarget, Math.min(k * 2, 1));
 		}
 
 		// при открытии на прологе камера подлетает к дому издалека — по той же
