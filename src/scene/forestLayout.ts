@@ -99,15 +99,20 @@ const HOME_TREES: [string, number, number, number][] = [
 	["pine-edge-a", 10, 7, 1.1],
 ];
 
-/** Деревья у избы Василисы (ids вариантов — из списка `variants`). */
+/** id вариантов деревьев у избы Василисы — они в первом кадре сказки. */
+export const HOME_TREE_IDS: ReadonlySet<string> = new Set(
+	HOME_TREES.map(([id]) => id),
+);
+
+/** Деревья у избы Василисы (`variantIndex` — индекс в списке `specs`). */
 export function layoutHomeTrees(
-	variants: {spec: {id: string}}[],
+	specs: readonly {id: string}[],
 ): TreePlacement[] {
 	// фасад смотрит на тропу (HOME.heading) — «за избой» значит от тропы
 	const backX = -Math.sin(HOME.heading);
 	const backZ = -Math.cos(HOME.heading);
 	return HOME_TREES.flatMap(([id, back, side, scale], i) => {
-		const variantIndex = variants.findIndex((v) => v.spec.id === id);
+		const variantIndex = specs.findIndex((spec) => spec.id === id);
 		if (variantIndex < 0) return [];
 		const x = HOME.x + backX * back - backZ * side;
 		const z = HOME.z + backZ * back + backX * side;

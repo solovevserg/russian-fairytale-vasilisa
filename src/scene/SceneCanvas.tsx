@@ -64,8 +64,8 @@ export function SceneCanvas() {
 			<Suspense fallback={null}>
 				<TerrainMesh />
 			</Suspense>
-			{/* лес появится, когда загрузится генератор деревьев (отдельный чанк) */}
-			<Suspense fallback={null}>{!debugFlags.noForest && <Forest />}</Suspense>
+			{/* лес и кусты строятся по частям в фоне (forest/treeQueue.ts) */}
+			{!debugFlags.noForest && <Forest />}
 			{!debugFlags.noGrass && <Vegetation />}
 			<group position={[0, GROUND_Y, 0]}>
 				<Deferred until="clearing">

@@ -5,14 +5,15 @@ import {type InstancedMesh, Object3D} from "three";
 import {debugFlags} from "../../debugFlags";
 import {useSceneStore} from "../../state/sceneStore";
 import {
+	HOME_TREE_IDS,
 	layoutForest,
 	layoutHomeTrees,
 	type TreePlacement,
 } from "../forestLayout";
 import {quality} from "../quality";
 import type {TreeVariantAssets} from "./createTreeVariant";
-import {useTreeVariants} from "./useTreeVariants";
-import {TREE_VARIANTS} from "./variants";
+import {allReady, useTreeVariants} from "./useTreeVariants";
+import {TREE_VARIANTS, type TreeVariantSpec} from "./variants";
 import {windUniforms} from "./wind";
 
 const SECTORS = 8;
@@ -84,49 +85,85 @@ export function VariantInstances({
 	);
 }
 
-export function Forest() {
-	const variants = useTreeVariants(TREE_VARIANTS, "forest");
+/** Группа инстансов: один вариант в одном угловом секторе. */
+export interface TreeChunk {
+	key: string;
+	variantIndex: number;
+	placements: TreePlacement[];
+}
 
-	// Инстансы бьются на угловые секторы: InstancedMesh отсекается по фрустуму
-	// только целиком, а так деревья за спиной камеры не рисуются вовсе.
-	const chunks = useMemo(() => {
-		const trees = [...layoutForest(LAYOUT), ...layoutHomeTrees(variants)];
-		const groups = variants.map(() => [] as TreePlacement[]);
-		const bySector = new Map<
-			string,
-			{variantIndex: number; placements: TreePlacement[]}
-		>();
-		for (const tree of trees) {
-			groups[tree.variantIndex].push(tree);
-			const angle = Math.atan2(tree.z, tree.x) + Math.PI;
-			const sector = Math.min(
-				Math.floor((angle / (Math.PI * 2)) * SECTORS),
-				SECTORS - 1,
-			);
-			const key = `${variants[tree.variantIndex].spec.id}-${sector}`;
-			const chunk = bySector.get(key) ?? {
-				variantIndex: tree.variantIndex,
-				placements: [],
-			};
-			chunk.placements.push(tree);
-			bySector.set(key, chunk);
-		}
+/**
+ * Разбивает деревья на группы инстансов по вариантам и угловым секторам:
+ * InstancedMesh отсекается по фрустуму только целиком, а так деревья за
+ * спиной камеры не рисуются вовсе.
+ */
+export function chunkBySector(
+	trees: readonly TreePlacement[],
+	idOf: (variantIndex: number) => string,
+	keyPrefix = "",
+): TreeChunk[] {
+	const chunks = new Map<string, TreeChunk>();
+	for (const tree of trees) {
+		const angle = Math.atan2(tree.z, tree.x) + Math.PI;
+		const sector = Math.min(
+			Math.floor((angle / (Math.PI * 2)) * SECTORS),
+			SECTORS - 1,
+		);
+		const key = `${keyPrefix}${idOf(tree.variantIndex)}-${sector}`;
+		const chunk = chunks.get(key) ?? {
+			key,
+			variantIndex: tree.variantIndex,
+			placements: [],
+		};
+		chunk.placements.push(tree);
+		chunks.set(key, chunk);
+	}
+	return [...chunks.values()];
+}
+
+/**
+ * Очерёдность генерации: деревья у дома Василисы (первый кадр) — первыми,
+ * потом кромка леса, кусты (см. Vegetation), глубина леса.
+ */
+const treePriority = (spec: TreeVariantSpec) =>
+	HOME_TREE_IDS.has(spec.id) ? 0 : spec.zone === "edge" ? 1 : 3;
+
+const idOf = (variantIndex: number) => TREE_VARIANTS[variantIndex].id;
+
+/**
+ * Лес. Деревья у дома появляются, как только готовы их варианты; остальной
+ * лес — разом, когда готовы все (иначе видно, как он «дорастает»).
+ */
+export function Forest() {
+	const variants = useTreeVariants(TREE_VARIANTS, treePriority);
+	const ready = allReady(variants);
+
+	const homeTrees = useMemo(() => layoutHomeTrees(TREE_VARIANTS), []);
+	const forestTrees = useMemo(() => layoutForest(LAYOUT), []);
+
+	const homeChunks = useMemo(
+		() =>
+			chunkBySector(
+				homeTrees.filter((tree) => variants[tree.variantIndex]),
+				idOf,
+				"home-",
+			),
+		[homeTrees, variants],
+	);
+	const forestChunks = useMemo(() => {
+		if (!ready) return [];
 		if (import.meta.env.DEV) {
-			const triangles = groups.reduce(
-				(sum, g, i) => sum + g.length * variants[i].triangles,
+			const trees = [...forestTrees, ...homeTrees];
+			const triangles = trees.reduce(
+				(sum, tree) => sum + variants[tree.variantIndex].triangles,
 				0,
 			);
 			console.info(
 				`[forest] деревьев: ${trees.length}, треугольников: ${(triangles / 1e6).toFixed(2)} M`,
-				JSON.stringify(
-					Object.fromEntries(
-						groups.map((g, i) => [variants[i].spec.id, g.length]),
-					),
-				),
 			);
 		}
-		return [...bySector.entries()].map(([key, chunk]) => ({key, ...chunk}));
-	}, [variants]);
+		return chunkBySector(forestTrees, idOf);
+	}, [ready, forestTrees, homeTrees, variants]);
 
 	useFrame((_, delta) => {
 		// на слабых устройствах лес и трава стоят неподвижно
@@ -141,13 +178,18 @@ export function Forest() {
 
 	return (
 		<group>
-			{chunks.map((chunk) => (
-				<VariantInstances
-					key={chunk.key}
-					assets={variants[chunk.variantIndex]}
-					placements={chunk.placements}
-				/>
-			))}
+			{[...homeChunks, ...forestChunks].map((chunk) => {
+				const assets = variants[chunk.variantIndex];
+				return (
+					assets && (
+						<VariantInstances
+							key={chunk.key}
+							assets={assets}
+							placements={chunk.placements}
+						/>
+					)
+				);
+			})}
 		</group>
 	);
 }

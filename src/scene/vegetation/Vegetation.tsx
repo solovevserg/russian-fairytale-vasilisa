@@ -1,9 +1,8 @@
-import {Suspense, useMemo} from "react";
+import {useMemo} from "react";
 
-import {VariantInstances} from "../forest/Forest";
-import {useTreeVariants} from "../forest/useTreeVariants";
+import {chunkBySector, VariantInstances} from "../forest/Forest";
+import {allReady, useTreeVariants} from "../forest/useTreeVariants";
 import {BUSH_SPECS} from "../forest/variants";
-import type {TreePlacement} from "../forestLayout";
 import {quality} from "../quality";
 import {GrassField} from "./Grass";
 import {bushDensity, grassDensity, scatter, tallGrassDensity} from "./layout";
@@ -25,12 +24,14 @@ const TALL_TUFT = {
 const SHORT_SCALE: [number, number] = [0.7, 1.3];
 const TALL_SCALE: [number, number] = [0.75, 1.3];
 
-/** На сколько угловых секторов делятся кусты (для отсечения вне кадра). */
-const BUSH_SECTORS = 8;
+/** Кусты — в очереди генерации после кромки леса, до его глубины (см. Forest). */
+const bushPriority = () => 2;
+const bushId = (variantIndex: number) => BUSH_SPECS[variantIndex].id;
 
+/** Кусты у кромки леса — появляются разом, когда готовы все варианты. */
 function Bushes() {
-	const variants = useTreeVariants(BUSH_SPECS, "bushes");
-	const groups = useMemo(() => {
+	const variants = useTreeVariants(BUSH_SPECS, bushPriority);
+	const chunks = useMemo(() => {
 		const plants = scatter({
 			seed: 3,
 			radius: 42,
@@ -38,30 +39,18 @@ function Bushes() {
 			density: (x, z) => bushDensity(x, z) * quality.bushes,
 			scale: [0.7, 1.25],
 		});
-		// по угловым секторам, как лес: иначе каждый InstancedMesh охватывает
-		// всю поляну и не отсекается, даже когда кусты за спиной камеры
-		const chunks = new Map<
-			string,
-			{variantIndex: number; placements: TreePlacement[]}
-		>();
-		plants.forEach((p, i) => {
-			const variantIndex = i % variants.length;
-			const angle = Math.atan2(p.z, p.x) + Math.PI;
-			const sector = Math.min(
-				Math.floor((angle / (Math.PI * 2)) * BUSH_SECTORS),
-				BUSH_SECTORS - 1,
-			);
-			const key = `${variants[variantIndex].spec.id}-${sector}`;
-			const chunk = chunks.get(key) ?? {variantIndex, placements: []};
-			chunk.placements.push({...p, tilt: 0, variantIndex});
-			chunks.set(key, chunk);
-		});
-		return [...chunks.entries()].map(([key, chunk]) => ({key, ...chunk}));
-	}, [variants]);
+		const placements = plants.map((p, i) => ({
+			...p,
+			tilt: 0,
+			variantIndex: i % BUSH_SPECS.length,
+		}));
+		return chunkBySector(placements, bushId);
+	}, []);
+	if (!allReady(variants)) return null;
 
 	return (
 		<group>
-			{groups.map((chunk) => (
+			{chunks.map((chunk) => (
 				<VariantInstances
 					key={chunk.key}
 					assets={variants[chunk.variantIndex]}
@@ -97,10 +86,7 @@ export function Vegetation() {
 				tipColor="#a8a166"
 				rootColor="#424f26"
 			/>
-			{/* кусты появятся, когда загрузится генератор деревьев */}
-			<Suspense fallback={null}>
-				<Bushes />
-			</Suspense>
+			<Bushes />
 		</group>
 	);
 }

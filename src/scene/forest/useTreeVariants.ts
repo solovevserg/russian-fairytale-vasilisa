@@ -1,62 +1,49 @@
-import {use, useEffect, useMemo} from "react";
+import {useEffect, useState} from "react";
 
 import type {TreeVariantAssets} from "./createTreeVariant";
+import {generateTree} from "./treeQueue";
 import type {TreeVariantSpec} from "./variants";
 
 /**
- * Генератор деревьев грузится отдельным чанком (ez-tree и его текстуры коры
- * и листвы): сцена — небо, земля, избы, трава, герои — рисуется и без него.
- * Загрузка начинается при первом лесе или кустах на сцене (с ?noforest
- * и ?nograss — не начинается вовсе).
- */
-let treeFactory: Promise<typeof import("./createTreeVariant")> | undefined;
-function loadTreeFactory() {
-	treeFactory ??= import("./createTreeVariant");
-	return treeFactory;
-}
-
-/**
- * Генерирует варианты деревьев (или кустов) по спецификациям; пока генератор
- * не загружен — приостанавливает компонент (нужен `<Suspense>` выше).
- * Геометрия и материалы освобождаются при размонтировании.
+ * Варианты деревьев (или кустов) по спецификациям — по мере готовности:
+ * элемент массива `undefined`, пока очередь (treeQueue.ts) до него не дошла.
  *
  * @param specs — спецификации вариантов; должны быть стабильны между рендерами
- * (константа модуля), иначе деревья будут генерироваться заново.
- * @param label — подпись для замера времени генерации в dev-сборке.
+ * (константа модуля).
+ * @param priority — очерёдность варианта: меньше — раньше.
  */
 export function useTreeVariants(
 	specs: readonly TreeVariantSpec[],
-	label: string,
-): TreeVariantAssets[] {
-	const {createTreeVariant} = use(loadTreeFactory());
-	const variants = useMemo(() => {
-		const started = performance.now();
-		const result = specs.map(createTreeVariant);
-		if (import.meta.env.DEV) {
-			console.info(
-				`[${label}] ${result.length} вариантов за ${Math.round(performance.now() - started)} мс`,
-				JSON.stringify(
-					Object.fromEntries(
-						result.map((v) => [v.spec.id, Math.round(v.triangles)]),
-					),
-				),
-			);
-		}
-		return result;
-	}, [specs, createTreeVariant, label]);
-
-	useEffect(
-		() => () => {
-			for (const v of variants) {
-				for (const part of [v.branches, v.leaves]) {
-					part.geometry.dispose();
-					part.material.dispose();
-					part.depthMaterial.dispose();
-				}
-			}
-		},
-		[variants],
+	priority: (spec: TreeVariantSpec) => number,
+): (TreeVariantAssets | undefined)[] {
+	const [variants, setVariants] = useState<(TreeVariantAssets | undefined)[]>(
+		() => specs.map(() => undefined),
 	);
 
+	useEffect(() => {
+		let alive = true;
+		specs.forEach((spec, i) => {
+			generateTree(spec, priority(spec)).then(
+				(assets) => {
+					if (!alive) return;
+					setVariants((current) =>
+						current.map((v, j) => (j === i ? assets : v)),
+					);
+				},
+				(error) => console.error(`[trees] ${spec.id}:`, error),
+			);
+		});
+		return () => {
+			alive = false;
+		};
+	}, [specs, priority]);
+
 	return variants;
+}
+
+/** Готовы ли все варианты. */
+export function allReady(
+	variants: (TreeVariantAssets | undefined)[],
+): variants is TreeVariantAssets[] {
+	return variants.every((v) => v !== undefined);
 }
