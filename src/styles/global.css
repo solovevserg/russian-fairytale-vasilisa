@@ -609,6 +609,11 @@ body {
 		color: #f0c27a;
 	}
 
+	/* концовочный вензель висел бы над сценой без подложки */
+	.chapter .tailpiece {
+		display: none;
+	}
+
 	.chapter__body {
 		min-height: 0;
 		overflow-y: auto;

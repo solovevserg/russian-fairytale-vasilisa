@@ -138,7 +138,7 @@ export function BabaYaga() {
 		if (glow.current) {
 			const flame =
 				0.85 + 0.1 * Math.sin(now * 9.3) + 0.05 * Math.sin(now * 21.7);
-			glow.current.intensity = 9 * flame;
+			glow.current.intensity = 3.5 * flame;
 		}
 		flyingWitch.mixer.update(delta);
 
@@ -174,13 +174,13 @@ export function BabaYaga() {
 	return (
 		<>
 			<group ref={flying} scale={2}>
-				{/* тёплый свет, как от факела в ступе, — фигура читается на ночном небе */}
+				{/* слабое красное свечение из ступы — во все стороны, как от углей */}
 				<pointLight
 					ref={glow}
-					position={[0.8, 2, 1.2]}
-					color="#ff9a45"
-					distance={7}
-					decay={1.8}
+					position={[0, 1.1, 0]}
+					color="#ff3b22"
+					distance={8}
+					decay={1.4}
 				/>
 				<Mortar />
 				<primitive object={flyingWitch.object} scale={1.2} position-y={0.2} />
