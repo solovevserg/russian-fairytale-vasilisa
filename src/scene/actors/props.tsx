@@ -17,14 +17,33 @@ import { isShown } from "./presence";
 
 const SKIN = "#e8c3a4";
 
-/** Куколка Василисы (~20 см): сарафанчик, платочек. */
+const DOLL_DRESS = "#c8463a";
+
+/** Куколка Василисы (~20 см): сарафанчик с рукавами, платочек. */
 export function Doll({ scale = 1 }: { scale?: number }) {
 	return (
 		<group scale={scale}>
 			<mesh position={[0, 0.06, 0]}>
 				<coneGeometry args={[0.05, 0.12, 10]} />
-				<meshStandardMaterial color="#c8463a" roughness={0.9} />
+				<meshStandardMaterial color={DOLL_DRESS} roughness={0.9} />
 			</mesh>
+			{/* ручки: рукава от плеч чуть вперёд и в стороны, ладошки */}
+			{[-1, 1].map((side) => (
+				<group
+					key={side}
+					position={[side * 0.022, 0.112, 0]}
+					rotation={[-0.35, 0, side * 0.55]}
+				>
+					<mesh position={[0, -0.03, 0]}>
+						<cylinderGeometry args={[0.009, 0.011, 0.06, 6]} />
+						<meshStandardMaterial color={DOLL_DRESS} roughness={0.9} />
+					</mesh>
+					<mesh position={[0, -0.064, 0]}>
+						<sphereGeometry args={[0.009, 6, 5]} />
+						<meshStandardMaterial color={SKIN} roughness={0.8} />
+					</mesh>
+				</group>
+			))}
 			<mesh position={[0, 0.145, 0]}>
 				<sphereGeometry args={[0.028, 10, 8]} />
 				<meshStandardMaterial color={SKIN} roughness={0.8} />

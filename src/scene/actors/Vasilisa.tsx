@@ -19,8 +19,14 @@ const HEIGHT = 1.5;
 const SOURCE_HEIGHT = 1.9;
 const SCALE = HEIGHT / SOURCE_HEIGHT;
 const MODEL_OFFSET: [number, number, number] = [-0.1 * SCALE, 0.95 * SCALE, 0];
-/** Правая кисть (где была веточка) в координатах фигуры. */
-const RIGHT_HAND: [number, number, number] = [0.22, 1.0, 0.05];
+/**
+ * Левая рука согнута и вынесена вперёд на уровень груди (замерено по вершинам
+ * модели) — на эту ладонь и садится куколка. Лицо фигуры смотрит в +Z,
+ * поэтому левая рука — со стороны +X.
+ */
+const LEFT_PALM: [number, number, number] = [0.226, 1.045, 0.2];
+/** Где палка черепа-светоча проходит через руку. */
+const LANTERN_GRIP: [number, number, number] = [0.22, 1.0, 0.05];
 
 /**
  * Василиса: положение, поворот, поза (идёт / стоит / спит) и предмет в руке —
@@ -112,13 +118,17 @@ export function Vasilisa() {
 		<group ref={root}>
 			<group ref={body}>
 				<primitive object={model} scale={SCALE} position={MODEL_OFFSET} />
-				<group ref={doll} position={RIGHT_HAND}>
+				<group ref={doll} position={LEFT_PALM}>
 					<Doll />
 				</group>
 				{/* череп-светоч: палка проходит через кисть */}
 				<group
 					ref={lantern}
-					position={[RIGHT_HAND[0], RIGHT_HAND[1] - 0.45, RIGHT_HAND[2] + 0.02]}
+					position={[
+						LANTERN_GRIP[0],
+						LANTERN_GRIP[1] - 0.45,
+						LANTERN_GRIP[2] + 0.02,
+					]}
 				>
 					<SkullLantern length={1.4} beams />
 				</group>
