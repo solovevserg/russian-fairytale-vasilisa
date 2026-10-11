@@ -1,0 +1,15 @@
+{
+  "name": "Василиса Прекрасная — интерактивная 3D-сказка",
+  "short_name": "Василиса",
+  "lang": "ru",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#1b1814",
+  "theme_color": "#1b1814",
+  "icons": [
+    { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

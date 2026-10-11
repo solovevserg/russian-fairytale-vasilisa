@@ -3,8 +3,61 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Интерактивная 3D-история по сказке «Василиса Прекрасная»" />
+    <title>Василиса Прекрасная — интерактивная 3D-сказка</title>
+    <meta name="description" content="Русская народная сказка «Василиса Прекрасная» в 3D: листайте главы — и по ночному лесу проносятся всадники, светятся черепа на заборе, к избушке на курьих ножках прилетает Баба Яга. С озвучкой и музыкой Мусоргского." />
+    <meta name="author" content="Сергей Соловьёв" />
+    <meta name="theme-color" content="#1b1814" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="canonical" href="https://sergsol.dev/russian-fairytale-vasilisa/" />
+    <link rel="alternate" hreflang="ru" href="https://sergsol.dev/russian-fairytale-vasilisa/?lang=ru" />
+    <link rel="alternate" hreflang="en" href="https://sergsol.dev/russian-fairytale-vasilisa/?lang=en" />
+    <link rel="alternate" hreflang="es" href="https://sergsol.dev/russian-fairytale-vasilisa/?lang=es" />
+    <link rel="alternate" hreflang="zh-Hans" href="https://sergsol.dev/russian-fairytale-vasilisa/?lang=zh" />
+    <link rel="alternate" hreflang="x-default" href="https://sergsol.dev/russian-fairytale-vasilisa/" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- Open Graph / превью ссылок в мессенджерах и соцсетях -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Василиса Прекрасная" />
+    <meta property="og:title" content="Василиса Прекрасная — интерактивная 3D-сказка" />
+    <meta property="og:description" content="Русская народная сказка в 3D: всадники в ночном лесу, черепа с горящими глазами и Баба Яга в ступе. Листайте главы или включите автопрокрутку с озвучкой." />
+    <meta property="og:url" content="https://sergsol.dev/russian-fairytale-vasilisa/" />
+    <meta property="og:image" content="https://sergsol.dev/russian-fairytale-vasilisa/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Избушка на курьих ножках за частоколом с черепами в вечернем лесу и надпись «Василиса Прекрасная»" />
+    <meta property="og:locale" content="ru_RU" />
+    <meta property="og:locale:alternate" content="en_GB" />
+    <meta property="og:locale:alternate" content="es_ES" />
+    <meta property="og:locale:alternate" content="zh_CN" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Василиса Прекрасная — интерактивная 3D-сказка" />
+    <meta name="twitter:description" content="Русская народная сказка в 3D: всадники в ночном лесу, черепа с горящими глазами и Баба Яга в ступе." />
+    <meta name="twitter:image" content="https://sergsol.dev/russian-fairytale-vasilisa/og-image.jpg" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "CreativeWork",
+        "name": "Василиса Прекрасная",
+        "alternateName": ["Vasilisa the Beautiful", "Vasilisa la Hermosa", "美丽的瓦西丽莎"],
+        "description": "Интерактивная 3D-история по русской народной сказке «Василиса Прекрасная» из собрания А. Н. Афанасьева.",
+        "url": "https://sergsol.dev/russian-fairytale-vasilisa/",
+        "image": "https://sergsol.dev/russian-fairytale-vasilisa/og-image.jpg",
+        "genre": "Fairy tale",
+        "inLanguage": ["ru", "en", "es", "zh-Hans"],
+        "isAccessibleForFree": true,
+        "isBasedOn": {
+          "@type": "Book",
+          "name": "Народные русские сказки",
+          "author": { "@type": "Person", "name": "Александр Николаевич Афанасьев" }
+        },
+        "author": { "@type": "Person", "name": "Сергей Соловьёв", "url": "https://sergsol.dev" },
+        "codeRepository": "https://github.com/solovevserg/russian-fairytale-vasilisa"
+      }
+    </script>
     <script>
       // тема до первой отрисовки, чтобы не мигала светлая страница (см. src/ui/theme.ts)
       try {
@@ -15,10 +68,13 @@
         document.documentElement.dataset.theme = "light";
       }
     </script>
-    <title>Избушка на курьих ножках</title>
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <h1>Василиса Прекрасная</h1>
+      <p>Интерактивная 3D-история по русской народной сказке «Василиса Прекрасная». Для просмотра включите JavaScript.</p>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

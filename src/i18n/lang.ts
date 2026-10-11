@@ -27,6 +27,9 @@ export function pickLang(preferred: readonly string[]): Lang {
 
 function initialLang(): Lang {
 	if (typeof window === "undefined") return "ru";
+	// ?lang=en — ссылка на версию на языке (для поисковиков: hreflang)
+	const linked = new URLSearchParams(window.location.search).get("lang");
+	if (isLang(linked)) return linked;
 	try {
 		const saved = window.localStorage.getItem(LANG_KEY);
 		if (isLang(saved)) return saved;

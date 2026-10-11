@@ -39,6 +39,9 @@ export function ControlBar() {
 	useEffect(() => {
 		document.documentElement.lang = lang;
 		document.title = content.documentTitle;
+		document
+			.querySelector('meta[name="description"]')
+			?.setAttribute("content", content.description);
 	}, [lang, content]);
 
 	return (
