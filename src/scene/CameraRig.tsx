@@ -9,7 +9,12 @@ import { KEYFRAMES } from "../story/keyframes";
 import { delayedTimeProgress } from "../story/lightDelay";
 import { riderStarts } from "../story/riderClock";
 import { createSample, createTimeline, shapeProgress } from "../story/timeline";
-import { PARALLAX_LOOK, PARALLAX_SHIFT, pointer } from "./pointerParallax";
+import {
+	PARALLAX_LOOK,
+	PARALLAX_SHIFT,
+	pointer,
+	swayPointer,
+} from "./pointerParallax";
 import { heightAt } from "./terrain";
 
 /** Скорость догоняния прокрутки: больше — резче. */
@@ -74,6 +79,8 @@ export function CameraRig() {
 			).timeOfDay;
 		}
 
+		// без мыши (телефон, планшет) — медленное покачивание вместо неё
+		swayPointer(clock.elapsedTime);
 		// лёгкий параллакс от мыши: камера сдвигается за курсором и чуть
 		// доворачивает взгляд; амплитуда — доля расстояния до цели
 		const p = parallax.current;
