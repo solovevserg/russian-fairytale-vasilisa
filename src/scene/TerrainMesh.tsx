@@ -14,6 +14,7 @@ import {
 	type Texture,
 } from "three";
 
+import {replaceGlslLine} from "../lib/glsl";
 import {heightAt, TERRAIN_SIZE} from "./terrain";
 import {buildSplatMask} from "./terrainSplat";
 
@@ -86,14 +87,6 @@ const MAP_LINE = "vec4 sampledDiffuseColor = texture2D( map, vMapUv );";
 const NORMAL_LINE =
 	"vec3 mapN = texture2D( normalMap, vNormalMapUv ).xyz * 2.0 - 1.0;";
 
-/** Заменяет строку в куске шейдера; если строки нет (сменилась версия three) — громко падаем. */
-function patchChunk(chunk: string, line: string, replacement: string): string {
-	if (!chunk.includes(line)) {
-		throw new Error(`Terrain shader: строка не найдена в ShaderChunk: ${line}`);
-	}
-	return chunk.replace(line, replacement);
-}
-
 /** Подключает к MeshStandardMaterial смешивание текстур поляны, леса и тропы. */
 function applySplat(
 	material: MeshStandardMaterial,
@@ -117,11 +110,11 @@ function applySplat(
 			.replace("#include <common>", `#include <common>\n${SPLAT_PARS}`)
 			.replace(
 				"#include <map_fragment>",
-				patchChunk(ShaderChunk.map_fragment, MAP_LINE, MAP_FRAGMENT),
+				replaceGlslLine(ShaderChunk.map_fragment, MAP_LINE, MAP_FRAGMENT),
 			)
 			.replace(
 				"#include <normal_fragment_maps>",
-				patchChunk(
+				replaceGlslLine(
 					ShaderChunk.normal_fragment_maps,
 					NORMAL_LINE,
 					NORMAL_FRAGMENT,

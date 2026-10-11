@@ -16,5 +16,12 @@
 		"noEmit": true,
 		"types": ["vite/client", "bun"]
 	},
-	"include": ["src", "tests", "vite.config.ts", "playwright.config.ts"]
+	"include": [
+		"src",
+		"tests",
+		"scripts/vite",
+		"vite.config.ts",
+		"playwright.config.ts",
+		"playwright.visual.config.ts"
+	]
 }
