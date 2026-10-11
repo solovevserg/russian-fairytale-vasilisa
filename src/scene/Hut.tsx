@@ -5,6 +5,7 @@ import type {Group, MeshStandardMaterial, PointLight} from "three";
 
 import {useSceneStore} from "../state/sceneStore";
 import {currentSample} from "../story/currentSample";
+import {Deferred} from "./Deferred";
 import {ChimneySmoke} from "./effects/ChimneySmoke";
 import {enableShadows, MODEL_URLS, materialsOf} from "./models";
 import {paletteAt} from "./sky/timeOfDay";
@@ -21,7 +22,14 @@ const ROTATION_Y = Math.atan2(0.835, -0.55);
 /** Верх трубы в координатах модели. */
 const CHIMNEY_TOP: [number, number, number] = [5.9, 15, -5.9];
 
-export function Hut() {
+const CHIMNEY: [number, number, number] = [
+	CHIMNEY_TOP[0] * SCALE,
+	(CHIMNEY_TOP[1] - MODEL_BOTTOM) * SCALE,
+	CHIMNEY_TOP[2] * SCALE,
+];
+
+/** Модель избушки — грузится ближе к «Поляне» (Deferred в Hut). */
+function HutModel() {
 	const {scene} = useGLTF(MODEL_URLS.hut);
 	const model = useMemo(() => {
 		const clone = scene.clone(true);
@@ -37,36 +45,48 @@ export function Hut() {
 			),
 		[model],
 	);
-	const doorLight = useRef<PointLight>(null);
 	const body = useRef<Group>(null);
 
 	useFrame(() => {
-		// до «Поляны» избушки нет; свет не прячем, а гасим (см. House.tsx)
-		const shown = currentSample.hut;
-		if (body.current) body.current.visible = shown;
+		// до «Поляны» избушки нет
+		if (body.current) body.current.visible = currentSample.hut;
 		const night = paletteAt(useSceneStore.getState().timeOfDay).night;
 		for (const m of glowing) m.emissiveIntensity = 0.3 + night * 2.2;
-		if (doorLight.current) doorLight.current.intensity = shown ? night * 6 : 0;
 	});
 
-	const chimney: [number, number, number] = [
-		CHIMNEY_TOP[0] * SCALE,
-		(CHIMNEY_TOP[1] - MODEL_BOTTOM) * SCALE,
-		CHIMNEY_TOP[2] * SCALE,
-	];
+	return (
+		<group ref={body}>
+			<primitive
+				object={model}
+				scale={SCALE}
+				position-y={-MODEL_BOTTOM * SCALE}
+			/>
+			<group position={CHIMNEY}>
+				<ChimneySmoke />
+			</group>
+		</group>
+	);
+}
+
+/**
+ * Избушка. Свет из двери — с первого кадра (новый свет перекомпилировал бы
+ * все шейдеры сцены), до «Поляны» он погашен; модель грузится позже.
+ */
+export function Hut() {
+	const doorLight = useRef<PointLight>(null);
+
+	useFrame(() => {
+		const night = paletteAt(useSceneStore.getState().timeOfDay).night;
+		if (doorLight.current) {
+			doorLight.current.intensity = currentSample.hut ? night * 6 : 0;
+		}
+	});
 
 	return (
 		<group rotation-y={ROTATION_Y}>
-			<group ref={body}>
-				<primitive
-					object={model}
-					scale={SCALE}
-					position-y={-MODEL_BOTTOM * SCALE}
-				/>
-				<group position={chimney}>
-					<ChimneySmoke />
-				</group>
-			</group>
+			<Deferred until="clearing">
+				<HutModel />
+			</Deferred>
 			{/* тёплый свет из двери ночью */}
 			<pointLight
 				ref={doorLight}

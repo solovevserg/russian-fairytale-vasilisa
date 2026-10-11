@@ -17,6 +17,7 @@ import {clone as cloneSkinned} from "three/examples/jsm/utils/SkeletonUtils.js";
 import {smoothstep} from "../../lib/math";
 import {currentSample} from "../../story/currentSample";
 import {BABA_YAGA_FLIGHT, BABA_YAGA_STAND} from "../../story/keyframes";
+import {Deferred} from "../Deferred";
 import {enableShadows, MODEL_URLS} from "../models";
 import {heightAt} from "../terrain";
 import {setShown} from "./presence";
@@ -102,6 +103,32 @@ function useWitch(): {object: Object3D; mixer: AnimationMixer} {
 	return witch;
 }
 
+/** Ведьма в ступе — модель с анимацией; на себя тени не принимает. */
+function FlyingWitch() {
+	const witch = useWitch();
+	// в полёте тени на себя не принимает: на телефонах карта теней
+	// обновляется через кадр, и быстрая ступа ловила свою же тень из
+	// прошлого кадра — мерцала
+	useEffect(() => {
+		witch.object.traverse((child) => {
+			child.receiveShadow = false;
+		});
+	}, [witch]);
+	useFrame((_, delta) => {
+		if (currentSample.babaYaga === "fly") witch.mixer.update(delta);
+	});
+	return <primitive object={witch.object} scale={1.2} position-y={0.2} />;
+}
+
+/** Ведьма у избы (глава «Череп-светоч»). */
+function StandingWitch() {
+	const witch = useWitch();
+	useFrame((_, delta) => {
+		if (currentSample.babaYaga === "stand") witch.mixer.update(delta);
+	});
+	return <primitive object={witch.object} scale={STAND_SCALE} />;
+}
+
 /** Курс (поворот вокруг Y) касательной. */
 function heading(v: Vector3) {
 	return Math.atan2(v.x, v.z);
@@ -111,18 +138,12 @@ function heading(v: Vector3) {
  * Баба Яга. Глава «Баба Яга»: летит в ступе, пестом погоняет, помелом след
  * заметает — и виражом снижается к избушке. Глава «Череп-светоч»: стоит у
  * избы — череп она уже отдала Василисе.
+ *
+ * Полёт, свечение ступы, ступа и помело — с первого кадра (свет нельзя
+ * добавлять позже — перекомпиляция всех шейдеров); модель ведьмы грузится
+ * ближе к её главе.
  */
 export function BabaYaga() {
-	const flyingWitch = useWitch();
-	// в полёте тени на себя не принимает: на телефонах карта теней
-	// обновляется через кадр, и быстрая ступа ловила свою же тень из
-	// прошлого кадра — мерцала
-	useEffect(() => {
-		flyingWitch.object.traverse((child) => {
-			child.receiveShadow = false;
-		});
-	}, [flyingWitch]);
-	const standingWitch = useWitch();
 	const flying = useRef<Group>(null);
 	const standing = useRef<Group>(null);
 	const pestle = useRef<Group>(null);
@@ -131,11 +152,10 @@ export function BabaYaga() {
 	const tangent = useMemo(() => new Vector3(), []);
 	const ahead = useMemo(() => new Vector3(), []);
 
-	useFrame(({clock}, delta) => {
+	useFrame(({clock}) => {
 		const mode = currentSample.babaYaga;
 		const now = clock.elapsedTime;
 		if (standing.current) setShown(standing.current, mode === "stand");
-		if (mode === "stand") standingWitch.mixer.update(delta);
 		const f = flying.current;
 		if (!f) return;
 		if (mode !== "fly") {
@@ -154,7 +174,6 @@ export function BabaYaga() {
 				0.85 + 0.1 * Math.sin(now * 9.3) + 0.05 * Math.sin(now * 21.7);
 			glow.current.intensity = 3.5 * flame;
 		}
-		flyingWitch.mixer.update(delta);
 
 		// к концу пути — плавно выравниваемся и встаём на землю
 		const settle = 1 - smoothstep(0.9, 1, t);
@@ -196,7 +215,9 @@ export function BabaYaga() {
 					decay={1.4}
 				/>
 				<Mortar />
-				<primitive object={flyingWitch.object} scale={1.2} position-y={0.2} />
+				<Deferred until="baba-yaga">
+					<FlyingWitch />
+				</Deferred>
 				<group ref={pestle} position={[0.3, 1.0, 0.1]}>
 					<mesh position={[0, 0.2, 0]}>
 						<cylinderGeometry args={[0.035, 0.05, 1.5, 8]} />
@@ -213,7 +234,9 @@ export function BabaYaga() {
 				position={[BABA_YAGA_STAND.x, standY, BABA_YAGA_STAND.z]}
 				rotation-y={BABA_YAGA_STAND.heading}
 			>
-				<primitive object={standingWitch.object} scale={STAND_SCALE} />
+				<Deferred until="baba-yaga">
+					<StandingWitch />
+				</Deferred>
 				<group position={[-0.9, 0, -0.3]}>
 					<Mortar />
 				</group>

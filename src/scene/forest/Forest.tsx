@@ -10,6 +10,7 @@ import {
 	layoutHomeTrees,
 	type TreePlacement,
 } from "../forestLayout";
+import {Precompiled} from "../Precompiled";
 import {quality} from "../quality";
 import type {TreeVariantAssets} from "./createTreeVariant";
 import {allReady, useTreeVariants} from "./useTreeVariants";
@@ -63,8 +64,9 @@ export function VariantInstances({
 	const count = placements.length;
 	// тени отбрасывают только деревья у поляны: дальние скрыты туманом, а тени удваивают нагрузку
 	const shadows = assets.spec.zone === "edge" && quality.shadows;
+	// деревья появляются по ходу — их шейдеры компилируются в фоне, до показа
 	return (
-		<>
+		<Precompiled>
 			<instancedMesh
 				visible={!debugFlags.noBranches}
 				ref={branches}
@@ -81,7 +83,7 @@ export function VariantInstances({
 				castShadow={shadows && castShadow}
 				receiveShadow={shadows}
 			/>
-		</>
+		</Precompiled>
 	);
 }
 
