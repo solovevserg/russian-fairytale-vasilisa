@@ -28,6 +28,25 @@ function OpeningParagraph({
 	);
 }
 
+const ROMAN: [number, string][] = [
+	[10, "X"],
+	[9, "IX"],
+	[5, "V"],
+	[4, "IV"],
+	[1, "I"],
+];
+
+function toRoman(n: number): string {
+	let out = "";
+	for (const [value, digits] of ROMAN) {
+		while (n >= value) {
+			out += digits;
+			n -= value;
+		}
+	}
+	return out;
+}
+
 function ChapterSection({
 	chapter,
 	caption,
@@ -45,6 +64,7 @@ function ChapterSection({
 	speaking: number | null;
 }) {
 	const [first, ...rest] = chapter.paragraphs;
+	const numeral = index > 0 && !last ? toRoman(index) : null;
 	return (
 		<section
 			className={active ? "chapter chapter--active" : "chapter"}
@@ -54,19 +74,32 @@ function ChapterSection({
 		>
 			{index > 0 && <Divider />}
 			<p className="chapter__caption">{caption}</p>
-			<h2>{chapter.title}</h2>
-			{first && (
-				<OpeningParagraph
-					text={first}
-					grand={index === 0}
-					reading={speaking === 0}
-				/>
-			)}
-			{rest.map((text, i) => (
-				<p key={text} className={speaking === i + 1 ? "is-reading" : undefined}>
-					{text}
-				</p>
-			))}
+			<h2>
+				{/* на мобильных вместо подписи «Глава …» — римская цифра перед названием */}
+				{numeral && (
+					<span className="chapter__numeral" aria-hidden="true">
+						{numeral}.{" "}
+					</span>
+				)}
+				{chapter.title}
+			</h2>
+			<div className="chapter__body">
+				{first && (
+					<OpeningParagraph
+						text={first}
+						grand={index === 0}
+						reading={speaking === 0}
+					/>
+				)}
+				{rest.map((text, i) => (
+					<p
+						key={text}
+						className={speaking === i + 1 ? "is-reading" : undefined}
+					>
+						{text}
+					</p>
+				))}
+			</div>
 			{last && <Tailpiece />}
 		</section>
 	);
