@@ -19,6 +19,9 @@ export function useScrollProgress(container: RefObject<HTMLElement | null>) {
 		if (!root) return;
 		const setProgress = useStoryStore.getState().setProgress;
 		let anchors: number[] = [];
+		/** Середины титульной и финальной карточек. */
+		let start = 0;
+		let credits = 0;
 		let frame = 0;
 
 		const measure = () => {
@@ -26,12 +29,33 @@ export function useScrollProgress(container: RefObject<HTMLElement | null>) {
 				root.querySelectorAll<HTMLElement>("[data-keyframe]"),
 				anchorOf,
 			);
+			const header = root.querySelector<HTMLElement>(".story__header");
+			const footer = root.querySelector<HTMLElement>(".story__credits");
+			start = header ? anchorOf(header) : (anchors[0] ?? 0);
+			credits = footer ? anchorOf(footer) : (anchors.at(-1) ?? 0);
 		};
 		const update = () => {
 			frame = 0;
-			setProgress(
-				progressFromAnchors(anchors, scrollPosition() + viewportSize() / 2),
-			);
+			const focus = scrollPosition() + viewportSize() / 2;
+			const first = anchors[0] ?? 0;
+			const last = anchors.at(-1) ?? 0;
+			// до пролога — титул: 1 на нём, 0 на прологе
+			const title =
+				focus >= first || first <= start
+					? 0
+					: Math.min((first - focus) / (first - start), 1);
+			// после эпилога — к титрам: 0 на эпилоге, 1 на титрах
+			const toCredits =
+				focus <= last || credits <= last
+					? 0
+					: Math.min((focus - last) / (credits - last), 1);
+			const edge =
+				title > 0.5
+					? "start"
+					: credits > last && focus > (last + credits) / 2
+						? "credits"
+						: null;
+			setProgress(progressFromAnchors(anchors, focus), title, edge, toCredits);
 		};
 		const schedule = () => {
 			if (!frame) frame = requestAnimationFrame(update);

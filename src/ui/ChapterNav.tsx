@@ -2,57 +2,68 @@ import { useEffect, useRef } from "react";
 import { useStoryStore } from "../state/storyStore";
 import { chapters } from "../story/chapters";
 
-/** Плавно прокручивает к главе (центр экрана — как при CSS scroll-snap). */
-export function scrollToChapter(index: number) {
-	const chapter = chapters[index];
-	if (!chapter) return;
+/**
+ * Остановки навигации: титул, главы, титры. В адресе — их id (#start, #fire,
+ * …, #credits): ссылкой можно поделиться — страница откроется на этом месте.
+ */
+const STOPS = ["start", ...chapters.map((c) => c.id), "credits"];
+
+/** Плавно прокручивает к остановке (центр экрана — как при CSS scroll-snap). */
+function scrollToStop(index: number) {
+	const id = STOPS[index];
+	if (!id) return;
 	const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-	document.getElementById(chapter.id)?.scrollIntoView({
+	document.getElementById(id)?.scrollIntoView({
 		behavior: reduce ? "auto" : "smooth",
 		block: "center",
 		inline: "center",
 	});
 }
 
+/** Где читатель сейчас: индекс в STOPS. */
+function useStop(): number {
+	const activeChapter = useStoryStore((s) => s.activeChapter);
+	const edge = useStoryStore((s) => s.edge);
+	if (edge === "start") return 0;
+	if (edge === "credits") return STOPS.length - 1;
+	return activeChapter + 1;
+}
+
 /**
- * Якорь в адресе следует за активной главой (#fire, #baba-yaga…): ссылкой
- * можно поделиться — страница откроется на этой главе. replaceState не
- * засоряет историю и не дёргает прокрутку.
+ * Якорь в адресе следует за читателем (#start, #fire, #baba-yaga…,
+ * #credits). replaceState не засоряет историю и не дёргает прокрутку.
  */
 export function useChapterHash() {
-	const activeChapter = useStoryStore((s) => s.activeChapter);
-	// глава из адреса при открытии ссылки: главы рисует React, поэтому браузер
+	const stop = useStop();
+	// место из адреса при открытии ссылки: главы рисует React, поэтому браузер
 	// сам к ним не прокрутит — делаем это после монтирования
 	const pending = useRef<number | null>(null);
 	useEffect(() => {
-		const index = chapters.findIndex(
-			(c) => `#${c.id}` === window.location.hash,
-		);
+		const index = STOPS.findIndex((id) => `#${id}` === window.location.hash);
 		if (index <= 0) return;
 		pending.current = index;
 		document
-			.getElementById(chapters[index].id)
+			.getElementById(STOPS[index])
 			?.scrollIntoView({ block: "center", inline: "center" });
 	}, []);
 	useEffect(() => {
 		if (pending.current !== null) {
-			if (activeChapter !== pending.current) return;
+			if (stop !== pending.current) return;
 			pending.current = null;
 		}
-		const id = chapters[activeChapter]?.id;
+		const id = STOPS[stop];
 		if (!id || window.location.hash === `#${id}`) return;
 		history.replaceState(null, "", `#${id}`);
-	}, [activeChapter]);
+	}, [stop]);
 }
 
-/** Кнопки «предыдущая / следующая глава» в области чтения (десктоп). */
+/** Кнопки «назад / дальше» в области чтения (десктоп): титул, главы, титры. */
 export function ChapterNav({
 	labels,
 }: {
 	labels: { nav: string; prev: string; next: string };
 }) {
-	const activeChapter = useStoryStore((s) => s.activeChapter);
-	const last = chapters.length - 1;
+	const stop = useStop();
 	return (
 		<nav className="chapter-nav" aria-label={labels.nav}>
 			<button
@@ -60,8 +71,8 @@ export function ChapterNav({
 				className="chapter-nav__button"
 				aria-label={labels.prev}
 				title={labels.prev}
-				disabled={activeChapter <= 0}
-				onClick={() => scrollToChapter(activeChapter - 1)}
+				disabled={stop <= 0}
+				onClick={() => scrollToStop(stop - 1)}
 			>
 				<span aria-hidden="true">↑</span>
 			</button>
@@ -70,8 +81,8 @@ export function ChapterNav({
 				className="chapter-nav__button"
 				aria-label={labels.next}
 				title={labels.next}
-				disabled={activeChapter >= last}
-				onClick={() => scrollToChapter(activeChapter + 1)}
+				disabled={stop >= STOPS.length - 1}
+				onClick={() => scrollToStop(stop + 1)}
 			>
 				<span aria-hidden="true">↓</span>
 			</button>

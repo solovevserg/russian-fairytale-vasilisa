@@ -116,7 +116,7 @@ export function StoryColumn() {
 
 	return (
 		<main className="story" ref={root}>
-			<header className="story__header">
+			<header className="story__header" id="start">
 				<Divider large />
 				<p className="story__kicker">{content.subtitle}</p>
 				<h1>{content.title}</h1>
@@ -174,7 +174,7 @@ const MODELS = [
 function Credits({ content }: { content: Content }) {
 	const c = content.ui.credits;
 	return (
-		<footer className="story__credits">
+		<footer className="story__credits" id="credits">
 			{/* сначала — кто сделал: надзаголовок и имя; ниже — источники */}
 			<p className="story__credits-role">{c.authorRole}</p>
 			<h2 className="story__credits-name">
