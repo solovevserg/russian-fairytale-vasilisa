@@ -1,7 +1,10 @@
 import {describe, expect, test} from "bun:test";
+import {readFileSync} from "node:fs";
+import {join} from "node:path";
 
 import {CONTENT} from "../../src/i18n/content";
 import {LANGS, pickLang} from "../../src/i18n/lang";
+import LOCALE_RU from "../../src/i18n/locales/ru.json" with {type: "json"};
 
 describe("переводы", () => {
 	const ru = CONTENT.ru;
@@ -33,9 +36,38 @@ describe("переводы", () => {
 		expect(CONTENT.zh.caption(3)).toBe("第三章");
 	});
 
-	test("у интерфейса на всех языках один и тот же набор строк", () => {
-		for (const other of others)
-			expect(Object.keys(other.ui).sort()).toEqual(Object.keys(ru.ui).sort());
+	/** Пути ко всем строкам файла перевода (кроме глав — их проверяет тест выше). */
+	function keyPaths(value: unknown, path = ""): string[] {
+		if (Array.isArray(value)) return [`${path}[${value.length}]`];
+		if (value && typeof value === "object")
+			return Object.entries(value)
+				.filter(([key]) => !(path === "" && key === "chapters"))
+				.flatMap(([key, v]) => keyPaths(v, path ? `${path}.${key}` : key));
+		return [path];
+	}
+
+	test("файлы переводов: одинаковый набор ключей, без лишних и пропущенных", () => {
+		for (const l of LANGS) {
+			const file = JSON.parse(
+				readFileSync(
+					join(import.meta.dir, `../../src/i18n/locales/${l.id}.json`),
+					"utf8",
+				),
+			);
+			expect(keyPaths(file).sort()).toEqual(keyPaths(LOCALE_RU).sort());
+		}
+	});
+
+	test("числительных хватает на все главы, пары строк — пары", () => {
+		for (const l of LANGS) {
+			const c = CONTENT[l.id];
+			expect(c.captions.ordinals.length).toBeGreaterThanOrEqual(
+				c.chapters.length - 2,
+			);
+			expect(c.captions.chapter).toContain("{ordinal}");
+			expect(c.ui.swipeHint).toHaveLength(2);
+			expect(c.ui.credits.withClaude).toHaveLength(2);
+		}
 	});
 
 	test("язык браузера: первый поддерживаемый, иначе английский", () => {

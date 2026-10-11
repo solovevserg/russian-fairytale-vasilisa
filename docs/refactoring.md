@@ -101,18 +101,21 @@ src/lib/
 
 ### 2.1 Список глав
 
-Сейчас порядок глав задан дважды: `id` в `src/i18n/chapters/ru.ts` и `id` в
+Сейчас порядок глав задан дважды: `id` в `src/i18n/locales/ru.json` и `id` в
 `KEYFRAMES`. Они связаны только индексом, а `id` — просто `string`.
 
 - `story/chapterIds.ts`: `export const CHAPTER_IDS = ["prologue", …, "epilogue"] as const; type ChapterId`.
 - Сцена: `SCENES: Record<ChapterId, SceneKeyframe>`; массив `KEYFRAMES`
   выводится из `CHAPTER_IDS.map(id => SCENES[id])`. Пропущенная или лишняя
   глава — ошибка типов, а не тихий сдвиг.
-- Тексты: `Record<ChapterId, { title, paragraphs }>` на каждый язык.
+- Тексты: главы в `locales/*.json` проверять по `ChapterId` (юнит-тест: те
+  же id в том же порядке, что `CHAPTER_IDS`).
 - Подписи «Глава первая…», навигация `STOPS`, якоря `#fire` — выводятся из
   `CHAPTER_IDS`.
-- `ORDINALS_*` — перенести в файлы языков рядом с текстами (сейчас все
-  четыре языка в `content.ts`).
+- ~~`ORDINALS_*` — перенести в файлы языков~~ — сделано: переводы лежат в
+  `src/i18n/locales/<язык>.json` (по файлу на язык), числительные и шаблон
+  подписи — там же (`captions`). Каждый JSON проверяется на интерфейс
+  `Locale` при компиляции (`satisfies`), одинаковый набор ключей — тестом.
 
 ### 2.2 Места на карте (`story/places.ts`)
 

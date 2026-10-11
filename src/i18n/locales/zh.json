@@ -1,0 +1,126 @@
+{
+	"title": "美丽的瓦西丽莎",
+	"subtitle": "俄罗斯民间故事",
+	"source": "据阿法纳西耶夫《俄罗斯民间故事集》改编",
+	"documentTitle": "美丽的瓦西丽莎 — 交互式3D童话",
+	"description": "俄罗斯民间故事《美丽的瓦西丽莎》3D版：翻阅章节，看骑士穿过夜晚的森林，篱笆上的骷髅亮起眼睛，芭芭雅嘎飞向她的鸡腿小木屋。配有朗读和穆索尔斯基的音乐。",
+	"speechLang": "zh-CN",
+	"captions": {
+		"beginning": "开篇",
+		"ending": "结尾",
+		"chapter": "第{ordinal}章",
+		"ordinals": ["一", "二", "三", "四", "五", "六", "七", "八", "九", "十"]
+	},
+	"ui": {
+		"read": "阅读故事",
+		"readShort": "阅读",
+		"pause": "暂停",
+		"narrate": "朗读",
+		"narrateOn": "朗读已开启",
+		"narrateTitle": "用浏览器语音朗读",
+		"soundOn": "声音已开启",
+		"soundOff": "开启声音",
+		"soundEnable": "开启声音",
+		"soundDisable": "关闭声音",
+		"themeLight": "浅色主题",
+		"themeDark": "深色主题",
+		"swipeHint": ["滑动观看故事", "或点击“阅读”自动播放"],
+		"backToStart": "回到开头",
+		"language": "语言",
+		"toolbar": "阅读控制",
+		"chaptersNav": "章节",
+		"prevChapter": "上一章",
+		"nextChapter": "下一章",
+		"credits": {
+			"music": "音乐：穆索尔斯基《图画展览会》（Musopen 录音，公有领域）。森林音效：OpenGameArt 与 BigSoundBank（CC0）。地面纹理：Poly Haven（CC0）。树木：ez-tree（MIT）。骷髅：Quaternius（CC0）。字体：Ruslan Display 与 Old Standard TT（OFL）。",
+			"models": "3D 模型（已修改：简化、压缩，瓦西丽莎上色，木屋重新配色）：",
+			"authorRole": "项目作者",
+			"authorName": "谢尔盖·索洛维约夫",
+			"dedication": "献给我的妻子斯特凡尼娅",
+			"withClaude": ["与 ", " 共同创建"],
+			"allSources": "全部来源与许可",
+			"sourceCode": "源代码"
+		}
+	},
+	"chapters": [
+		{
+			"id": "prologue",
+			"title": "序幕",
+			"paragraphs": [
+				"从前，在某个王国里住着一位商人，他只有一个女儿——美丽的瓦西丽莎。母亲临终时把一个小小的布娃娃留给她作为祝福，嘱咐她好好珍藏，不要给任何人看。",
+				"商人娶了一个带着两个女儿的寡妇。继母和两个姐姐都讨厌瓦西丽莎，总在盘算怎样把她除掉。"
+			]
+		},
+		{
+			"id": "fire",
+			"title": "火灭了",
+			"paragraphs": [
+				"一个秋夜，家里所有的灯火都熄灭了。“去芭芭雅嘎那儿取火！”姐姐们喊着，把瓦西丽莎推出了门。",
+				"瓦西丽莎喂过娃娃，把它藏进口袋，走进了黑暗茂密的森林。"
+			]
+		},
+		{
+			"id": "white-rider",
+			"title": "白骑士",
+			"paragraphs": [
+				"她一边走一边发抖。忽然一位骑士飞驰而过：他浑身雪白，穿着白衣，骑着白马，马具也是白的——天开始亮了。"
+			]
+		},
+		{
+			"id": "red-rider",
+			"title": "红骑士",
+			"paragraphs": [
+				"她继续往前走，又一位骑士飞驰而过：他浑身通红，穿着红衣，骑着红马。"
+			]
+		},
+		{
+			"id": "sunrise",
+			"title": "日出",
+			"paragraphs": [
+				"太阳升起来了。温暖的阳光穿过云杉的枝叶，照亮了瓦西丽莎的脸庞。"
+			]
+		},
+		{
+			"id": "clearing",
+			"title": "林中空地",
+			"paragraphs": [
+				"瓦西丽莎走了整整一天，直到傍晚才来到一片空地，芭芭雅嘎的小木屋就立在那里。木屋四周的篱笆是用人骨做的，篱笆上插着长着眼睛的骷髅。"
+			]
+		},
+		{
+			"id": "black-rider",
+			"title": "黑骑士",
+			"paragraphs": [
+				"忽然又来了一位骑士：他浑身漆黑，穿着一身黑衣，骑着黑马。他奔到大门前就不见了，好像钻进了地底——夜幕降临了。篱笆上骷髅的眼睛亮了起来。"
+			]
+		},
+		{
+			"id": "baba-yaga",
+			"title": "芭芭雅嘎",
+			"paragraphs": [
+				"不久，森林里传来可怕的声响：树木咔咔作响，枯叶沙沙碎裂。芭芭雅嘎从林中出来了——她坐在石臼里，用杵赶路，用扫帚扫去身后的痕迹。"
+			]
+		},
+		{
+			"id": "tasks",
+			"title": "差事",
+			"paragraphs": [
+				"芭芭雅嘎给瓦西丽莎派了一整天的活。可是娃娃帮了她：瓦西丽莎睡觉的时候，一切都做完了。"
+			]
+		},
+		{
+			"id": "skull",
+			"title": "骷髅灯",
+			"paragraphs": [
+				"芭芭雅嘎放瓦西丽莎走了，还给了她一个插在木棍上、双眼燃烧的骷髅。瓦西丽莎跑回家去，骷髅为她照亮了道路。"
+			]
+		},
+		{
+			"id": "epilogue",
+			"title": "尾声",
+			"paragraphs": [
+				"第二天傍晚，瓦西丽莎回到了家。而那座鸡腿小木屋，依旧立在茂密的森林里。"
+			]
+		}
+	]
+}

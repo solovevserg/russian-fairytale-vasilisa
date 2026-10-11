@@ -260,8 +260,10 @@ src/
   lib/                     # утилиты без знания о проекте: math, damp, easing,
                            # random, url, storage, dom, roman, hooks/ (см. refactoring.md)
   i18n/
-    chapters/              # тексты глав: ru.ts, en.ts, es.ts, zh.ts (одни id)
-    content.ts             # тексты интерфейса на всех языках
+    locales/               # переводы: ru.json, en.json, es.json, zh.json — по файлу
+                           # на язык: главы, подписи, интерфейс, титры
+    types.ts               # интерфейс Locale — каждый JSON проверяется на него
+    content.ts             # импорт JSON (satisfies Record<Lang, Locale>), подписи глав
   story/
     chapters.ts            # порядок и id глав (русская версия как основная)
     keyframes.ts           # ключевые кадры сцены
