@@ -87,6 +87,8 @@ export interface Content {
 		themeDark: string;
 		/** Подсказка на первом экране мобильной версии: как листать и что «Читать» — само. */
 		swipeHint: [action: string, alternative: string];
+		/** Кнопка на финальной карточке (телефон): вернуться к началу сказки. */
+		backToStart: string;
 		/** Подпись меню языков. */
 		language: string;
 		toolbar: string;
@@ -145,6 +147,7 @@ export const CONTENT: Record<Lang, Content> = {
 				"или нажмите «Читать» — она пойдёт сама",
 			],
 			language: "Язык",
+			backToStart: "Вернуться в начало",
 			toolbar: "Управление чтением",
 			chaptersNav: "Главы",
 			prevChapter: "Предыдущая глава",
@@ -192,6 +195,7 @@ export const CONTENT: Record<Lang, Content> = {
 			themeLight: "Light theme",
 			themeDark: "Dark theme",
 			swipeHint: ["Swipe to watch the tale", "or tap “Read” to play it"],
+			backToStart: "Back to the beginning",
 			language: "Language",
 			toolbar: "Reading controls",
 			chaptersNav: "Chapters",
@@ -244,6 +248,7 @@ export const CONTENT: Record<Lang, Content> = {
 				"o pulsa «Leer» y avanzará solo",
 			],
 			language: "Idioma",
+			backToStart: "Volver al principio",
 			toolbar: "Controles de lectura",
 			chaptersNav: "Capítulos",
 			prevChapter: "Capítulo anterior",
@@ -287,6 +292,7 @@ export const CONTENT: Record<Lang, Content> = {
 			themeLight: "浅色主题",
 			themeDark: "深色主题",
 			swipeHint: ["滑动观看故事", "或点击“阅读”自动播放"],
+			backToStart: "回到开头",
 			language: "语言",
 			toolbar: "阅读控制",
 			chaptersNav: "章节",

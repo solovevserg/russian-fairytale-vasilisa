@@ -92,7 +92,7 @@ test("карточка пролога не прокручивается по в�
 	expect(extra).toBeLessThanOrEqual(1);
 });
 
-test("автопрокрутка доходит до финальной карточки с автором и посвящением", async ({
+test("автопрокрутка доходит до финальной карточки; оттуда — кнопка «Вернуться в начало»", async ({
 	page,
 }) => {
 	test.setTimeout(120_000);
@@ -122,4 +122,21 @@ test("автопрокрутка доходит до финальной карт
 			{ timeout: 60_000 },
 		)
 		.toBeLessThan(4);
+
+	// через несколько секунд поверх сцены — «Вернуться в начало»
+	const back = page.locator(".back-to-start");
+	await expect(back).toHaveClass(/back-to-start--shown/, { timeout: 15_000 });
+	await back.tap();
+	await expect
+		.poll(() =>
+			page.evaluate(
+				() =>
+					(
+						window as unknown as {
+							__STORY__: { getState: () => { edge: string | null } };
+						}
+					).__STORY__.getState().edge,
+			),
+		)
+		.toBe("start");
 });
