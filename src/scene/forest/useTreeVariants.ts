@@ -4,12 +4,16 @@ import type {TreeVariantAssets} from "./createTreeVariant";
 import type {TreeVariantSpec} from "./variants";
 
 /**
- * Генератор деревьев грузится отдельным чанком: ez-tree со вшитыми текстурами
- * коры и листьев весит около 4 МБ, а сцена — небо, земля, избы, трава,
- * герои — рисуется и без него. Загрузка начинается сразу при импорте модуля,
- * параллельно с остальным.
+ * Генератор деревьев грузится отдельным чанком (ez-tree и его текстуры коры
+ * и листвы): сцена — небо, земля, избы, трава, герои — рисуется и без него.
+ * Загрузка начинается при первом лесе или кустах на сцене (с ?noforest
+ * и ?nograss — не начинается вовсе).
  */
-const treeFactory = import("./createTreeVariant");
+let treeFactory: Promise<typeof import("./createTreeVariant")> | undefined;
+function loadTreeFactory() {
+	treeFactory ??= import("./createTreeVariant");
+	return treeFactory;
+}
 
 /**
  * Генерирует варианты деревьев (или кустов) по спецификациям; пока генератор
@@ -24,7 +28,7 @@ export function useTreeVariants(
 	specs: readonly TreeVariantSpec[],
 	label: string,
 ): TreeVariantAssets[] {
-	const {createTreeVariant} = use(treeFactory);
+	const {createTreeVariant} = use(loadTreeFactory());
 	const variants = useMemo(() => {
 		const started = performance.now();
 		const result = specs.map(createTreeVariant);

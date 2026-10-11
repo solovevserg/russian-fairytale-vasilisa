@@ -5,7 +5,8 @@ import {urlString} from "../lib/url";
 /**
  * Адаптивное качество сцены. Уровень выбирается один раз при загрузке —
  * по устройству, экрану, сети и видеокарте; дальше разрешение подстраивается
- * по fps на лету (см. SceneCanvas). Принудительно: ?quality=low|medium|high.
+ * по fps на лету (см. SceneCanvas). Принудительно: ?quality=low|medium|high,
+ * облегчённые ресурсы — ?assets=light|full.
  */
 export type QualityTier = "low" | "medium" | "high";
 
@@ -32,9 +33,17 @@ export interface QualitySettings {
 	edgeTrees: number;
 	/** Карта теней обновляется раз в столько кадров. */
 	shadowEvery: number;
+	/**
+	 * Облегчённые ресурсы: текстуры земли и деревьев меньшего разрешения,
+	 * упрощённые модели (см. lightAssetsFor).
+	 */
+	lightAssets: boolean;
 }
 
-export const QUALITY: Record<QualityTier, Omit<QualitySettings, "tier">> = {
+export const QUALITY: Record<
+	QualityTier,
+	Omit<QualitySettings, "tier" | "lightAssets">
+> = {
 	high: {
 		dpr: [1, 1.75],
 		antialias: true,
@@ -127,13 +136,27 @@ export function detectTier(d: DeviceInfo): QualityTier {
 	return "low";
 }
 
+/**
+ * Нужны ли облегчённые ресурсы: телефонам и планшетам (мобильная сеть, экран
+ * меньше — крупные текстуры не видны) и слабым устройствам.
+ */
+export function lightAssetsFor(tier: QualityTier, touch: boolean): boolean {
+	return touch || tier === "low";
+}
+
 export function settingsFor(
 	tier: QualityTier,
 	reducedMotion = false,
+	touch = false,
 ): QualitySettings {
 	const base = QUALITY[tier];
-	// «уменьшить движение» в системе — деревья и трава не качаются
-	return {tier, ...base, wind: base.wind && !reducedMotion};
+	return {
+		tier,
+		...base,
+		// «уменьшить движение» в системе — деревья и трава не качаются
+		wind: base.wind && !reducedMotion,
+		lightAssets: lightAssetsFor(tier, touch),
+	};
 }
 
 function readGpu(): string | undefined {
@@ -176,8 +199,12 @@ function resolveQuality(): QualitySettings {
 		forced === "low" || forced === "medium" || forced === "high"
 			? forced
 			: detectTier(device);
-	const settings = settingsFor(tier, device.reducedMotion);
+	const settings = settingsFor(tier, device.reducedMotion, device.touch);
 	if (debugFlags.noShadows) settings.shadows = false;
+	const assets = urlString("assets");
+	if (assets === "light" || assets === "full") {
+		settings.lightAssets = assets === "light";
+	}
 	if (import.meta.env.DEV)
 		console.info(`[quality] ${tier}`, device.gpu ?? "", settings);
 	return settings;

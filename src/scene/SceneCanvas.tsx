@@ -9,6 +9,7 @@ import {Birds} from "./actors/Birds";
 import {Riders} from "./actors/Riders";
 import {Vasilisa} from "./actors/Vasilisa";
 import {CameraRig} from "./CameraRig";
+import {Deferred} from "./Deferred";
 import {Fence} from "./Fence";
 import {Forest} from "./forest/Forest";
 import {Garden} from "./Garden";
@@ -67,9 +68,9 @@ export function SceneCanvas() {
 			<Suspense fallback={null}>{!debugFlags.noForest && <Forest />}</Suspense>
 			{!debugFlags.noGrass && <Vegetation />}
 			<group position={[0, GROUND_Y, 0]}>
-				<Suspense fallback={null}>
+				<Deferred until="clearing">
 					<Hut />
-				</Suspense>
+				</Deferred>
 				<Torch position={[-2.4, 0, 2.6]} />
 				<Torch position={[2.4, 0, 2.6]} phase={2.3} />
 			</group>
@@ -81,8 +82,10 @@ export function SceneCanvas() {
 			<Fence />
 			<Suspense fallback={null}>
 				<Vasilisa />
-				<BabaYaga />
 			</Suspense>
+			<Deferred until="baba-yaga">
+				<BabaYaga />
+			</Deferred>
 			<Riders />
 			<Suspense fallback={null}>
 				<Birds />

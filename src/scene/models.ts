@@ -2,18 +2,34 @@ import {useGLTF} from "@react-three/drei";
 import {useMemo} from "react";
 import type {BufferGeometry, Material, Mesh, Object3D} from "three";
 
-/** Модели персонажей и избушки (готовит scripts/prepare-models.ts, Meshopt). */
+import {quality} from "./quality";
+
+/**
+ * Модели персонажей и избушки (готовит scripts/prepare-models.ts, Meshopt).
+ * На телефонах тяжёлые модели — облегчённые копии `<имя>-mobile.glb`.
+ */
 const base = `${import.meta.env.BASE_URL}models/`;
+const mobile = quality.lightAssets ? "-mobile" : "";
 export const MODEL_URLS = {
-	hut: `${base}hut.glb`,
+	hut: `${base}hut${mobile}.glb`,
 	babaYaga: `${base}baba-yaga.glb`,
-	vasilisa: `${base}vasilisa.glb`,
+	vasilisa: `${base}vasilisa${mobile}.glb`,
 	skull: `${base}skull.glb`,
 	house: `${base}house.glb`,
 	bird: `${base}bird.glb`,
 } as const;
 
-for (const url of Object.values(MODEL_URLS)) useGLTF.preload(url);
+/**
+ * Модели, которые не нужны в начале сказки: грузятся, только когда читатель
+ * подходит к главе, где они появляются (см. Deferred в SceneCanvas).
+ */
+const DEFERRED_MODELS = new Set<keyof typeof MODEL_URLS>(["hut", "babaYaga"]);
+
+for (const [name, url] of Object.entries(MODEL_URLS)) {
+	if (!DEFERRED_MODELS.has(name as keyof typeof MODEL_URLS)) {
+		useGLTF.preload(url);
+	}
+}
 
 /** Включает тени у всех мешей модели. */
 export function enableShadows(root: Object3D) {

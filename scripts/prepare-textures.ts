@@ -6,12 +6,16 @@
  *
  * Берём карты цвета и нормалей (OpenGL); трава и тропа — 2K (видны крупным
  * планом), лесная подстилка — 1K.
+ *
+ * Для телефонов (quality.lightAssets) из них же нарезаются облегчённые копии
+ * в public/textures/ground/mobile: цвет — не больше 1K, нормали — 512.
  */
 import {spawnSync} from "node:child_process";
 import {existsSync, mkdirSync, unlinkSync, writeFileSync} from "node:fs";
 import {join} from "node:path";
 
 import ffmpegPath from "ffmpeg-static";
+import sharp from "sharp";
 
 const OUT = "public/textures/ground";
 
@@ -85,3 +89,19 @@ for (const [name, {id, resolution}] of Object.entries(TEXTURES)) {
 	}
 	console.log(`✓ ${name} ← ${id}`);
 }
+
+/** Облегчённые копии для телефонов: наибольшая сторона по видам карт. */
+const MOBILE_SIZE: Record<keyof typeof MAPS, number> = {diff: 1024, nor: 512};
+const MOBILE_OUT = join(OUT, "mobile");
+mkdirSync(MOBILE_OUT, {recursive: true});
+for (const name of Object.keys(TEXTURES)) {
+	for (const suffix of Object.keys(MAPS) as (keyof typeof MAPS)[]) {
+		const file = `${name}_${suffix}.webp`;
+		const size = MOBILE_SIZE[suffix];
+		await sharp(join(OUT, file))
+			.resize(size, size, {fit: "inside", withoutEnlargement: true})
+			.webp({quality: suffix === "nor" ? 85 : 80})
+			.toFile(join(MOBILE_OUT, file));
+	}
+}
+console.log(`✓ облегчённые копии → ${MOBILE_OUT}`);

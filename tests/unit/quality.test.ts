@@ -3,6 +3,7 @@ import {describe, expect, test} from "bun:test";
 import {
 	type DeviceInfo,
 	detectTier,
+	lightAssetsFor,
 	settingsFor,
 } from "../../src/scene/quality";
 
@@ -54,5 +55,13 @@ describe("адаптивное качество", () => {
 		expect(settingsFor("high").wind).toBe(true);
 		expect(settingsFor("low").shadows).toBe(false);
 		expect(settingsFor("low").grass).toBeLessThan(settingsFor("medium").grass);
+	});
+
+	test("облегчённые ресурсы — телефонам и слабым устройствам", () => {
+		expect(lightAssetsFor("medium", true)).toBe(true);
+		expect(lightAssetsFor("low", false)).toBe(true);
+		expect(lightAssetsFor("high", false)).toBe(false);
+		expect(lightAssetsFor("medium", false)).toBe(false);
+		expect(settingsFor("medium", false, true).lightAssets).toBe(true);
 	});
 });

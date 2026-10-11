@@ -5,6 +5,9 @@
  *
  *   bun run models:prepare            — все модели
  *   bun run models:prepare skull house — только перечисленные
+ *
+ * Для телефонов (quality.lightAssets) у тяжёлых моделей есть облегчённые
+ * копии `<имя>-mobile.glb`: сетка проще, текстуры меньше.
  */
 import {mkdirSync} from "node:fs";
 
@@ -40,14 +43,18 @@ const io = new NodeIO()
 		"meshopt.encoder": MeshoptEncoder,
 	});
 
-async function finish(doc: Document, name: string) {
+/** Наибольшая сторона текстур: обычная и для облегчённых копий. */
+const TEXTURE_SIZE = 1024;
+const MOBILE_TEXTURE_SIZE = 512;
+
+async function finish(doc: Document, name: string, textureSize = TEXTURE_SIZE) {
 	await doc.transform(
 		dedup(),
 		prune(),
 		textureCompress({
 			encoder: sharp,
 			targetFormat: "webp",
-			resize: [1024, 1024],
+			resize: [textureSize, textureSize],
 			quality: 82,
 		}),
 		meshopt({encoder: MeshoptEncoder, level: "medium"}),
@@ -95,11 +102,16 @@ const wanted = (name: string) => only.length === 0 || only.includes(name);
 
 mkdirSync(OUT, {recursive: true});
 
-// Избушка на курьих ножках (vet.doc, CC-BY 4.0)
+// Избушка на курьих ножках (vet.doc, CC-BY 4.0); для телефонов — текстуры 512
 if (wanted("hut")) {
-	const doc = await io.read(`${SRC}/a_hut_on_chicken_legs.glb`);
-	await doc.transform(weld());
-	await finish(doc, "hut");
+	for (const [name, size] of [
+		["hut", TEXTURE_SIZE],
+		["hut-mobile", MOBILE_TEXTURE_SIZE],
+	] as const) {
+		const doc = await io.read(`${SRC}/a_hut_on_chicken_legs.glb`);
+		await doc.transform(weld());
+		await finish(doc, name, size);
+	}
 }
 
 // Баба Яга (MAXDESIGN, CC-BY 4.0): анимация прорежена
@@ -110,17 +122,23 @@ if (wanted("baba-yaga")) {
 }
 
 // Василиса (akot777, CC-BY 4.0): сгенерирована без цвета и UV — упрощаем
-// с ~487 тыс. до ~45 тыс. треугольников и раскрашиваем цветами вершин
+// с ~487 тыс. до ~45 тыс. треугольников (для телефонов — до ~20 тыс.) и
+// раскрашиваем цветами вершин
 if (wanted("vasilisa")) {
-	const doc = await io.read(`${SRC}/vasilisa/scene.gltf`);
-	await doc.transform(
-		weld(),
-		simplify({simplifier: MeshoptSimplifier, ratio: 0.11, error: 0.0007}),
-		// у каждого треугольника свои вершины — цвет зоны на треугольник целиком
-		unweld(),
-	);
-	forEachPrimitive(doc, (prim) => paintVasilisa(doc, prim));
-	await finish(doc, "vasilisa");
+	for (const [name, ratio, error] of [
+		["vasilisa", 0.11, 0.0007],
+		["vasilisa-mobile", 0.045, 0.002],
+	] as const) {
+		const doc = await io.read(`${SRC}/vasilisa/scene.gltf`);
+		await doc.transform(
+			weld(),
+			simplify({simplifier: MeshoptSimplifier, ratio, error}),
+			// у каждого треугольника свои вершины — цвет зоны на треугольник целиком
+			unweld(),
+		);
+		forEachPrimitive(doc, (prim) => paintVasilisa(doc, prim));
+		await finish(doc, name);
+	}
 }
 
 // Череп (Quaternius, CC0): для частокола и черепа-светоча, высота 0,25 м

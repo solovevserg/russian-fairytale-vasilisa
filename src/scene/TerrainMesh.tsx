@@ -15,6 +15,7 @@ import {
 } from "three";
 
 import {replaceGlslLine} from "../lib/glsl";
+import {quality} from "./quality";
 import {heightAt, TERRAIN_SIZE} from "./terrain";
 import {buildSplatMask} from "./terrainSplat";
 
@@ -24,7 +25,8 @@ const TILE_METERS = 3.5;
 /** Разрешение маски весов: 1024 на 180 м — ~17 см на тексель. */
 const MASK_SIZE = 1024;
 
-const base = `${import.meta.env.BASE_URL}textures/ground/`;
+// на телефонах — облегчённые копии (scripts/prepare-textures.ts)
+const base = `${import.meta.env.BASE_URL}textures/ground/${quality.lightAssets ? "mobile/" : ""}`;
 const TEXTURES = {
 	grassMap: `${base}grass_diff.webp`,
 	forestMap: `${base}forest_diff.webp`,
