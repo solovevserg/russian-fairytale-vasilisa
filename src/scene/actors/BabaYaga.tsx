@@ -1,6 +1,6 @@
-import { useGLTF } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
-import { useEffect, useMemo, useRef } from "react";
+import {useGLTF} from "@react-three/drei";
+import {useFrame} from "@react-three/fiber";
+import {useEffect, useMemo, useRef} from "react";
 import {
 	AnimationMixer,
 	CatmullRomCurve3,
@@ -12,14 +12,14 @@ import {
 	Vector2,
 	Vector3,
 } from "three";
-import { clone as cloneSkinned } from "three/examples/jsm/utils/SkeletonUtils.js";
+import {clone as cloneSkinned} from "three/examples/jsm/utils/SkeletonUtils.js";
 
-import { smoothstep } from "../../lib/math";
-import { currentSample } from "../../story/currentSample";
-import { BABA_YAGA_FLIGHT, BABA_YAGA_STAND } from "../../story/keyframes";
-import { enableShadows, MODEL_URLS } from "../models";
-import { heightAt } from "../terrain";
-import { setShown } from "./presence";
+import {smoothstep} from "../../lib/math";
+import {currentSample} from "../../story/currentSample";
+import {BABA_YAGA_FLIGHT, BABA_YAGA_STAND} from "../../story/keyframes";
+import {enableShadows, MODEL_URLS} from "../models";
+import {heightAt} from "../terrain";
+import {setShown} from "./presence";
 
 const WOOD = "#6b4a2e";
 
@@ -84,14 +84,14 @@ function Broom() {
 }
 
 /** Экземпляр модели со своим скелетом и проигрывателем анимации. */
-function useWitch(): { object: Object3D; mixer: AnimationMixer } {
-	const { scene, animations } = useGLTF(MODEL_URLS.babaYaga);
+function useWitch(): {object: Object3D; mixer: AnimationMixer} {
+	const {scene, animations} = useGLTF(MODEL_URLS.babaYaga);
 	const witch = useMemo(() => {
 		const object = cloneSkinned(scene);
 		enableShadows(object);
 		const mixer = new AnimationMixer(object);
 		if (animations[0]) mixer.clipAction(animations[0]).play();
-		return { object, mixer };
+		return {object, mixer};
 	}, [scene, animations]);
 	useEffect(
 		() => () => {
@@ -131,7 +131,7 @@ export function BabaYaga() {
 	const tangent = useMemo(() => new Vector3(), []);
 	const ahead = useMemo(() => new Vector3(), []);
 
-	useFrame(({ clock }, delta) => {
+	useFrame(({clock}, delta) => {
 		const mode = currentSample.babaYaga;
 		const now = clock.elapsedTime;
 		if (standing.current) setShown(standing.current, mode === "stand");

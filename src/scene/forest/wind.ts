@@ -1,12 +1,12 @@
-import { type Material, Vector2 } from "three";
+import {type Material, Vector2} from "three";
 
 /** Общие юниформы ветра: один объект на всю сцену, обновляется раз в кадр. */
 export const windUniforms = {
-	uTime: { value: 0 },
+	uTime: {value: 0},
 	/** Амплитуда качания макушки дерева, метры. */
-	uWindStrength: { value: 0.5 },
-	uWindFrequency: { value: 0.9 },
-	uWindDirection: { value: new Vector2(1, 0.4).normalize() },
+	uWindStrength: {value: 0.5},
+	uWindFrequency: {value: 0.9},
+	uWindDirection: {value: new Vector2(1, 0.4).normalize()},
 };
 
 export type WindKind = "bark" | "leaves";
@@ -65,11 +65,11 @@ export function applyWind(
 ): void {
 	material.defines = {
 		...material.defines,
-		...(kind === "leaves" ? { WIND_LEAVES: "" } : {}),
+		...(kind === "leaves" ? {WIND_LEAVES: ""} : {}),
 	};
 	material.onBeforeCompile = (shader) => {
 		Object.assign(shader.uniforms, windUniforms, {
-			uTreeHeight: { value: treeHeight },
+			uTreeHeight: {value: treeHeight},
 		});
 		shader.vertexShader = shader.vertexShader
 			.replace("#include <common>", `#include <common>\n${WIND_PARS}`)

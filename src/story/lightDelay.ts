@@ -1,7 +1,7 @@
-import { damp } from "../lib/damp";
-import { clamp, smooth01 } from "../lib/math";
-import { KEYFRAMES, type RiderColor } from "./keyframes";
-import { riderDuration } from "./riderClock";
+import {damp} from "../lib/damp";
+import {clamp, smooth01} from "../lib/math";
+import {KEYFRAMES, type RiderColor} from "./keyframes";
+import {riderDuration} from "./riderClock";
 
 /**
  * Когда меняется свет относительно скачки: `after` — доля пути всадника до
@@ -10,14 +10,13 @@ import { riderDuration } from "./riderClock";
  * красный время не
  * меняет вовсе (рассвет — в следующей главе «Восход»).
  */
-export const RIDER_LIGHT: Record<RiderColor, { after: number; fade: number }> =
-	{
-		white: { after: 0, fade: riderDuration("white") },
-		red: { after: 0, fade: 0.01 },
-		black: { after: 0.05, fade: riderDuration("black") * 0.9 },
-	};
+export const RIDER_LIGHT: Record<RiderColor, {after: number; fade: number}> = {
+	white: {after: 0, fade: riderDuration("white")},
+	red: {after: 0, fade: 0.01},
+	black: {after: 0.05, fade: riderDuration("black") * 0.9},
+};
 const RIDER_CHAPTERS = KEYFRAMES.flatMap((k, i) =>
-	k.rider ? [{ index: i, color: k.rider }] : [],
+	k.rider ? [{index: i, color: k.rider}] : [],
 );
 
 /**
@@ -31,12 +30,12 @@ export function delayedTimeProgress(
 	starts: Partial<Record<RiderColor, number>>,
 ): number {
 	let result = progress;
-	for (const { index, color } of RIDER_CHAPTERS) {
+	for (const {index, color} of RIDER_CHAPTERS) {
 		// только при подходе к главе: дальше — обычный ход времени (иначе при
 		// пролистывании вперёд всплывал бы свет предыдущей, дневной главы)
 		if (progress <= index - 1 || progress > index) continue;
 		const start = starts[color];
-		const { after, fade } = RIDER_LIGHT[color];
+		const {after, fade} = RIDER_LIGHT[color];
 		const lightStart =
 			start === undefined ? Infinity : start + riderDuration(color) * after;
 		result = Math.min(result, index - 1 + smooth01((now - lightStart) / fade));

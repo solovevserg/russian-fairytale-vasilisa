@@ -1,6 +1,6 @@
-import { describe, expect, test } from "bun:test";
-import { readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import {describe, expect, test} from "bun:test";
+import {readdirSync, readFileSync} from "node:fs";
+import {join} from "node:path";
 
 import {
 	damp,
@@ -19,7 +19,7 @@ import {
 	smoothstep,
 	wrapAngle,
 } from "../../src/lib/math";
-import { toRoman } from "../../src/lib/roman";
+import {toRoman} from "../../src/lib/roman";
 
 describe("lib/math", () => {
 	test("clamp и clamp01", () => {
@@ -103,7 +103,7 @@ describe("lib/roman", () => {
 describe("lib — без знания о проекте", () => {
 	test("src/lib не импортирует сцену, историю, интерфейс", () => {
 		const dir = join(import.meta.dir, "../../src/lib");
-		for (const file of readdirSync(dir, { recursive: true }) as string[]) {
+		for (const file of readdirSync(dir, {recursive: true}) as string[]) {
 			if (!/\.tsx?$/.test(file)) continue;
 			const code = readFileSync(join(dir, file), "utf8");
 			for (const [, from] of code.matchAll(/from "([^"]+)"/g)) {

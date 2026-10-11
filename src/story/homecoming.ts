@@ -1,9 +1,9 @@
-import { CatmullRomCurve3, Vector3 } from "three";
+import {CatmullRomCurve3, Vector3} from "three";
 
-import { clamp, lerpAngle, smooth01 as smooth } from "../lib/math";
-import { HOME, heightAt, pathFrame } from "../scene/terrain";
-import { distanceAlongPath } from "./departure";
-import { onPath } from "./keyframes";
+import {clamp, lerpAngle, smooth01 as smooth} from "../lib/math";
+import {HOME, heightAt, pathFrame} from "../scene/terrain";
+import {distanceAlongPath} from "./departure";
+import {onPath} from "./keyframes";
 
 /** Где Василиса стоит у своей избы — как в прологе (atHome в keyframes.ts). */
 const HOME_SPOT = onPath(51, 0, -2.6);
@@ -59,8 +59,10 @@ export const HOMECOMING = {
  * Общие часы эпилога: их заводит Василиса (знает, где стоит в момент входа в
  * главу), по ним же ведёт камеру CameraRig. start < 0 — эпилог не идёт.
  */
-export const homecomingClock: { start: number; route: HomecomingRoute | null } =
-	{ start: -1, route: null };
+export const homecomingClock: {start: number; route: HomecomingRoute | null} = {
+	start: -1,
+	route: null,
+};
 
 /** Точек на обходе вокруг дома. */
 const AROUND_POINTS = 28;
@@ -173,7 +175,7 @@ const tangent = new Vector3();
 export function homecomingAt(
 	route: HomecomingRoute,
 	t: number,
-	out: HomecomingPose = { x: 0, z: 0, heading: 0, walked: 0 },
+	out: HomecomingPose = {x: 0, z: 0, heading: 0, walked: 0},
 ): HomecomingPose {
 	const walked = clamp(t * HOMECOMING.speed, 0, route.length);
 	const u = walked / route.length;
@@ -205,7 +207,7 @@ const follow = new Vector3();
 const her = new Vector3();
 const final = new Vector3();
 const finalTarget = new Vector3();
-const herPose: HomecomingPose = { x: 0, z: 0, heading: 0, walked: 0 };
+const herPose: HomecomingPose = {x: 0, z: 0, heading: 0, walked: 0};
 
 /**
  * Камера в момент `t`: идёт следом за Василисой (сзади-сбоку), с начала

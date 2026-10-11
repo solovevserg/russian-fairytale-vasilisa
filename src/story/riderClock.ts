@@ -1,5 +1,5 @@
-import { quality } from "../scene/quality";
-import { RIDER_PATHS, type RiderColor } from "./keyframes";
+import {quality} from "../scene/quality";
+import {RIDER_PATHS, type RiderColor} from "./keyframes";
 
 /**
  * Когда всадник начал скакать (clock.elapsedTime сцены). Пишет Riders,

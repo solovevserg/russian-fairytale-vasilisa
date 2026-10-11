@@ -1,6 +1,6 @@
-import { create } from "zustand";
+import {create} from "zustand";
 
-import { readStored, writeStored } from "../lib/storage";
+import {readStored, writeStored} from "../lib/storage";
 
 const STORAGE_KEY = "izbushka:sound";
 
@@ -17,6 +17,6 @@ export const useAudioStore = create<AudioState>((set) => ({
 	preferred: readStored(STORAGE_KEY) === "on",
 	setEnabled: (enabled) => {
 		writeStored(STORAGE_KEY, enabled ? "on" : "off");
-		set({ enabled, preferred: enabled });
+		set({enabled, preferred: enabled});
 	},
 }));

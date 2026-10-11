@@ -1,5 +1,5 @@
-import { useFrame } from "@react-three/fiber";
-import { useLayoutEffect, useMemo, useRef } from "react";
+import {useFrame} from "@react-three/fiber";
+import {useLayoutEffect, useMemo, useRef} from "react";
 import {
 	BufferGeometry,
 	Color,
@@ -10,11 +10,11 @@ import {
 	Object3D,
 } from "three";
 
-import { createRandom } from "../../lib/random";
-import { windUniforms } from "../forest/wind";
-import { quality } from "../quality";
-import { heightAt } from "../terrain";
-import { type PlantPlacement, scatter } from "./layout";
+import {createRandom} from "../../lib/random";
+import {windUniforms} from "../forest/wind";
+import {quality} from "../quality";
+import {heightAt} from "../terrain";
+import {type PlantPlacement, scatter} from "./layout";
 
 /**
  * Пучок травы: `blades` изогнутых травинок по 3 треугольника. В uv.y — высота
@@ -132,8 +132,8 @@ function grassMaterial(
 	const root = new Color(rootColor);
 	material.onBeforeCompile = (shader) => {
 		Object.assign(shader.uniforms, windUniforms, {
-			uTipColor: { value: tip },
-			uRootColor: { value: root },
+			uTipColor: {value: tip},
+			uRootColor: {value: root},
 		});
 		shader.vertexShader = shader.vertexShader
 			.replace(
@@ -190,7 +190,7 @@ function GrassChunk({
 }) {
 	const mesh = useRef<InstancedMesh>(null);
 	const center = useMemo(() => {
-		const c = { x: 0, z: 0 };
+		const c = {x: 0, z: 0};
 		for (const p of plants) {
 			c.x += p.x / plants.length;
 			c.z += p.z / plants.length;
@@ -199,7 +199,7 @@ function GrassChunk({
 	}, [plants]);
 
 	// дальние участки не рисуем: трава там меньше пикселя и тонет в тумане
-	useFrame(({ camera }) => {
+	useFrame(({camera}) => {
 		const m = mesh.current;
 		if (!m) return;
 		const distance =

@@ -1,16 +1,16 @@
-import { describe, expect, test } from "bun:test";
+import {describe, expect, test} from "bun:test";
 
-import { easeInOutCubic } from "../../src/lib/easing";
+import {easeInOutCubic} from "../../src/lib/easing";
 import {
 	MIN_READING_SECONDS,
 	readingSeconds,
 	splitSentences,
 } from "../../src/reader/timing";
-import { chapters } from "../../src/story/chapters";
+import {chapters} from "../../src/story/chapters";
 
 describe("readingSeconds", () => {
 	test("китайский текст без пробелов читается не мгновенно", () => {
-		const zh = { id: "x", title: "", paragraphs: ["字".repeat(150)] };
+		const zh = {id: "x", title: "", paragraphs: ["字".repeat(150)]};
 		expect(readingSeconds(zh)).toBeGreaterThan(MIN_READING_SECONDS * 2);
 	});
 

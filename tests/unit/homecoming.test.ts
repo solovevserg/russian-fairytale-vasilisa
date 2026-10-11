@@ -1,8 +1,8 @@
-import { describe, expect, test } from "bun:test";
+import {describe, expect, test} from "bun:test";
 
-import { Vector3 } from "three";
+import {Vector3} from "three";
 
-import { HOME, heightAt, pathFrame } from "../../src/scene/terrain";
+import {HOME, heightAt, pathFrame} from "../../src/scene/terrain";
 import {
 	HOMECOMING,
 	homecomingAt,
@@ -12,7 +12,7 @@ import {
 } from "../../src/story/homecoming";
 
 /** Полуразмеры сруба (модель house.glb, 7.1 × 8.6 м) в осях дома. */
-const HALF = { x: 3.57, z: 4.28 };
+const HALF = {x: 3.57, z: 4.28};
 
 /** Расстояние от точки до прямоугольника сруба, м (0 — внутри). */
 function distanceToHouse(x: number, z: number): number {

@@ -1,6 +1,6 @@
-import { audioEngine } from "../audio/AudioEngine";
-import { useAudioStore } from "../audio/audioStore";
-import { useContent } from "../i18n/content";
+import {audioEngine} from "../audio/AudioEngine";
+import {useAudioStore} from "../audio/audioStore";
+import {useContent} from "../i18n/content";
 
 export function SoundToggle() {
 	const enabled = useAudioStore((s) => s.enabled);

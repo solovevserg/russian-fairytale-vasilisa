@@ -1,6 +1,6 @@
-import { create } from "zustand";
+import {create} from "zustand";
 
-import { writeStored } from "../lib/storage";
+import {writeStored} from "../lib/storage";
 
 export type Theme = "light" | "dark";
 
@@ -23,6 +23,6 @@ export const useThemeStore = create<ThemeState>((set, get) => ({
 		const theme: Theme = get().theme === "dark" ? "light" : "dark";
 		document.documentElement.dataset.theme = theme;
 		writeStored(THEME_KEY, theme);
-		set({ theme });
+		set({theme});
 	},
 }));

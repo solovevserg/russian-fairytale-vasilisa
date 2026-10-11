@@ -1,12 +1,12 @@
-import { useEffect, useMemo } from "react";
+import {useEffect, useMemo} from "react";
 
-import { createTreeVariant } from "../forest/createTreeVariant";
-import { VariantInstances } from "../forest/Forest";
-import type { TreeVariantSpec } from "../forest/variants";
-import type { TreePlacement } from "../forestLayout";
-import { quality } from "../quality";
-import { GrassField } from "./Grass";
-import { bushDensity, grassDensity, scatter, tallGrassDensity } from "./layout";
+import {createTreeVariant} from "../forest/createTreeVariant";
+import {VariantInstances} from "../forest/Forest";
+import type {TreeVariantSpec} from "../forest/variants";
+import type {TreePlacement} from "../forestLayout";
+import {quality} from "../quality";
+import {GrassField} from "./Grass";
+import {bushDensity, grassDensity, scatter, tallGrassDensity} from "./layout";
 
 const SHORT_TUFT = {
 	blades: 7,
@@ -79,7 +79,7 @@ function Bushes() {
 		// всю поляну и не отсекается, даже когда кусты за спиной камеры
 		const chunks = new Map<
 			string,
-			{ variantIndex: number; placements: TreePlacement[] }
+			{variantIndex: number; placements: TreePlacement[]}
 		>();
 		plants.forEach((p, i) => {
 			const variantIndex = i % variants.length;
@@ -89,11 +89,11 @@ function Bushes() {
 				BUSH_SECTORS - 1,
 			);
 			const key = `${variants[variantIndex].spec.id}-${sector}`;
-			const chunk = chunks.get(key) ?? { variantIndex, placements: [] };
-			chunk.placements.push({ ...p, tilt: 0, variantIndex });
+			const chunk = chunks.get(key) ?? {variantIndex, placements: []};
+			chunk.placements.push({...p, tilt: 0, variantIndex});
 			chunks.set(key, chunk);
 		});
-		return [...chunks.entries()].map(([key, chunk]) => ({ key, ...chunk }));
+		return [...chunks.entries()].map(([key, chunk]) => ({key, ...chunk}));
 	}, [variants]);
 
 	useEffect(

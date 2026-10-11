@@ -1,7 +1,7 @@
-import { describe, expect, test } from "bun:test";
+import {describe, expect, test} from "bun:test";
 
-import { distanceToPath } from "../../src/scene/terrain";
-import { DEPARTURE, departureAt } from "../../src/story/departure";
+import {distanceToPath} from "../../src/scene/terrain";
+import {DEPARTURE, departureAt} from "../../src/story/departure";
 
 const START: [number, number] = [4.9, 7.4];
 const FACING = Math.atan2(-3.1, -2.1);

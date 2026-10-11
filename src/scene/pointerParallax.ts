@@ -1,4 +1,4 @@
-import { debugFlags } from "../debugFlags";
+import {debugFlags} from "../debugFlags";
 import {
 	matchesMedia,
 	prefersReducedMotion,
@@ -11,7 +11,7 @@ import {
  * с мышью — к ней добавляется малое (см. swayPointer); при «уменьшить
  * движение» — всегда 0.
  */
-export const pointer = { x: 0, y: 0 };
+export const pointer = {x: 0, y: 0};
 
 /** Амплитуда параллакса как доля расстояния от камеры до цели. */
 export const PARALLAX_SHIFT = 0.025;
@@ -19,13 +19,13 @@ export const PARALLAX_SHIFT = 0.025;
 export const PARALLAX_LOOK = 4.5;
 
 /** Покачивание камеры без мыши: доля полного отклонения и периоды, с. */
-const SWAY = { amount: 0.45, periodX: 11, periodY: 17 };
+const SWAY = {amount: 0.45, periodX: 11, periodY: 17};
 
 /**
  * Медленная «дыхательная» восьмёрка: два синуса с несоизмеримыми периодами,
  * чтобы движение не повторялось и не укачивало.
  */
-export function swayAt(time: number, out = { x: 0, y: 0 }) {
+export function swayAt(time: number, out = {x: 0, y: 0}) {
 	const tau = Math.PI * 2;
 	out.x = SWAY.amount * Math.sin((time / SWAY.periodX) * tau);
 	out.y = SWAY.amount * 0.6 * Math.sin((time / SWAY.periodY) * tau + 1.3);
@@ -44,7 +44,7 @@ export const autoSway =
  */
 const MOUSE_SWAY = 0.35;
 /** Добавка покачивания к положению мыши (на сенсорных экранах — 0). */
-export const drift = { x: 0, y: 0 };
+export const drift = {x: 0, y: 0};
 
 const reducedMotion = prefersReducedMotion();
 
@@ -78,7 +78,7 @@ if (typeof window !== "undefined") {
 			pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
 			pointer.y = (event.clientY / window.innerHeight) * 2 - 1;
 		},
-		{ passive: true },
+		{passive: true},
 	);
 	// мышь ушла из окна — камера плавно возвращается на место
 	document.documentElement.addEventListener("pointerleave", () => {

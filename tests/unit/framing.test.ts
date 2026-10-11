@@ -1,8 +1,8 @@
-import { describe, expect, test } from "bun:test";
+import {describe, expect, test} from "bun:test";
 
-import { CatmullRomCurve3, PerspectiveCamera, Vector3 } from "three";
+import {CatmullRomCurve3, PerspectiveCamera, Vector3} from "three";
 
-import { HOME, heightAt } from "../../src/scene/terrain";
+import {HOME, heightAt} from "../../src/scene/terrain";
 import {
 	BABA_YAGA_FLIGHT,
 	BABA_YAGA_STAND,
@@ -64,7 +64,7 @@ describe("кадрирование ключевых кадров", () => {
 			false,
 			"centripetal",
 		);
-		const visible = Array.from({ length: 21 }, (_, i) =>
+		const visible = Array.from({length: 21}, (_, i) =>
 			flight.getPointAt((i / 20) * 0.6),
 		).filter((p) => inFrame(camera, p, 0)).length;
 		expect(visible / 21).toBeGreaterThan(0.6);

@@ -1,4 +1,4 @@
-import { type RefObject, useEffect } from "react";
+import {type RefObject, useEffect} from "react";
 
 /**
  * Закрытие всплывающего элемента: щелчок мимо `root` или клавиша Escape

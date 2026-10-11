@@ -1,4 +1,4 @@
-import { urlFlag } from "./lib/url";
+import {urlFlag} from "./lib/url";
 
 /** Отладочные флаги из URL: ?noshadows&noleaves… — для замеров производительности. */
 export const debugFlags = {

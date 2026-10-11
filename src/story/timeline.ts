@@ -1,4 +1,4 @@
-import { CatmullRomCurve3, Vector3 } from "three";
+import {CatmullRomCurve3, Vector3} from "three";
 
 import {
 	clamp,
@@ -8,7 +8,7 @@ import {
 	lerpAngle,
 	smoothstep,
 } from "../lib/math";
-import { heightAt, pathFrame } from "../scene/terrain";
+import {heightAt, pathFrame} from "../scene/terrain";
 import {
 	MUSIC_TRACKS,
 	type MusicTrack,
@@ -213,7 +213,7 @@ const HUT_APPEAR = 0.02;
 /** Таймлайн сцены: камера по сплайнам Катмулла-Рома, остальное — линейно. */
 export function createTimeline(keyframes: SceneKeyframe[]): Timeline {
 	// узлы сплайна: кадры глав и промежуточные точки пролёта между ними
-	const knots: { position: Vec3; target: Vec3 }[] = [];
+	const knots: {position: Vec3; target: Vec3}[] = [];
 	const knotOf: number[] = [];
 	for (const k of keyframes) {
 		knots.push(...(k.camera.via ?? []));

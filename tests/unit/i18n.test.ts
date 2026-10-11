@@ -1,7 +1,7 @@
-import { describe, expect, test } from "bun:test";
+import {describe, expect, test} from "bun:test";
 
-import { CONTENT } from "../../src/i18n/content";
-import { LANGS, pickLang } from "../../src/i18n/lang";
+import {CONTENT} from "../../src/i18n/content";
+import {LANGS, pickLang} from "../../src/i18n/lang";
 
 describe("переводы", () => {
 	const ru = CONTENT.ru;

@@ -4,7 +4,7 @@
  * значения не перескакивают к цели одним рывком.
  */
 
-import { clamp01 } from "./math";
+import {clamp01} from "./math";
 
 /** Самый длинный учитываемый шаг кадра, с. */
 export const MAX_FRAME_DT = 0.1;

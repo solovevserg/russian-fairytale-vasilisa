@@ -1,20 +1,20 @@
-import { useFrame } from "@react-three/fiber";
-import { useMemo, useRef } from "react";
-import { CatmullRomCurve3, DoubleSide, type Group, Vector3 } from "three";
+import {useFrame} from "@react-three/fiber";
+import {useMemo, useRef} from "react";
+import {CatmullRomCurve3, DoubleSide, type Group, Vector3} from "three";
 
-import { useStoryStore } from "../../state/storyStore";
-import { sceneProgress } from "../../story/currentSample";
-import { KEYFRAMES, RIDER_PATHS, type RiderColor } from "../../story/keyframes";
-import { riderDuration, riderStarts } from "../../story/riderClock";
-import { heightAt } from "../terrain";
+import {useStoryStore} from "../../state/storyStore";
+import {sceneProgress} from "../../story/currentSample";
+import {KEYFRAMES, RIDER_PATHS, type RiderColor} from "../../story/keyframes";
+import {riderDuration, riderStarts} from "../../story/riderClock";
+import {heightAt} from "../terrain";
 
 const COLORS: Record<
 	RiderColor,
-	{ horse: string; rider: string; cloak: string }
+	{horse: string; rider: string; cloak: string}
 > = {
-	white: { horse: "#e9e6de", rider: "#f4f1ea", cloak: "#dcd8cc" },
-	red: { horse: "#8e2a1e", rider: "#b3352a", cloak: "#7d1f16" },
-	black: { horse: "#141312", rider: "#1b1a19", cloak: "#0d0c0c" },
+	white: {horse: "#e9e6de", rider: "#f4f1ea", cloak: "#dcd8cc"},
+	red: {horse: "#8e2a1e", rider: "#b3352a", cloak: "#7d1f16"},
+	black: {horse: "#141312", rider: "#1b1a19", cloak: "#0d0c0c"},
 };
 
 const LEGS: [number, number, number][] = [
@@ -26,10 +26,10 @@ const LEGS: [number, number, number][] = [
 ];
 
 /** Конь с всадником — заглушка из примитивов, ~2.3 м в холке с всадником. */
-function Rider({ color }: { color: RiderColor }) {
+function Rider({color}: {color: RiderColor}) {
 	const root = useRef<Group>(null);
 	const legs = useRef<(Group | null)[]>([]);
-	const run = useRef({ start: -1 });
+	const run = useRef({start: -1});
 	const palette = COLORS[color];
 	const path = RIDER_PATHS[color];
 	const chapterIndex = KEYFRAMES.findIndex((k) => k.rider === color);
@@ -46,7 +46,7 @@ function Rider({ color }: { color: RiderColor }) {
 	const point = useMemo(() => new Vector3(), []);
 	const tangent = useMemo(() => new Vector3(), []);
 
-	useFrame(({ clock }) => {
+	useFrame(({clock}) => {
 		const r = root.current;
 		if (!r) return;
 		const now = clock.elapsedTime;

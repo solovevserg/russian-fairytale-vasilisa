@@ -1,14 +1,14 @@
-import { useRef } from "react";
+import {useRef} from "react";
 
-import { useScrollProgress } from "../hooks/useScrollProgress";
-import { type Content, useContent } from "../i18n/content";
-import { toRoman } from "../lib/roman";
-import { useReaderStore } from "../reader/readerStore";
-import { useStoryStore } from "../state/storyStore";
-import type { Chapter } from "../story/chapters";
-import { ChapterNav, useChapterHash } from "./ChapterNav";
-import { Divider, Tailpiece } from "./ornaments/Divider";
-import { DropCap } from "./ornaments/DropCap";
+import {useScrollProgress} from "../hooks/useScrollProgress";
+import {type Content, useContent} from "../i18n/content";
+import {toRoman} from "../lib/roman";
+import {useReaderStore} from "../reader/readerStore";
+import {useStoryStore} from "../state/storyStore";
+import type {Chapter} from "../story/chapters";
+import {ChapterNav, useChapterHash} from "./ChapterNav";
+import {Divider, Tailpiece} from "./ornaments/Divider";
+import {DropCap} from "./ornaments/DropCap";
 
 /** Первый абзац главы с буквицей; буква остаётся в тексте для скринридеров и поиска. */
 function OpeningParagraph({
@@ -155,7 +155,7 @@ const MODELS = [
 ] as const;
 
 /** Источники и лицензии — CC-BY требует указывать авторов прямо на сайте. */
-function Credits({ content }: { content: Content }) {
+function Credits({content}: {content: Content}) {
 	const c = content.ui.credits;
 	return (
 		<footer className="story__credits" id="credits">

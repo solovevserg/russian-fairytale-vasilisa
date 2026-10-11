@@ -1,18 +1,18 @@
-import { audioEngine } from "../audio/AudioEngine";
-import { currentContent } from "../i18n/content";
-import { prefersReducedMotion } from "../lib/dom";
-import { easeInOutCubic } from "../lib/easing";
-import { urlNumber } from "../lib/url";
-import { useStoryStore } from "../state/storyStore";
-import { chapters } from "../story/chapters";
+import {audioEngine} from "../audio/AudioEngine";
+import {currentContent} from "../i18n/content";
+import {prefersReducedMotion} from "../lib/dom";
+import {easeInOutCubic} from "../lib/easing";
+import {urlNumber} from "../lib/url";
+import {useStoryStore} from "../state/storyStore";
+import {chapters} from "../story/chapters";
 import {
 	scrollPosition,
 	scrollPositionFor,
 	setScrollPosition,
 } from "../ui/scrollAxis";
-import { narrate } from "./narrator";
-import { useReaderStore } from "./readerStore";
-import { readingSeconds } from "./timing";
+import {narrate} from "./narrator";
+import {useReaderStore} from "./readerStore";
+import {readingSeconds} from "./timing";
 
 /** Длительность перехода между главами, мс. */
 const SCROLL_MS = 2600;
@@ -35,7 +35,7 @@ function wait(ms: number, signal: AbortSignal): Promise<void> {
 				window.clearTimeout(timer);
 				resolve();
 			},
-			{ once: true },
+			{once: true},
 		);
 	});
 }
@@ -104,7 +104,7 @@ class AutoReader {
 	}
 
 	private async run(signal: AbortSignal) {
-		const { progress } = useStoryStore.getState();
+		const {progress} = useStoryStore.getState();
 		// если читатель уже на главе — начинаем с неё, иначе со следующей
 		let index = Math.round(progress);
 		const atChapter = Math.abs(progress - index) < 0.15 && scrollPosition() > 0;
@@ -117,7 +117,7 @@ class AutoReader {
 			useReaderStore.getState().narrate
 		) {
 			audioEngine.setDucked(true);
-			const { title, subtitle } = currentContent();
+			const {title, subtitle} = currentContent();
 			await narrate([`${title}. ${subtitle}.`], signal, () => {});
 			audioEngine.setDucked(false);
 			await wait(800, signal);
@@ -193,7 +193,7 @@ class AutoReader {
 			)
 				pause();
 		};
-		window.addEventListener("wheel", pause, { passive: true, signal });
+		window.addEventListener("wheel", pause, {passive: true, signal});
 		// касание кнопок панели (звук, тема, язык) — не повод останавливаться:
 		// «Читать» сама переключает паузу, остальное чтению не мешает
 		const onTouch = (event: TouchEvent) => {
@@ -204,8 +204,8 @@ class AutoReader {
 				return;
 			pause();
 		};
-		window.addEventListener("touchstart", onTouch, { passive: true, signal });
-		window.addEventListener("keydown", onKey, { signal });
+		window.addEventListener("touchstart", onTouch, {passive: true, signal});
+		window.addEventListener("keydown", onKey, {signal});
 	}
 }
 

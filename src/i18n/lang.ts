@@ -1,16 +1,16 @@
-import { create } from "zustand";
+import {create} from "zustand";
 
-import { readStored, writeStored } from "../lib/storage";
-import { urlString } from "../lib/url";
+import {readStored, writeStored} from "../lib/storage";
+import {urlString} from "../lib/url";
 
 export type Lang = "ru" | "en" | "es" | "zh";
 
 /** Языки в меню: флаг и самоназвание (не переводятся). */
-export const LANGS: { id: Lang; flag: string; name: string }[] = [
-	{ id: "ru", flag: "🇷🇺", name: "Русский" },
-	{ id: "en", flag: "🇬🇧", name: "English" },
-	{ id: "es", flag: "🇪🇸", name: "Español" },
-	{ id: "zh", flag: "🇨🇳", name: "中文" },
+export const LANGS: {id: Lang; flag: string; name: string}[] = [
+	{id: "ru", flag: "🇷🇺", name: "Русский"},
+	{id: "en", flag: "🇬🇧", name: "English"},
+	{id: "es", flag: "🇪🇸", name: "Español"},
+	{id: "zh", flag: "🇨🇳", name: "中文"},
 ];
 
 const LANG_KEY = "izbushka:lang";
@@ -49,6 +49,6 @@ export const useLangStore = create<LangState>((set) => ({
 	lang: initialLang(),
 	setLang: (lang) => {
 		writeStored(LANG_KEY, lang);
-		set({ lang });
+		set({lang});
 	},
 }));

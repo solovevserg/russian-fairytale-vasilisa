@@ -1,6 +1,6 @@
-import { expect, test } from "@playwright/test";
+import {expect, test} from "@playwright/test";
 
-import { chapters } from "../../src/story/chapters";
+import {chapters} from "../../src/story/chapters";
 
 test("страница открывается без ошибок и показывает сцену и текст", async ({
 	page,
@@ -13,7 +13,7 @@ test("страница открывается без ошибок и показ�
 
 	await page.goto("./");
 
-	await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+	await expect(page.getByRole("heading", {level: 1})).toHaveText(
 		"Василиса Прекрасная",
 	);
 	await expect(page.locator("section.chapter")).toHaveCount(chapters.length);
@@ -26,7 +26,7 @@ test("ссылка ?lang= открывает версию на языке; ме�
 	page,
 }) => {
 	await page.goto("./?lang=es&noforest&nograss&noshadows");
-	await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+	await expect(page.getByRole("heading", {level: 1})).toHaveText(
 		"Vasilisa la Hermosa",
 	);
 	await expect(page).toHaveTitle(/Vasilisa la Hermosa/);

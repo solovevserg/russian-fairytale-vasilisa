@@ -1,5 +1,5 @@
-import { useFrame } from "@react-three/fiber";
-import { useEffect, useRef } from "react";
+import {useFrame} from "@react-three/fiber";
+import {useEffect, useRef} from "react";
 import {
 	AdditiveBlending,
 	DoubleSide,
@@ -8,13 +8,13 @@ import {
 	type SpotLight,
 } from "three";
 
-import { currentSample } from "../../story/currentSample";
+import {currentSample} from "../../story/currentSample";
 import {
 	type ParticleUniforms,
 	RisingParticles,
 } from "../effects/RisingParticles";
-import { SKULL_EYE, useSkullGeometry } from "../models";
-import { isShown } from "./presence";
+import {SKULL_EYE, useSkullGeometry} from "../models";
+import {isShown} from "./presence";
 
 const SKIN = "#e8c3a4";
 
@@ -30,7 +30,7 @@ export function Doll({
 	casting?: boolean;
 }) {
 	const arms = useRef<(Object3D | null)[]>([]);
-	useFrame(({ clock }) => {
+	useFrame(({clock}) => {
 		if (!casting) return;
 		const t = clock.elapsedTime;
 		arms.current.forEach((arm, i) => {
@@ -92,7 +92,7 @@ function updateMagic(u: ParticleUniforms) {
 export function DollMagic() {
 	const light = useRef<PointLight>(null);
 	const hover = useRef<Object3D>(null);
-	useFrame(({ clock }) => {
+	useFrame(({clock}) => {
 		const pulse = 0.8 + 0.2 * Math.sin(clock.elapsedTime * 3.1);
 		// парит над настилом, чуть покачиваясь
 		if (hover.current)
@@ -157,7 +157,7 @@ export function SkullLantern({
 	useEffect(() => {
 		if (spot.current && target.current) spot.current.target = target.current;
 	}, []);
-	useFrame(({ clock }) => {
+	useFrame(({clock}) => {
 		const t = clock.elapsedTime;
 		const flicker = 0.85 + 0.1 * Math.sin(t * 11) + 0.05 * Math.sin(t * 23);
 		const shown = light.current ? isShown(light.current) : false;

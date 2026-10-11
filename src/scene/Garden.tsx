@@ -1,10 +1,10 @@
-import { useFrame } from "@react-three/fiber";
-import { useLayoutEffect, useMemo, useRef } from "react";
-import { type Group, type InstancedMesh, Object3D, Vector3 } from "three";
+import {useFrame} from "@react-three/fiber";
+import {useLayoutEffect, useMemo, useRef} from "react";
+import {type Group, type InstancedMesh, Object3D, Vector3} from "three";
 
-import { createRandom } from "../lib/random";
-import { currentSample } from "../story/currentSample";
-import { HOME, heightAt } from "./terrain";
+import {createRandom} from "../lib/random";
+import {currentSample} from "../story/currentSample";
+import {HOME, heightAt} from "./terrain";
 
 /**
  * Огород за избой Василисы: грядки с капустой, плетень вокруг и пугало.
@@ -34,9 +34,9 @@ function fromHouse(lx: number, lz: number, out = new Vector3()) {
 }
 
 /** Кочаны вдоль грядок — с небольшим разбросом размера и места. */
-function cabbages(): { x: number; z: number; s: number }[] {
+function cabbages(): {x: number; z: number; s: number}[] {
 	const random = createRandom(77);
-	const list: { x: number; z: number; s: number }[] = [];
+	const list: {x: number; z: number; s: number}[] = [];
 	for (const row of BEDS) {
 		for (let x = -BED_LENGTH / 2 + 0.3; x <= BED_LENGTH / 2 - 0.3; x += 0.45) {
 			list.push({
@@ -50,18 +50,18 @@ function cabbages(): { x: number; z: number; s: number }[] {
 }
 
 /** Колья плетня по периметру (с проходом со стороны избы). */
-function wattlePosts(): { x: number; z: number }[] {
-	const { x, z, width, depth } = GARDEN;
-	const posts: { x: number; z: number }[] = [];
+function wattlePosts(): {x: number; z: number}[] {
+	const {x, z, width, depth} = GARDEN;
+	const posts: {x: number; z: number}[] = [];
 	const step = 0.6;
 	for (let t = -width / 2; t <= width / 2 + 1e-6; t += step) {
-		posts.push({ x: x + t, z: z - depth / 2 });
+		posts.push({x: x + t, z: z - depth / 2});
 		// со стороны избы — проход посередине
-		if (Math.abs(t) > 0.6) posts.push({ x: x + t, z: z + depth / 2 });
+		if (Math.abs(t) > 0.6) posts.push({x: x + t, z: z + depth / 2});
 	}
 	for (let t = -depth / 2 + step; t < depth / 2 - 1e-6; t += step) {
-		posts.push({ x: x - width / 2, z: z + t });
-		posts.push({ x: x + width / 2, z: z + t });
+		posts.push({x: x - width / 2, z: z + t});
+		posts.push({x: x + width / 2, z: z + t});
 	}
 	return posts;
 }
@@ -106,12 +106,12 @@ export function Garden() {
 	});
 
 	const beds = BEDS.map((row) => fromHouse(GARDEN.x, GARDEN.z + row));
-	const { width, depth } = GARDEN;
+	const {width, depth} = GARDEN;
 	// плетень: три полосы прутьев по сторонам
-	const sides: { x: number; z: number; length: number; along: boolean }[] = [
-		{ x: GARDEN.x, z: GARDEN.z - depth / 2, length: width, along: true },
-		{ x: GARDEN.x - width / 2, z: GARDEN.z, length: depth, along: false },
-		{ x: GARDEN.x + width / 2, z: GARDEN.z, length: depth, along: false },
+	const sides: {x: number; z: number; length: number; along: boolean}[] = [
+		{x: GARDEN.x, z: GARDEN.z - depth / 2, length: width, along: true},
+		{x: GARDEN.x - width / 2, z: GARDEN.z, length: depth, along: false},
+		{x: GARDEN.x + width / 2, z: GARDEN.z, length: depth, along: false},
 		// со стороны избы — две половины по бокам от прохода
 		...[-1, 1].map((side) => ({
 			x: GARDEN.x + side * (width / 4 + 0.35),

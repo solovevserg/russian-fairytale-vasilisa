@@ -1,10 +1,10 @@
-import { useFrame } from "@react-three/fiber";
-import { useRef } from "react";
-import { AdditiveBlending, type Group, type PointLight } from "three";
+import {useFrame} from "@react-three/fiber";
+import {useRef} from "react";
+import {AdditiveBlending, type Group, type PointLight} from "three";
 
-import { useSceneStore } from "../state/sceneStore";
-import { currentSample } from "../story/currentSample";
-import { paletteAt } from "./sky/timeOfDay";
+import {useSceneStore} from "../state/sceneStore";
+import {currentSample} from "../story/currentSample";
+import {paletteAt} from "./sky/timeOfDay";
 
 const POLE_HEIGHT = 2.2;
 const FLAME_COLOR = "#ff8a2a";
@@ -15,12 +15,12 @@ interface TorchProps {
 	phase?: number;
 }
 
-export function Torch({ position, phase = 0 }: TorchProps) {
+export function Torch({position, phase = 0}: TorchProps) {
 	const light = useRef<PointLight>(null);
 	const flame = useRef<Group>(null);
 	const body = useRef<Group>(null);
 
-	useFrame(({ clock }) => {
+	useFrame(({clock}) => {
 		const t = clock.elapsedTime + phase;
 		// мерцание огня: сумма несоизмеримых синусов ≈ шум
 		const flicker =

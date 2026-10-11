@@ -1,4 +1,4 @@
-import { Tree, TreePreset } from "@dgreenheck/ez-tree";
+import {Tree, TreePreset} from "@dgreenheck/ez-tree";
 import {
 	type BufferGeometry,
 	type Material,
@@ -7,9 +7,9 @@ import {
 	RGBADepthPacking,
 } from "three";
 
-import { quality } from "../quality";
-import type { TreeVariantSpec } from "./variants";
-import { applyWind } from "./wind";
+import {quality} from "../quality";
+import type {TreeVariantSpec} from "./variants";
+import {applyWind} from "./wind";
 
 export interface TreeVariantAssets {
 	spec: TreeVariantSpec;
@@ -43,7 +43,7 @@ function simplify(
 	const minSections =
 		branchDetail === undefined && quality.branches === 1 ? 3 : 2;
 	const copy: TreeJson = structuredClone(json);
-	const { branch, leaves } = copy;
+	const {branch, leaves} = copy;
 	for (const level of Object.keys(
 		branch.sections,
 	) as (keyof typeof branch.sections)[]) {

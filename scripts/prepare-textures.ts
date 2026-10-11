@@ -7,25 +7,25 @@
  * Берём карты цвета и нормалей (OpenGL); трава и тропа — 2K (видны крупным
  * планом), лесная подстилка — 1K.
  */
-import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, unlinkSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import {spawnSync} from "node:child_process";
+import {existsSync, mkdirSync, unlinkSync, writeFileSync} from "node:fs";
+import {join} from "node:path";
 
 import ffmpegPath from "ffmpeg-static";
 
 const OUT = "public/textures/ground";
 
 /** Имя в проекте → id на Poly Haven и разрешение (крупные планы — 2K). */
-const TEXTURES: Record<string, { id: string; resolution: "1k" | "2k" }> = {
-	grass: { id: "sparse_grass", resolution: "2k" },
-	forest: { id: "forrest_ground_01", resolution: "1k" },
-	path: { id: "forest_ground_04", resolution: "2k" },
+const TEXTURES: Record<string, {id: string; resolution: "1k" | "2k"}> = {
+	grass: {id: "sparse_grass", resolution: "2k"},
+	forest: {id: "forrest_ground_01", resolution: "1k"},
+	path: {id: "forest_ground_04", resolution: "2k"},
 };
 
-const MAPS = { diff: "Diffuse", nor: "nor_gl" } as const;
+const MAPS = {diff: "Diffuse", nor: "nor_gl"} as const;
 
 interface PolyHavenFiles {
-	[map: string]: { [resolution: string]: { jpg?: { url: string } } };
+	[map: string]: {[resolution: string]: {jpg?: {url: string}}};
 }
 
 /** JPEG → WebP: в 3–5 раз легче при том же виде; нормали — с качеством повыше. */
@@ -52,13 +52,13 @@ function toWebp(
 			String(quality),
 			target,
 		],
-		{ stdio: "inherit" },
+		{stdio: "inherit"},
 	);
 	if (result.status !== 0) throw new Error(`ffmpeg failed for ${source}`);
 }
 
-mkdirSync(OUT, { recursive: true });
-for (const [name, { id, resolution }] of Object.entries(TEXTURES)) {
+mkdirSync(OUT, {recursive: true});
+for (const [name, {id, resolution}] of Object.entries(TEXTURES)) {
 	const files = (await (
 		await fetch(`https://api.polyhaven.com/files/${id}`, {
 			headers: {

@@ -1,4 +1,4 @@
-import { CornerVine, MirroredField, Rosette } from "./motifs";
+import {CornerVine, MirroredField, Rosette} from "./motifs";
 
 interface DropCapProps {
 	letter: string;
@@ -10,7 +10,7 @@ interface DropCapProps {
  * Буквица: буква Ruslan Display в квадратной рамке с симметричным растительным
  * узором. Только картинка — сама буква остаётся в тексте абзаца.
  */
-export function DropCap({ letter, variant }: DropCapProps) {
+export function DropCap({letter, variant}: DropCapProps) {
 	const grand = variant === "grand";
 	return (
 		<svg

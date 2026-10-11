@@ -1,12 +1,12 @@
-import { expect, type Page, test } from "@playwright/test";
+import {expect, type Page, test} from "@playwright/test";
 
-import { chapters } from "../../src/story/chapters";
+import {chapters} from "../../src/story/chapters";
 
 // Мобильная раскладка: главы — горизонтальная полоса карточек внизу экрана
 // поверх сцены. Облегчённая сцена — проверяем вёрстку и поведение, а не графику.
 const LIGHT = "./?noforest&nograss&noshadows";
 
-test.beforeEach(({ isMobile }) => {
+test.beforeEach(({isMobile}) => {
 	test.skip(!isMobile, "только мобильная раскладка");
 });
 
@@ -15,7 +15,7 @@ function activeChapter(page: Page) {
 		() =>
 			(
 				window as unknown as {
-					__STORY__: { getState: () => { activeChapter: number } };
+					__STORY__: {getState: () => {activeChapter: number}};
 				}
 			).__STORY__.getState().activeChapter,
 	);
@@ -42,7 +42,7 @@ test("главы листаются по горизонтали, страниц�
 	await page.evaluate(() => {
 		document
 			.querySelector('[data-keyframe="fire"]')
-			?.scrollIntoView({ inline: "center", block: "nearest" });
+			?.scrollIntoView({inline: "center", block: "nearest"});
 	});
 	await expect.poll(() => activeChapter(page)).toBe(1);
 	expect(await page.evaluate(() => window.scrollY)).toBe(0);
@@ -57,7 +57,7 @@ test("на первом экране — подсказка «листайте»
 	await page.evaluate(() => {
 		document
 			.querySelector('[data-keyframe="prologue"]')
-			?.scrollIntoView({ inline: "center", block: "nearest" });
+			?.scrollIntoView({inline: "center", block: "nearest"});
 	});
 	await expect(hint).not.toHaveClass(/swipe-hint--shown/);
 });
@@ -85,7 +85,7 @@ test("кнопка чтения подписана коротко, меню яз
 	}
 });
 
-test("карточка пролога не прокручивается по вертикали", async ({ page }) => {
+test("карточка пролога не прокручивается по вертикали", async ({page}) => {
 	await page.goto(LIGHT);
 	const extra = await page
 		.locator('[data-keyframe="prologue"]')
@@ -106,7 +106,7 @@ test("автопрокрутка доходит до финальной карт
 	await page.evaluate((id) => {
 		document
 			.querySelector(`[data-keyframe="${id}"]`)
-			?.scrollIntoView({ inline: "center", block: "nearest" });
+			?.scrollIntoView({inline: "center", block: "nearest"});
 	}, chapters[last].id);
 	await expect.poll(() => activeChapter(page)).toBe(last);
 	await page.locator(".control-button--primary").tap();
@@ -120,13 +120,13 @@ test("автопрокрутка доходит до финальной карт
 				const width = page.viewportSize()?.width ?? 0;
 				return box ? Math.abs(box.x + box.width / 2 - width / 2) : 999;
 			},
-			{ timeout: 60_000 },
+			{timeout: 60_000},
 		)
 		.toBeLessThan(4);
 
 	// через несколько секунд поверх сцены — «Вернуться в начало»
 	const back = page.locator(".back-to-start");
-	await expect(back).toHaveClass(/back-to-start--shown/, { timeout: 15_000 });
+	await expect(back).toHaveClass(/back-to-start--shown/, {timeout: 15_000});
 	await back.tap();
 	await expect
 		.poll(() =>
@@ -134,7 +134,7 @@ test("автопрокрутка доходит до финальной карт
 				() =>
 					(
 						window as unknown as {
-							__STORY__: { getState: () => { edge: string | null } };
+							__STORY__: {getState: () => {edge: string | null}};
 						}
 					).__STORY__.getState().edge,
 			),

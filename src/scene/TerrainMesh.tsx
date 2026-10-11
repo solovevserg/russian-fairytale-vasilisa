@@ -1,5 +1,5 @@
-import { useTexture } from "@react-three/drei";
-import { useLayoutEffect, useMemo } from "react";
+import {useTexture} from "@react-three/drei";
+import {useLayoutEffect, useMemo} from "react";
 import {
 	DataTexture,
 	LinearFilter,
@@ -14,8 +14,8 @@ import {
 	type Texture,
 } from "three";
 
-import { heightAt, TERRAIN_SIZE } from "./terrain";
-import { buildSplatMask } from "./terrainSplat";
+import {heightAt, TERRAIN_SIZE} from "./terrain";
+import {buildSplatMask} from "./terrainSplat";
 
 const SEGMENTS = 220;
 /** Размер плитки текстуры земли, м. */
@@ -102,14 +102,14 @@ function applySplat(
 ) {
 	material.onBeforeCompile = (shader) => {
 		Object.assign(shader.uniforms, {
-			uSplat: { value: mask },
-			uGrassMap: { value: textures.grassMap },
-			uForestMap: { value: textures.forestMap },
-			uPathMap: { value: textures.pathMap },
-			uGrassNor: { value: textures.grassNor },
-			uForestNor: { value: textures.forestNor },
-			uPathNor: { value: textures.pathNor },
-			uTile: { value: TERRAIN_SIZE / TILE_METERS },
+			uSplat: {value: mask},
+			uGrassMap: {value: textures.grassMap},
+			uForestMap: {value: textures.forestMap},
+			uPathMap: {value: textures.pathMap},
+			uGrassNor: {value: textures.grassNor},
+			uForestNor: {value: textures.forestNor},
+			uPathNor: {value: textures.pathNor},
+			uTile: {value: TERRAIN_SIZE / TILE_METERS},
 		});
 		// В onBeforeCompile шейдер ещё содержит директивы #include, поэтому
 		// подменяем сами директивы изменёнными копиями нужных кусков ShaderChunk.

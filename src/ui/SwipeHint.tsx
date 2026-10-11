@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import {useEffect, useState} from "react";
 
-import { useContent } from "../i18n/content";
-import { useReaderStore } from "../reader/readerStore";
+import {useContent} from "../i18n/content";
+import {useReaderStore} from "../reader/readerStore";
 
 /**
  * Мобильные: на первом экране (карточка с названием) поверх сцены — стрелка
@@ -19,7 +19,7 @@ export function SwipeHint() {
 		// первая карточка — пока не пролистали и треть её ширины
 		const update = () => setAtStart(story.scrollLeft < story.clientWidth / 3);
 		update();
-		story.addEventListener("scroll", update, { passive: true });
+		story.addEventListener("scroll", update, {passive: true});
 		return () => story.removeEventListener("scroll", update);
 	}, []);
 

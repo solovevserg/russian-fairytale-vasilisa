@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import {describe, expect, test} from "bun:test";
 
 import {
 	CLEARING_RADIUS,
@@ -20,7 +20,7 @@ describe("terrain", () => {
 	});
 
 	test("в лесу есть рельеф", () => {
-		const heights = Array.from({ length: 50 }, (_, i) => heightAt(40 + i, -30));
+		const heights = Array.from({length: 50}, (_, i) => heightAt(40 + i, -30));
 		expect(Math.max(...heights) - Math.min(...heights)).toBeGreaterThan(0.5);
 	});
 });
@@ -28,7 +28,7 @@ describe("terrain", () => {
 describe("pathFrame", () => {
 	test("точки оси лежат на тропе", () => {
 		for (let d = 2; d < 60; d += 3) {
-			const { x, z } = pathFrame(d);
+			const {x, z} = pathFrame(d);
 			expect(distanceToPath(x, z)).toBeLessThan(0.05);
 		}
 	});

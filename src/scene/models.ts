@@ -1,6 +1,6 @@
-import { useGLTF } from "@react-three/drei";
-import { useMemo } from "react";
-import type { BufferGeometry, Material, Mesh, Object3D } from "three";
+import {useGLTF} from "@react-three/drei";
+import {useMemo} from "react";
+import type {BufferGeometry, Material, Mesh, Object3D} from "three";
 
 /** Модели персонажей и избушки (готовит scripts/prepare-models.ts, Meshopt). */
 const base = `${import.meta.env.BASE_URL}models/`;
@@ -49,7 +49,7 @@ export const SKULL_EYE: [number, number, number] = [0.045, 0.015, 0.06];
  * инстансов на частоколе и черепа-светоча. Лицо смотрит в +Z.
  */
 export function useSkullGeometry(): BufferGeometry {
-	const { scene } = useGLTF(MODEL_URLS.skull);
+	const {scene} = useGLTF(MODEL_URLS.skull);
 	return useMemo(() => {
 		let geometry: BufferGeometry | null = null;
 		scene.updateMatrixWorld(true);

@@ -1,6 +1,6 @@
-import { createRandom } from "../lib/random";
-import type { ForestZone } from "./forest/variants";
-import { CLEARING_RADIUS, forestDensity, HOME, heightAt } from "./terrain";
+import {createRandom} from "../lib/random";
+import type {ForestZone} from "./forest/variants";
+import {CLEARING_RADIUS, forestDensity, HOME, heightAt} from "./terrain";
 
 export interface TreePlacement {
 	x: number;
@@ -35,7 +35,7 @@ function pickVariant(
 	roll: number,
 ): number {
 	const candidates = variants
-		.map((v, index) => ({ ...v, index }))
+		.map((v, index) => ({...v, index}))
 		.filter((v) => v.zone === zone);
 	const total = candidates.reduce((sum, v) => sum + v.weight, 0);
 	let acc = 0;
@@ -61,7 +61,7 @@ export function layoutForest({
 	const random = createRandom(seed);
 	const trees: TreePlacement[] = [];
 	const minDistanceSq = minDistance * minDistance;
-	const counts: Record<ForestZone, number> = { edge: 0, deep: 0 };
+	const counts: Record<ForestZone, number> = {edge: 0, deep: 0};
 	const attempts = (maxTrees.edge + maxTrees.deep) * 40;
 
 	for (let i = 0; i < attempts; i++) {
@@ -101,7 +101,7 @@ const HOME_TREES: [string, number, number, number][] = [
 
 /** Деревья у избы Василисы (ids вариантов — из списка `variants`). */
 export function layoutHomeTrees(
-	variants: { spec: { id: string } }[],
+	variants: {spec: {id: string}}[],
 ): TreePlacement[] {
 	// фасад смотрит на тропу (HOME.heading) — «за избой» значит от тропы
 	const backX = -Math.sin(HOME.heading);

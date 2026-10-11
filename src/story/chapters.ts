@@ -1,6 +1,6 @@
-import { chaptersRu } from "../i18n/chapters/ru";
+import {chaptersRu} from "../i18n/chapters/ru";
 
-export type { Chapter } from "../i18n/chapters/types";
+export type {Chapter} from "../i18n/chapters/types";
 
 /**
  * Главы по порядку — id и число глав для сцены, прокрутки и тестов. Тексты на

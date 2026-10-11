@@ -1,4 +1,4 @@
-import { defineConfig, devices } from "@playwright/test";
+import {defineConfig, devices} from "@playwright/test";
 
 const PORT = 4173;
 
@@ -10,7 +10,7 @@ export default defineConfig({
 	timeout: 60_000,
 	forbidOnly: !!process.env.CI,
 	retries: process.env.CI ? 1 : 0,
-	reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : "list",
+	reporter: process.env.CI ? [["github"], ["html", {open: "never"}]] : "list",
 	use: {
 		baseURL: `http://localhost:${PORT}/russian-fairytale-vasilisa/`,
 		trace: "on-first-retry",
@@ -18,8 +18,8 @@ export default defineConfig({
 		locale: "ru-RU",
 	},
 	projects: [
-		{ name: "desktop", use: { ...devices["Desktop Chrome"] } },
-		{ name: "mobile", use: { ...devices["Pixel 7"] } },
+		{name: "desktop", use: {...devices["Desktop Chrome"]}},
+		{name: "mobile", use: {...devices["Pixel 7"]}},
 	],
 	webServer: {
 		command: `bun run build && bun run preview --port ${PORT} --strictPort`,

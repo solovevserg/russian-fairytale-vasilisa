@@ -1,6 +1,6 @@
-import { type Camera, Vector3 } from "three";
+import {type Camera, Vector3} from "three";
 
-import { MUSIC_TRACKS, type MusicTrack } from "../story/keyframes";
+import {MUSIC_TRACKS, type MusicTrack} from "../story/keyframes";
 import {
 	audioUrl,
 	fallbackUrl,
@@ -67,7 +67,7 @@ export class AudioEngine {
 	/** Музыка приглушена на время озвучки текста. */
 	private ducked = false;
 	private loaded = false;
-	private next = { crack: 0, hut: 0, owl: 0 };
+	private next = {crack: 0, hut: 0, owl: 0};
 	private forward = new Vector3();
 
 	setDucked(ducked: boolean) {
@@ -88,11 +88,11 @@ export class AudioEngine {
 			this.createMusic();
 			document.addEventListener("visibilitychange", this.onVisibility);
 		}
-		const { ctx, master } = this;
+		const {ctx, master} = this;
 		if (!master) return;
 		void ctx.resume();
 		// разблокируем <audio> в рамках жеста (iOS Safari)
-		for (const { element } of this.music.values()) {
+		for (const {element} of this.music.values()) {
 			element.play().then(
 				() => {
 					if (!this.running) element.pause();
@@ -115,20 +115,20 @@ export class AudioEngine {
 	}
 
 	stop() {
-		const { ctx, master } = this;
+		const {ctx, master} = this;
 		this.running = false;
 		if (!ctx || !master) return;
 		master.gain.setTargetAtTime(0, ctx.currentTime, 0.2);
 		window.setTimeout(() => {
 			if (this.running) return;
-			for (const { element } of this.music.values()) element.pause();
+			for (const {element} of this.music.values()) element.pause();
 			void ctx.suspend();
 		}, 800);
 	}
 
 	/** Раз в кадр: громкости по таймлайну, слушатель = камера, случайные звуки. */
 	update(mix: AudioMix, camera: Camera) {
-		const { ctx } = this;
+		const {ctx} = this;
 		if (!ctx || !this.running || ctx.state !== "running") return;
 		const now = ctx.currentTime;
 
@@ -162,7 +162,7 @@ export class AudioEngine {
 	}
 
 	private createMusic() {
-		const { ctx, master } = this;
+		const {ctx, master} = this;
 		if (!ctx || !master) return;
 		for (const track of MUSIC_TRACKS) {
 			const element = new Audio();
@@ -177,7 +177,7 @@ export class AudioEngine {
 			const gain = ctx.createGain();
 			gain.gain.value = 0;
 			ctx.createMediaElementSource(element).connect(gain).connect(master);
-			this.music.set(track, { element, gain });
+			this.music.set(track, {element, gain});
 		}
 	}
 
@@ -195,7 +195,7 @@ export class AudioEngine {
 	}
 
 	private async loadBuffers() {
-		const { ctx, master } = this;
+		const {ctx, master} = this;
 		if (!ctx || !master) return;
 		await Promise.all([
 			...LOOPS.map(async (id) => {
@@ -219,7 +219,7 @@ export class AudioEngine {
 	private updateListener(camera: Camera, now: number) {
 		const listener = (this.ctx as AudioContext).listener;
 		camera.getWorldDirection(this.forward);
-		const { x, y, z } = camera.position;
+		const {x, y, z} = camera.position;
 		const f = this.forward;
 		if (listener.positionX) {
 			listener.positionX.setTargetAtTime(x, now, 0.05);
@@ -251,7 +251,7 @@ export class AudioEngine {
 					random(3, 9),
 					listener.z + Math.sin(angle) * distance,
 				),
-				{ volume: random(0.5, 1), refDistance: 8 },
+				{volume: random(0.5, 1), refDistance: 8},
 			);
 			this.next.crack = now + random(5, 14) / (0.4 + mix.wind);
 		}
@@ -275,7 +275,7 @@ export class AudioEngine {
 				this.playAt(
 					"sfx-owl",
 					new Vector3(Math.cos(angle) * 40, 14, Math.sin(angle) * 40),
-					{ volume: 0.7, refDistance: 15 },
+					{volume: 0.7, refDistance: 15},
 				);
 			}
 			this.next.owl = now + random(18, 40);
@@ -285,9 +285,9 @@ export class AudioEngine {
 	private playAt(
 		id: SfxId,
 		position: Vector3,
-		{ volume = 1, refDistance = 6, rolloff = 1 }: PlayOptions,
+		{volume = 1, refDistance = 6, rolloff = 1}: PlayOptions,
 	) {
-		const { ctx, master } = this;
+		const {ctx, master} = this;
 		const buffer = this.buffers.get(id);
 		if (!ctx || !master || !buffer) return;
 		const source = ctx.createBufferSource();

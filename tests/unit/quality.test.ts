@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import {describe, expect, test} from "bun:test";
 
 import {
 	type DeviceInfo,
@@ -16,9 +16,9 @@ const desktop: DeviceInfo = {
 describe("адаптивное качество", () => {
 	test("мощный компьютер с дискретной видеокартой — высокое", () => {
 		expect(
-			detectTier({ ...desktop, gpu: "ANGLE (NVIDIA GeForce RTX 3060)" }),
+			detectTier({...desktop, gpu: "ANGLE (NVIDIA GeForce RTX 3060)"}),
 		).toBe("high");
-		expect(detectTier({ ...desktop, gpu: "Apple M2" })).toBe("high");
+		expect(detectTier({...desktop, gpu: "Apple M2"})).toBe("high");
 	});
 
 	test("встроенная Intel и обычный телефон — среднее", () => {
@@ -40,12 +40,12 @@ describe("адаптивное качество", () => {
 	});
 
 	test("экономия трафика, медленная сеть, слабая или программная графика — низкое", () => {
-		expect(detectTier({ ...desktop, saveData: true })).toBe("low");
-		expect(detectTier({ ...desktop, network: "2g" })).toBe("low");
-		expect(detectTier({ ...desktop, gpu: "Google SwiftShader" })).toBe("low");
-		expect(detectTier({ ...desktop, gpu: "Mali-G52" })).toBe("low");
+		expect(detectTier({...desktop, saveData: true})).toBe("low");
+		expect(detectTier({...desktop, network: "2g"})).toBe("low");
+		expect(detectTier({...desktop, gpu: "Google SwiftShader"})).toBe("low");
+		expect(detectTier({...desktop, gpu: "Mali-G52"})).toBe("low");
 		expect(
-			detectTier({ cores: 4, memory: 2, pixels: 720 * 1600, touch: true }),
+			detectTier({cores: 4, memory: 2, pixels: 720 * 1600, touch: true}),
 		).toBe("low");
 	});
 

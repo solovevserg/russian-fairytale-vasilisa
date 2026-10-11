@@ -1,4 +1,4 @@
-import { Berry, Leaf, Rosette } from "./motifs";
+import {Berry, Leaf, Rosette} from "./motifs";
 
 /** Половина узора разделителя (левая), правая — зеркальная копия. */
 function HalfVine() {
@@ -32,7 +32,7 @@ function HalfVine() {
  * Орнаментальный разделитель: розетка в центре и симметричные побеги.
  * `large` — для заставки над названием сказки.
  */
-export function Divider({ large = false }: { large?: boolean }) {
+export function Divider({large = false}: {large?: boolean}) {
 	return (
 		<svg
 			className={large ? "divider divider--large" : "divider"}

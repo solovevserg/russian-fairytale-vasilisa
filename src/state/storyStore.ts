@@ -1,4 +1,4 @@
-import { create } from "zustand";
+import {create} from "zustand";
 
 interface StoryState {
 	/** Прогресс истории по прокрутке: дробный индекс главы 0..N-1. */
@@ -40,5 +40,5 @@ export const useStoryStore = create<StoryState>((set) => ({
 
 // Доступ к состоянию истории для e2e-тестов и отладки из консоли.
 if (typeof window !== "undefined") {
-	Object.assign(window, { __STORY__: useStoryStore });
+	Object.assign(window, {__STORY__: useStoryStore});
 }

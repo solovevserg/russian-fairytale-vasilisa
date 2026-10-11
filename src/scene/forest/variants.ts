@@ -1,4 +1,4 @@
-import type { TreePreset } from "@dgreenheck/ez-tree";
+import type {TreePreset} from "@dgreenheck/ez-tree";
 
 export type TreePresetName = keyof typeof TreePreset;
 export type ForestZone = "edge" | "deep";

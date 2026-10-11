@@ -1,13 +1,13 @@
-import { useGLTF } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
-import { useMemo, useRef } from "react";
-import type { MeshStandardMaterial, PointLight } from "three";
+import {useGLTF} from "@react-three/drei";
+import {useFrame} from "@react-three/fiber";
+import {useMemo, useRef} from "react";
+import type {MeshStandardMaterial, PointLight} from "three";
 
-import { useSceneStore } from "../state/sceneStore";
-import { currentSample } from "../story/currentSample";
-import { enableShadows, MODEL_URLS, materialsOf } from "./models";
-import { paletteAt } from "./sky/timeOfDay";
-import { HOME } from "./terrain";
+import {useSceneStore} from "../state/sceneStore";
+import {currentSample} from "../story/currentSample";
+import {enableShadows, MODEL_URLS, materialsOf} from "./models";
+import {paletteAt} from "./sky/timeOfDay";
+import {HOME} from "./terrain";
 
 /** Материал окон в модели «Cabin» — ночью светится, как от лучины. */
 const WINDOW_MATERIAL = "_crayfishdiffuse";
@@ -17,7 +17,7 @@ const WINDOW_MATERIAL = "_crayfishdiffuse";
  * отсюда Василиса уходит в лес и сюда возвращается с черепом.
  */
 export function House() {
-	const { scene } = useGLTF(MODEL_URLS.house);
+	const {scene} = useGLTF(MODEL_URLS.house);
 	const model = useMemo(() => {
 		const clone = scene.clone(true);
 		enableShadows(clone);

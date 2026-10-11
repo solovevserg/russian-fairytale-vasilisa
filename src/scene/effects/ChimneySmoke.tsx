@@ -1,9 +1,9 @@
-import { Color } from "three";
+import {Color} from "three";
 
-import { currentSample } from "../../story/currentSample";
-import { windUniforms } from "../forest/wind";
-import { paletteAt } from "../sky/timeOfDay";
-import { type ParticleUniforms, RisingParticles } from "./RisingParticles";
+import {currentSample} from "../../story/currentSample";
+import {windUniforms} from "../forest/wind";
+import {paletteAt} from "../sky/timeOfDay";
+import {type ParticleUniforms, RisingParticles} from "./RisingParticles";
 
 const DAY_SMOKE = new Color("#9a958c");
 const NIGHT_SMOKE = new Color("#2e3038");

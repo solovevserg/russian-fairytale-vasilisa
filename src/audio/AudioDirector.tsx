@@ -1,10 +1,10 @@
-import { useFrame } from "@react-three/fiber";
-import { Vector3 } from "three";
+import {useFrame} from "@react-three/fiber";
+import {Vector3} from "three";
 
-import { paletteAt } from "../scene/sky/timeOfDay";
-import { heightAt } from "../scene/terrain";
-import { currentSample } from "../story/currentSample";
-import { type AudioMix, audioEngine } from "./AudioEngine";
+import {paletteAt} from "../scene/sky/timeOfDay";
+import {heightAt} from "../scene/terrain";
+import {currentSample} from "../story/currentSample";
+import {type AudioMix, audioEngine} from "./AudioEngine";
 
 const mix: AudioMix = {
 	music: currentSample.music,
@@ -15,7 +15,7 @@ const mix: AudioMix = {
 
 /** Передаёт звуковому движку состояние истории и положение камеры. */
 export function AudioDirector() {
-	useFrame(({ camera }) => {
+	useFrame(({camera}) => {
 		if (!audioEngine.isRunning) return;
 		mix.night = paletteAt(currentSample.timeOfDay).night;
 		mix.wind = currentSample.wind;

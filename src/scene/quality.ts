@@ -1,6 +1,6 @@
-import { debugFlags } from "../debugFlags";
-import { prefersReducedMotion } from "../lib/dom";
-import { urlString } from "../lib/url";
+import {debugFlags} from "../debugFlags";
+import {prefersReducedMotion} from "../lib/dom";
+import {urlString} from "../lib/url";
 
 /**
  * Адаптивное качество сцены. Уровень выбирается один раз при загрузке —
@@ -133,7 +133,7 @@ export function settingsFor(
 ): QualitySettings {
 	const base = QUALITY[tier];
 	// «уменьшить движение» в системе — деревья и трава не качаются
-	return { tier, ...base, wind: base.wind && !reducedMotion };
+	return {tier, ...base, wind: base.wind && !reducedMotion};
 }
 
 function readGpu(): string | undefined {
@@ -153,7 +153,7 @@ function readGpu(): string | undefined {
 function readDevice(): DeviceInfo {
 	const nav = navigator as Navigator & {
 		deviceMemory?: number;
-		connection?: { saveData?: boolean; effectiveType?: string };
+		connection?: {saveData?: boolean; effectiveType?: string};
 	};
 	const dpr = window.devicePixelRatio || 1;
 	return {

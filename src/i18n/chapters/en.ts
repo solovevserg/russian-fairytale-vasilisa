@@ -1,4 +1,4 @@
-import type { Chapter } from "./types";
+import type {Chapter} from "./types";
 
 /** Английская версия глав (те же id, что и в ru.ts). */
 export const chaptersEn: Chapter[] = [

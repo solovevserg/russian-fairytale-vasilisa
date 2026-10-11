@@ -1,24 +1,24 @@
-import { useGLTF } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
-import { useMemo, useRef } from "react";
-import type { Group, PointLight } from "three";
+import {useGLTF} from "@react-three/drei";
+import {useFrame} from "@react-three/fiber";
+import {useMemo, useRef} from "react";
+import type {Group, PointLight} from "three";
 
-import { debugFlags } from "../../debugFlags";
-import { dampFactor } from "../../lib/damp";
-import { smooth01 } from "../../lib/math";
-import { currentSample, sceneProgress } from "../../story/currentSample";
-import { departureAt } from "../../story/departure";
+import {debugFlags} from "../../debugFlags";
+import {dampFactor} from "../../lib/damp";
+import {smooth01} from "../../lib/math";
+import {currentSample, sceneProgress} from "../../story/currentSample";
+import {departureAt} from "../../story/departure";
 import {
 	homecomingAt,
 	homecomingClock,
 	homecomingRoute,
 } from "../../story/homecoming";
-import { INTRO_TIME, introAt } from "../../story/intro";
-import { enableShadows, MODEL_URLS } from "../models";
-import { paletteAt } from "../sky/timeOfDay";
-import { heightAt, pathFrame } from "../terrain";
-import { setShown } from "./presence";
-import { Doll, DollMagic, SkullLantern } from "./props";
+import {INTRO_TIME, introAt} from "../../story/intro";
+import {enableShadows, MODEL_URLS} from "../models";
+import {paletteAt} from "../sky/timeOfDay";
+import {heightAt, pathFrame} from "../terrain";
+import {setShown} from "./presence";
+import {Doll, DollMagic, SkullLantern} from "./props";
 
 /**
  * Модель «Red Slavic Folk Dress» (akot777, CC-BY 4.0), раскрашена и упрощена
@@ -120,7 +120,7 @@ const LANTERN_GRIP: [number, number, number] = [0.22, 1.0, 0.05];
  * из таймлайна. Модель без скелета, поэтому шаг передаём покачиванием.
  */
 export function Vasilisa() {
-	const { scene } = useGLTF(MODEL_URLS.vasilisa);
+	const {scene} = useGLTF(MODEL_URLS.vasilisa);
 	const model = useMemo(() => {
 		const clone = scene.clone(true);
 		enableShadows(clone);
@@ -136,10 +136,10 @@ export function Vasilisa() {
 	const doll = useRef<Group>(null);
 	const lantern = useRef<Group>(null);
 	const magic = useRef<Group>(null);
-	const motion = useRef({ x: 0, z: 0, phase: 0, speed: 0 });
+	const motion = useRef({x: 0, z: 0, phase: 0, speed: 0});
 	const moonlight = useRef<PointLight>(null);
-	const departure = useRef({ start: -1, x: 0, z: 0, heading: 0 });
-	const homecoming = useRef({ x: 0, z: 0, heading: 0, walked: 0 });
+	const departure = useRef({start: -1, x: 0, z: 0, heading: 0});
+	const homecoming = useRef({x: 0, z: 0, heading: 0, walked: 0});
 	/** Зачин: выход из-за избы при открытии сайта (start < 0 — ещё не начат). */
 	const intro = useRef({
 		start: -1,
@@ -151,13 +151,13 @@ export function Vasilisa() {
 	/** Дошла до кадра и идёт дальше (onward): с какого времени. */
 	const onward = useRef(-1);
 	/** Сглаживание скачков (например, листнули, пока она шла дальше), м. */
-	const jump = useRef({ x: 0, z: 0 });
+	const jump = useRef({x: 0, z: 0});
 	/** В прошлом кадре шла дальше (onward) или выходила из-за избы. */
 	const wasSpecial = useRef(false);
 	/** Где героиня была в прошлом кадре (null — не была видна). */
-	const last = useRef<{ x: number; z: number; heading: number } | null>(null);
+	const last = useRef<{x: number; z: number; heading: number} | null>(null);
 
-	useFrame(({ clock }, delta) => {
+	useFrame(({clock}, delta) => {
 		const v = currentSample.vasilisa;
 		const r = root.current;
 		if (!r || !body.current) return;
@@ -184,7 +184,7 @@ export function Vasilisa() {
 		const returning = v.pose === "return";
 		if (returning) {
 			if (home.start < 0) {
-				const from = last.current ?? { x: v.x, z: v.z, heading: v.heading };
+				const from = last.current ?? {x: v.x, z: v.z, heading: v.heading};
 				home.start = clock.elapsedTime;
 				home.route = homecomingRoute([from.x, from.z], from.heading);
 			}
@@ -254,7 +254,7 @@ export function Vasilisa() {
 				: returning
 					? h.heading
 					: v.heading;
-		last.current = { x, z, heading };
+		last.current = {x, z, heading};
 
 		// скорость — по смещению за кадр, сглаженная
 		const m = motion.current;

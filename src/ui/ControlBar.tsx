@@ -1,15 +1,15 @@
-import { useEffect, useState } from "react";
+import {useEffect, useState} from "react";
 
-import { audioEngine } from "../audio/AudioEngine";
-import { useAudioStore } from "../audio/audioStore";
-import { useContent } from "../i18n/content";
-import { useLangStore } from "../i18n/lang";
-import { autoReader } from "../reader/autoReader";
-import { hasVoiceFor } from "../reader/narrator";
-import { useReaderStore } from "../reader/readerStore";
-import { LangMenu } from "./LangMenu";
-import { SoundToggle } from "./SoundToggle";
-import { useThemeStore } from "./theme";
+import {audioEngine} from "../audio/AudioEngine";
+import {useAudioStore} from "../audio/audioStore";
+import {useContent} from "../i18n/content";
+import {useLangStore} from "../i18n/lang";
+import {autoReader} from "../reader/autoReader";
+import {hasVoiceFor} from "../reader/narrator";
+import {useReaderStore} from "../reader/readerStore";
+import {LangMenu} from "./LangMenu";
+import {SoundToggle} from "./SoundToggle";
+import {useThemeStore} from "./theme";
 
 /** Есть ли голос для языка (голоса грузятся асинхронно — до ответа кнопки нет). */
 function useVoiceAvailable(lang: string): boolean {

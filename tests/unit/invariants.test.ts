@@ -1,12 +1,12 @@
-import { describe, expect, test } from "bun:test";
+import {describe, expect, test} from "bun:test";
 
-import { PerspectiveCamera, Vector3 } from "three";
+import {PerspectiveCamera, Vector3} from "three";
 
-import { heightAt, pathFrame } from "../../src/scene/terrain";
-import { creditsCamera, HOMECOMING } from "../../src/story/homecoming";
-import { KEYFRAMES, type SceneKeyframe } from "../../src/story/keyframes";
-import { stepScene } from "../../src/story/lightDelay";
-import { createSample, createTimeline } from "../../src/story/timeline";
+import {heightAt, pathFrame} from "../../src/scene/terrain";
+import {creditsCamera, HOMECOMING} from "../../src/story/homecoming";
+import {KEYFRAMES, type SceneKeyframe} from "../../src/story/keyframes";
+import {stepScene} from "../../src/story/lightDelay";
+import {createSample, createTimeline} from "../../src/story/timeline";
 
 /**
  * Сквозные свойства сцены — сеть безопасности для рефакторинга (см.
@@ -86,7 +86,7 @@ describe("непрерывность таймлайна", () => {
 	}
 
 	test("Василиса не перескакивает между соседними точками прогресса", () => {
-		const prev = { x: 0, z: 0, visible: false };
+		const prev = {x: 0, z: 0, visible: false};
 		for (const [p, s] of sweep()) {
 			const v = s.vasilisa;
 			if (v.visible && prev.visible) {
@@ -95,7 +95,7 @@ describe("непрерывность таймлайна", () => {
 				if (step > limit)
 					throw new Error(`скачок ${step.toFixed(2)} м на ${p.toFixed(3)}`);
 			}
-			Object.assign(prev, { x: v.x, z: v.z, visible: v.visible });
+			Object.assign(prev, {x: v.x, z: v.z, visible: v.visible});
 		}
 	});
 

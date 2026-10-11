@@ -1,18 +1,18 @@
-import { useFrame } from "@react-three/fiber";
-import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
-import { type InstancedMesh, Object3D } from "three";
+import {useFrame} from "@react-three/fiber";
+import {useEffect, useLayoutEffect, useMemo, useRef} from "react";
+import {type InstancedMesh, Object3D} from "three";
 
-import { debugFlags } from "../../debugFlags";
-import { useSceneStore } from "../../state/sceneStore";
+import {debugFlags} from "../../debugFlags";
+import {useSceneStore} from "../../state/sceneStore";
 import {
 	layoutForest,
 	layoutHomeTrees,
 	type TreePlacement,
 } from "../forestLayout";
-import { quality } from "../quality";
-import { createTreeVariant, type TreeVariantAssets } from "./createTreeVariant";
-import { TREE_VARIANTS } from "./variants";
-import { windUniforms } from "./wind";
+import {quality} from "../quality";
+import {createTreeVariant, type TreeVariantAssets} from "./createTreeVariant";
+import {TREE_VARIANTS} from "./variants";
+import {windUniforms} from "./wind";
 
 const SECTORS = 8;
 
@@ -107,7 +107,7 @@ export function Forest() {
 		const groups = variants.map(() => [] as TreePlacement[]);
 		const bySector = new Map<
 			string,
-			{ variantIndex: number; placements: TreePlacement[] }
+			{variantIndex: number; placements: TreePlacement[]}
 		>();
 		for (const tree of trees) {
 			groups[tree.variantIndex].push(tree);
@@ -138,7 +138,7 @@ export function Forest() {
 				),
 			);
 		}
-		return [...bySector.entries()].map(([key, chunk]) => ({ key, ...chunk }));
+		return [...bySector.entries()].map(([key, chunk]) => ({key, ...chunk}));
 	}, [variants]);
 
 	useEffect(

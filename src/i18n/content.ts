@@ -1,13 +1,13 @@
-import { chaptersEn } from "./chapters/en";
-import { chaptersEs } from "./chapters/es";
+import {chaptersEn} from "./chapters/en";
+import {chaptersEs} from "./chapters/es";
 import {
 	chaptersRu as chapters,
 	STORY_SUBTITLE,
 	STORY_TITLE,
 } from "./chapters/ru";
-import type { Chapter } from "./chapters/types";
-import { chaptersZh } from "./chapters/zh";
-import { type Lang, useLangStore } from "./lang";
+import type {Chapter} from "./chapters/types";
+import {chaptersZh} from "./chapters/zh";
+import {type Lang, useLangStore} from "./lang";
 
 const ORDINALS_RU = [
 	"первая",

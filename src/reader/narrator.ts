@@ -1,5 +1,5 @@
-import { currentContent } from "../i18n/content";
-import { splitSentences } from "./timing";
+import {currentContent} from "../i18n/content";
+import {splitSentences} from "./timing";
 
 export function isSpeechSupported(): boolean {
 	return typeof window !== "undefined" && "speechSynthesis" in window;
@@ -14,7 +14,7 @@ function loadVoices(): Promise<SpeechSynthesisVoice[]> {
 	if (voices.length > 0) return Promise.resolve(voices);
 	voicesPromise ??= new Promise((resolve) => {
 		const done = () => resolve(synth.getVoices());
-		synth.addEventListener("voiceschanged", done, { once: true });
+		synth.addEventListener("voiceschanged", done, {once: true});
 		window.setTimeout(done, 1500);
 	});
 	return voicesPromise;
@@ -73,7 +73,7 @@ function speakOne(
 		// ошибка синтеза не должна вешать автопрокрутку
 		utterance.onerror = (event) =>
 			finish(event.error === "interrupted" || event.error === "canceled")();
-		signal.addEventListener("abort", onAbort, { once: true });
+		signal.addEventListener("abort", onAbort, {once: true});
 		window.speechSynthesis.speak(utterance);
 	});
 }
@@ -95,7 +95,7 @@ export async function narrate(
 	// чужим голосом не читаем: китайский текст русским голосом — каша
 	if (!voice) return false;
 	const stop = () => window.speechSynthesis.cancel();
-	signal.addEventListener("abort", stop, { once: true });
+	signal.addEventListener("abort", stop, {once: true});
 	try {
 		for (const [index, paragraph] of paragraphs.entries()) {
 			onParagraph(index);

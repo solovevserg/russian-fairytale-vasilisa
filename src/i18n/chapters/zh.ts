@@ -1,4 +1,4 @@
-import type { Chapter } from "./types";
+import type {Chapter} from "./types";
 
 /** Китайская (упрощённое письмо) версия глав (те же id, что и в ru.ts). */
 export const chaptersZh: Chapter[] = [

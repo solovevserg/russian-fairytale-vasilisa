@@ -1,7 +1,7 @@
-import { type RefObject, useEffect } from "react";
+import {type RefObject, useEffect} from "react";
 
-import { useStoryStore } from "../state/storyStore";
-import { progressFromAnchors } from "../story/timeline";
+import {useStoryStore} from "../state/storyStore";
+import {progressFromAnchors} from "../story/timeline";
 import {
 	anchorOf,
 	MOBILE_QUERY,
@@ -70,8 +70,8 @@ export function useScrollProgress(container: RefObject<HTMLElement | null>) {
 		const observer = new ResizeObserver(remeasure);
 		observer.observe(root);
 		const media = window.matchMedia(MOBILE_QUERY);
-		window.addEventListener("scroll", schedule, { passive: true });
-		root.addEventListener("scroll", schedule, { passive: true });
+		window.addEventListener("scroll", schedule, {passive: true});
+		root.addEventListener("scroll", schedule, {passive: true});
 		window.addEventListener("resize", remeasure);
 		media.addEventListener("change", remeasure);
 		return () => {

@@ -1,5 +1,5 @@
-import { useFrame } from "@react-three/fiber";
-import { useLayoutEffect, useMemo, useRef } from "react";
+import {useFrame} from "@react-three/fiber";
+import {useLayoutEffect, useMemo, useRef} from "react";
 import {
 	Color,
 	type Group,
@@ -9,10 +9,10 @@ import {
 	type PointLight,
 } from "three";
 
-import { createRandom } from "../lib/random";
-import { currentSample } from "../story/currentSample";
-import { SKULL_EYE, useSkullGeometry } from "./models";
-import { heightAt } from "./terrain";
+import {createRandom} from "../lib/random";
+import {currentSample} from "../story/currentSample";
+import {SKULL_EYE, useSkullGeometry} from "./models";
+import {heightAt} from "./terrain";
 
 export const FENCE_RADIUS = 6.5;
 /** Ворота смотрят на тропу (направление PATH_DIRECTION в terrain.ts). */
@@ -126,7 +126,7 @@ export function Fence() {
 		}
 	}, [stakes, skulls]);
 
-	useFrame(({ clock }) => {
+	useFrame(({clock}) => {
 		const lit = currentSample.skulls;
 		// глаза тлеют и чуть мерцают, как угли
 		const flicker = 0.9 + 0.1 * Math.sin(clock.elapsedTime * 7.3);

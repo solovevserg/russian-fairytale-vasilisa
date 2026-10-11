@@ -1,14 +1,14 @@
-import { describe, expect, test } from "bun:test";
+import {describe, expect, test} from "bun:test";
 
-import { CatmullRomCurve3, PerspectiveCamera, Vector3 } from "three";
+import {CatmullRomCurve3, PerspectiveCamera, Vector3} from "three";
 
-import { heightAt } from "../../src/scene/terrain";
+import {heightAt} from "../../src/scene/terrain";
 import {
 	BABA_YAGA_FLIGHT,
 	KEYFRAMES,
 	RIDER_PATHS,
 } from "../../src/story/keyframes";
-import { delayedTimeProgress, RIDER_LIGHT } from "../../src/story/lightDelay";
+import {delayedTimeProgress, RIDER_LIGHT} from "../../src/story/lightDelay";
 
 const index = (id: string) => KEYFRAMES.findIndex((k) => k.id === id);
 
@@ -18,11 +18,11 @@ describe("свет и всадники", () => {
 	const ride = RIDER_PATHS.white.duration;
 
 	test("белый: светает вместе со скачкой", () => {
-		expect(delayedTimeProgress(white, 0, { white: 0 })).toBe(white - 1);
-		const mid = delayedTimeProgress(white, ride / 2, { white: 0 });
+		expect(delayedTimeProgress(white, 0, {white: 0})).toBe(white - 1);
+		const mid = delayedTimeProgress(white, ride / 2, {white: 0});
 		expect(mid).toBeGreaterThan(white - 1);
 		expect(mid).toBeLessThan(white);
-		expect(delayedTimeProgress(white, ride, { white: 0 })).toBe(white);
+		expect(delayedTimeProgress(white, ride, {white: 0})).toBe(white);
 	});
 
 	test("красный: время суток не меняется", () => {
@@ -32,12 +32,12 @@ describe("свет и всадники", () => {
 
 	test("чёрный: ночь опускается после скачки", () => {
 		const blackRide = RIDER_PATHS.black.duration;
-		const { after, fade } = RIDER_LIGHT.black;
+		const {after, fade} = RIDER_LIGHT.black;
 		expect(
-			delayedTimeProgress(black, blackRide * after - 0.1, { black: 0 }),
+			delayedTimeProgress(black, blackRide * after - 0.1, {black: 0}),
 		).toBe(black - 1);
 		expect(
-			delayedTimeProgress(black, blackRide * after + fade, { black: 0 }),
+			delayedTimeProgress(black, blackRide * after + fade, {black: 0}),
 		).toBe(black);
 	});
 
@@ -68,7 +68,7 @@ describe("траектории", () => {
 		const curve = new CatmullRomCurve3(
 			RIDER_PATHS.black.points.map((p) => new Vector3(...p)),
 		);
-		const inFrame = Array.from({ length: 40 }, (_, i) =>
+		const inFrame = Array.from({length: 40}, (_, i) =>
 			curve.getPointAt(i / 39),
 		).filter((p) => {
 			const q = new Vector3(p.x, heightAt(p.x, p.z) + 1.5, p.z).project(camera);
@@ -85,7 +85,7 @@ describe("траектории", () => {
 			"centripetal",
 		);
 		const closest = Math.min(
-			...Array.from({ length: 100 }, (_, i) =>
+			...Array.from({length: 100}, (_, i) =>
 				flight.getPointAt(i / 99).distanceTo(camera),
 			),
 		);

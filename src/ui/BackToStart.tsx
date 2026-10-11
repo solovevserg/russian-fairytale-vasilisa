@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import {useEffect, useState} from "react";
 
-import { useContent } from "../i18n/content";
-import { scrollToCenter } from "../lib/dom";
-import { autoReader } from "../reader/autoReader";
-import { useReaderStore } from "../reader/readerStore";
-import { useStoryStore } from "../state/storyStore";
+import {useContent} from "../i18n/content";
+import {scrollToCenter} from "../lib/dom";
+import {autoReader} from "../reader/autoReader";
+import {useReaderStore} from "../reader/readerStore";
+import {useStoryStore} from "../state/storyStore";
 
 /** Через сколько секунд на финальной карточке появляется кнопка, мс. */
 const DELAY_MS = 6000;

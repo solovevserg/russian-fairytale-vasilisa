@@ -1,5 +1,5 @@
-import { useFrame } from "@react-three/fiber";
-import { useMemo } from "react";
+import {useFrame} from "@react-three/fiber";
+import {useMemo} from "react";
 import {
 	AdditiveBlending,
 	BufferAttribute,
@@ -11,7 +11,7 @@ import {
 	Vector3,
 } from "three";
 
-import { createRandom } from "../../lib/random";
+import {createRandom} from "../../lib/random";
 
 const vertexShader = /* glsl */ `
 uniform float uTime;
@@ -71,9 +71,9 @@ export interface RisingParticlesProps {
 }
 
 export interface ParticleUniforms {
-	uOpacity: { value: number };
-	uColor: { value: Color };
-	uDrift: { value: Vector3 };
+	uOpacity: {value: number};
+	uColor: {value: Color};
+	uDrift: {value: Vector3};
 }
 
 /** Частицы, поднимающиеся из точки: дым из трубы, волшебные искры. */
@@ -119,22 +119,22 @@ export function RisingParticles({
 				depthWrite: false,
 				blending: additive ? AdditiveBlending : NormalBlending,
 				uniforms: {
-					uTime: { value: 0 },
-					uLife: { value: life },
-					uRise: { value: rise },
-					uSpread: { value: spread },
-					uSize: { value: size },
-					uGrow: { value: grow },
-					uScale: { value: 1 },
-					uDrift: { value: new Vector3() },
-					uColor: { value: new Color(color) },
-					uOpacity: { value: 1 },
+					uTime: {value: 0},
+					uLife: {value: life},
+					uRise: {value: rise},
+					uSpread: {value: spread},
+					uSize: {value: size},
+					uGrow: {value: grow},
+					uScale: {value: 1},
+					uDrift: {value: new Vector3()},
+					uColor: {value: new Color(color)},
+					uOpacity: {value: 1},
 				},
 			}),
 		[additive, life, rise, spread, size, grow, color],
 	);
 
-	useFrame(({ camera, size: viewport, gl }, delta) => {
+	useFrame(({camera, size: viewport, gl}, delta) => {
 		const u = material.uniforms;
 		u.uTime.value += delta;
 		// перевод размера в метрах в пиксели: высота вьюпорта / (2·tg(fov/2))

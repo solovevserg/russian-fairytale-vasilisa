@@ -1,4 +1,4 @@
-import type { Chapter } from "./types";
+import type {Chapter} from "./types";
 
 export const STORY_TITLE = "Василиса Прекрасная";
 export const STORY_SUBTITLE = "Русская народная сказка";

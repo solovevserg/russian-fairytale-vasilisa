@@ -1,4 +1,4 @@
-import { heightAt, pathFrame } from "../scene/terrain";
+import {heightAt, pathFrame} from "../scene/terrain";
 
 export type Vec3 = [number, number, number];
 
@@ -37,7 +37,7 @@ export interface VasilisaState {
 	 * Остановка на пути к этому кадру: дойдя до `at` (м по тропе) к доле
 	 * перехода `from`, стоит до доли `to`, потом идёт дальше.
 	 */
-	stop?: { at: number; from: number; to: number };
+	stop?: {at: number; from: number; to: number};
 	/** В какой доле перехода к этому кадру она перемещается (до — на месте). */
 	window?: [number, number];
 	/**
@@ -57,12 +57,12 @@ export interface SceneKeyframe {
 		target: Vec3;
 		fov: number;
 		/** Промежуточные точки пролёта на пути к этому кадру (поровну по времени). */
-		via?: { position: Vec3; target: Vec3 }[];
+		via?: {position: Vec3; target: Vec3}[];
 	};
 	/** Сила ветра 0..1. */
 	wind: number;
 	/** Музыкальная тема главы и её громкость 0..1. */
-	music: { track: MusicTrack; volume: number };
+	music: {track: MusicTrack; volume: number};
 	/** Василиса в кадре (null — нет). */
 	vasilisa: VasilisaState | null;
 	/** Баба Яга: летит в ступе по небу или стоит у избы. */
@@ -112,11 +112,11 @@ function walker(
 		pose = "walk",
 		prop = "doll",
 		away = false,
-	}: Partial<VasilisaState> & { away?: boolean } = {},
+	}: Partial<VasilisaState> & {away?: boolean} = {},
 ): VasilisaState {
 	const f = pathFrame(distance);
 	const heading = Math.atan2(f.toHutX, f.toHutZ) + (away ? Math.PI : 0);
-	return { at: [f.x, f.z], heading, pose, prop: prop ?? null, path: distance };
+	return {at: [f.x, f.z], heading, pose, prop: prop ?? null, path: distance};
 }
 
 const HUT: Vec3 = [0, 4.2, 0];
@@ -172,12 +172,12 @@ const SLEEP = (() => {
 		elevation: heightAt(0, 0) + PORCH.height - heightAt(at[0], at[1]),
 	};
 })();
-const AT_GATE = walker(8.5, { pose: "stand", prop: "doll" });
+const AT_GATE = walker(8.5, {pose: "stand", prop: "doll"});
 
 /** Василиса у своей избы (в начале тропы), лицом к лесу и избушке. */
 function atHome(prop: VasilisaState["prop"]): VasilisaState {
 	const [x, , z] = onPath(51, 0, -2.6);
-	return { ...walker(51, { pose: "stand", prop }), at: [x, z], side: -2.6 };
+	return {...walker(51, {pose: "stand", prop}), at: [x, z], side: -2.6};
 }
 
 /** Зачин и концовка снимаются одной камерой: тропа у избы Василисы. */
@@ -195,7 +195,7 @@ const PROLOGUE_CAMERA = (() => {
 	const p = HOME_CAMERA.position;
 	const position = p.map((v, i) => v + (her[i] - v) * PROLOGUE_CLOSER) as Vec3;
 	// взгляд ниже — Василиса ближе к верху кадра: низ на телефоне закрыт текстом
-	return { ...HOME_CAMERA, position, target: onPath(52.5, -0.2, -4.8) };
+	return {...HOME_CAMERA, position, target: onPath(52.5, -0.2, -4.8)};
 })();
 /** На титульной карточке камера дальше, чем в прологе, на этот вектор. */
 export const TITLE_SHIFT = HOME_CAMERA.position.map(
@@ -214,7 +214,7 @@ export const KEYFRAMES: SceneKeyframe[] = [
 		house: true,
 		camera: PROLOGUE_CAMERA,
 		wind: 0.6,
-		music: { track: "castle", volume: 0.55 },
+		music: {track: "castle", volume: 0.55},
 		vasilisa: atHome("doll"),
 		babaYaga: null,
 		rider: null,
@@ -237,9 +237,9 @@ export const KEYFRAMES: SceneKeyframe[] = [
 			fov: 50,
 		},
 		wind: 0.4,
-		music: { track: "cum-mortuis", volume: 0.6 },
+		music: {track: "cum-mortuis", volume: 0.6},
 		// останавливается чуть раньше середины кадра и медленно доходит до неё
-		vasilisa: { ...walker(41.5), onward: 2.5 },
+		vasilisa: {...walker(41.5), onward: 2.5},
 		babaYaga: null,
 		rider: null,
 		skulls: 0,
@@ -258,12 +258,12 @@ export const KEYFRAMES: SceneKeyframe[] = [
 			target: onPath(28, 1.0, 0.5),
 			fov: 55,
 			via: [
-				{ position: onPath(36.3, 1.6, 1.9), target: onPath(37.7, 1.1) },
-				{ position: onPath(36.9, 1.7, 1.6), target: onPath(35.3, 1.0) },
+				{position: onPath(36.3, 1.6, 1.9), target: onPath(37.7, 1.1)},
+				{position: onPath(36.9, 1.7, 1.6), target: onPath(35.3, 1.0)},
 			],
 		},
 		wind: 0.3,
-		music: { track: "castle", volume: 0.5 },
+		music: {track: "castle", volume: 0.5},
 		vasilisa: walker(33),
 		babaYaga: null,
 		rider: "white",
@@ -284,7 +284,7 @@ export const KEYFRAMES: SceneKeyframe[] = [
 			fov: 55,
 		},
 		wind: 0.35,
-		music: { track: "castle", volume: 0.55 },
+		music: {track: "castle", volume: 0.55},
 		vasilisa: walker(28.5),
 		babaYaga: null,
 		rider: "red",
@@ -304,13 +304,13 @@ export const KEYFRAMES: SceneKeyframe[] = [
 			target: onPath(26, 1.35),
 			fov: 45,
 			via: [
-				{ position: onPath(28.9, 1.6, 1.9), target: onPath(27.7, 1.3) },
-				{ position: onPath(25.9, 1.3, 1.9), target: onPath(26.8, 1.35) },
+				{position: onPath(28.9, 1.6, 1.9), target: onPath(27.7, 1.3)},
+				{position: onPath(25.9, 1.3, 1.9), target: onPath(26.8, 1.35)},
 			],
 		},
 		wind: 0.3,
-		music: { track: "castle", volume: 0.6 },
-		vasilisa: walker(26, { pose: "stand" }),
+		music: {track: "castle", volume: 0.6},
+		vasilisa: walker(26, {pose: "stand"}),
 		babaYaga: null,
 		rider: null,
 		skulls: 0,
@@ -326,11 +326,11 @@ export const KEYFRAMES: SceneKeyframe[] = [
 		// потом подходит ближе
 		transition: 11,
 		// из-за избушки, с высоты: видны стены, вся поляна и Василиса у входа
-		camera: { position: [-10, 16, 2], target: [3, 0.5, 5], fov: 45 },
+		camera: {position: [-10, 16, 2], target: [3, 0.5, 5], fov: 45},
 		wind: 0.35,
-		music: { track: "catacombs", volume: 0.6 },
+		music: {track: "catacombs", volume: 0.6},
 		// идёт не спеша — не обгоняет камеру
-		vasilisa: { ...walker(13.5), stop: { at: 18, from: 0.55, to: 0.65 } },
+		vasilisa: {...walker(13.5), stop: {at: 18, from: 0.55, to: 0.65}},
 		babaYaga: null,
 		rider: null,
 		skulls: 0,
@@ -350,12 +350,12 @@ export const KEYFRAMES: SceneKeyframe[] = [
 			target: [0, 1.8, 0],
 			fov: 62,
 			via: [
-				{ position: [-7.6, 10, 10.6], target: [0.5, 2.5, 2] },
-				{ position: [3.6, 4.5, 12.4], target: [0, 3.2, 0.5] },
+				{position: [-7.6, 10, 10.6], target: [0.5, 2.5, 2]},
+				{position: [3.6, 4.5, 12.4], target: [0, 3.2, 0.5]},
 			],
 		},
 		wind: 0.5,
-		music: { track: "catacombs", volume: 0.7 },
+		music: {track: "catacombs", volume: 0.7},
 		vasilisa: AT_GATE,
 		babaYaga: null,
 		rider: "black",
@@ -373,7 +373,7 @@ export const KEYFRAMES: SceneKeyframe[] = [
 			fov: 70,
 		},
 		wind: 1,
-		music: { track: "hut", volume: 0.85 },
+		music: {track: "hut", volume: 0.85},
 		vasilisa: AT_GATE,
 		babaYaga: "fly",
 		rider: null,
@@ -402,7 +402,7 @@ export const KEYFRAMES: SceneKeyframe[] = [
 			fov: 45,
 		},
 		wind: 0.3,
-		music: { track: "cum-mortuis", volume: 0.6 },
+		music: {track: "cum-mortuis", volume: 0.6},
 		vasilisa: {
 			...SLEEP,
 			pose: "sleep",
@@ -431,7 +431,7 @@ export const KEYFRAMES: SceneKeyframe[] = [
 			fov: 50,
 		},
 		wind: 0.6,
-		music: { track: "hut", volume: 0.75 },
+		music: {track: "hut", volume: 0.75},
 		// стоит лицом к Бабе Яге, затем разворачивается и уходит по тропе в лес
 		vasilisa: {
 			at: [4.9, 7.4],
@@ -455,10 +455,10 @@ export const KEYFRAMES: SceneKeyframe[] = [
 		houseLit: false,
 		camera: HOME_CAMERA,
 		wind: 0.3,
-		music: { track: "castle", volume: 0.6 },
+		music: {track: "castle", volume: 0.6},
 		// продолжает путь с того места, где была, и обходит избу (homecoming.ts);
 		// здесь — только запасная точка для статичного кадра
-		vasilisa: { ...atHome("skull"), pose: "return" },
+		vasilisa: {...atHome("skull"), pose: "return"},
 		// огонь погас ещё до её ухода — окна тёмные, свет несёт череп
 		babaYaga: null,
 		rider: null,
@@ -497,7 +497,7 @@ function blackRiderPoints(): Vec3[] {
  */
 export const RIDER_PATHS: Record<
 	RiderColor,
-	{ points: Vec3[]; duration: number; delay: number }
+	{points: Vec3[]; duration: number; delay: number}
 > = {
 	// перебегает ей дорогу слева направо — наискосок, чтобы дольше быть в кадре
 	white: {
@@ -511,10 +511,10 @@ export const RIDER_PATHS: Record<
 		delay: 0,
 	},
 	// секунда — чтобы камера успела встать туда, где он проскачет
-	black: { points: blackRiderPoints(), duration: 17, delay: 0.3 },
+	black: {points: blackRiderPoints(), duration: 17, delay: 0.3},
 };
 
-export { HUT };
+export {HUT};
 
 /**
  * Полёт Бабы Яги (глава «Баба Яга»): сплайн Катмулла-Рома — заходит высоко

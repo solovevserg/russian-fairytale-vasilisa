@@ -1,8 +1,8 @@
-import { describe, expect, test } from "bun:test";
+import {describe, expect, test} from "bun:test";
 
-import { heightAt } from "../../src/scene/terrain";
-import { chapters } from "../../src/story/chapters";
-import { KEYFRAMES } from "../../src/story/keyframes";
+import {heightAt} from "../../src/scene/terrain";
+import {chapters} from "../../src/story/chapters";
+import {KEYFRAMES} from "../../src/story/keyframes";
 import {
 	createTimeline,
 	progressFromAnchors,
@@ -69,7 +69,7 @@ describe("timeline", () => {
 
 	test("камера не уходит под землю", () => {
 		for (let p = 0; p <= timeline.length - 1; p += 0.05) {
-			const { x, y, z } = timeline.sample(p).position;
+			const {x, y, z} = timeline.sample(p).position;
 			expect(y).toBeGreaterThan(heightAt(x, z) + 0.3);
 		}
 	});
@@ -80,7 +80,7 @@ describe("музыка в таймлайне", () => {
 
 	test("на кадре звучит только трек главы", () => {
 		KEYFRAMES.forEach((k, i) => {
-			const { music } = timeline.sample(i);
+			const {music} = timeline.sample(i);
 			for (const [track, volume] of Object.entries(music)) {
 				expect(volume).toBeCloseTo(
 					track === k.music.track ? k.music.volume : 0,
@@ -91,7 +91,7 @@ describe("музыка в таймлайне", () => {
 
 	test("между главами с разной музыкой — кроссфейд", () => {
 		// «Восход» (castle) → «Поляна» (catacombs)
-		const { music } = timeline.sample(4.5);
+		const {music} = timeline.sample(4.5);
 		expect(music.castle).toBeGreaterThan(0);
 		expect(music.catacombs).toBeGreaterThan(0);
 		expect(music.hut).toBe(0);
@@ -104,16 +104,16 @@ describe("Василиса в таймлайне", () => {
 
 	test("с куколкой и в зачине, и в «Огонь погас»", () => {
 		expect(timeline.sample(index("prologue")).vasilisa.prop).toBe("doll");
-		const { vasilisa } = timeline.sample(index("fire"));
+		const {vasilisa} = timeline.sample(index("fire"));
 		expect(vasilisa.visible).toBe(true);
 		expect(vasilisa.prop).toBe("doll");
 	});
 
 	test("между кадрами идёт по тропе к избушке", () => {
 		const a = timeline.sample(index("fire")).vasilisa;
-		const mid = { ...timeline.sample(index("fire") + 0.5).vasilisa };
+		const mid = {...timeline.sample(index("fire") + 0.5).vasilisa};
 		const b = timeline.sample(index("white-rider")).vasilisa;
-		const r = (v: { x: number; z: number }) => Math.hypot(v.x, v.z);
+		const r = (v: {x: number; z: number}) => Math.hypot(v.x, v.z);
 		expect(r(mid)).toBeLessThan(r(a));
 		expect(r(mid)).toBeGreaterThan(r(b));
 	});

@@ -1,11 +1,11 @@
-import { expect, type Page, test } from "@playwright/test";
+import {expect, type Page, test} from "@playwright/test";
 
 function activeChapter(page: Page) {
 	return page.evaluate(
 		() =>
 			(
 				window as unknown as {
-					__STORY__: { getState: () => { activeChapter: number } };
+					__STORY__: {getState: () => {activeChapter: number}};
 				}
 			).__STORY__.getState().activeChapter,
 	);
@@ -29,7 +29,7 @@ test("автопрокрутка переходит от главы к глав�
 	await play.click();
 	await expect(play).toHaveAttribute("aria-pressed", "true");
 	await expect
-		.poll(() => activeChapter(page), { timeout: 15_000 })
+		.poll(() => activeChapter(page), {timeout: 15_000})
 		.toBeGreaterThanOrEqual(2);
 
 	await page.mouse.move(1000, 400);
@@ -60,49 +60,47 @@ test("автопрокрутка включает музыку; на телеф�
 	await expect(play).toHaveAttribute("aria-pressed", "true");
 });
 
-test("тёмная тема переключается и запоминается", async ({ page }) => {
-	await page.emulateMedia({ colorScheme: "light" });
+test("тёмная тема переключается и запоминается", async ({page}) => {
+	await page.emulateMedia({colorScheme: "light"});
 	await page.goto("./?noforest&nograss&noshadows");
 	const html = page.locator("html");
 	await expect(html).toHaveAttribute("data-theme", "light");
 
-	await page.getByRole("button", { name: "Тёмная тема" }).click();
+	await page.getByRole("button", {name: "Тёмная тема"}).click();
 	await expect(html).toHaveAttribute("data-theme", "dark");
 
 	await page.reload();
 	await expect(html).toHaveAttribute("data-theme", "dark");
 });
 
-test("язык переключается на лету и запоминается", async ({ page }) => {
+test("язык переключается на лету и запоминается", async ({page}) => {
 	await page.goto("./?noforest&nograss&noshadows");
-	const title = page.getByRole("heading", { level: 1 });
+	const title = page.getByRole("heading", {level: 1});
 	await expect(title).toHaveText("Василиса Прекрасная");
 
-	await page.getByRole("button", { name: "Язык: Русский" }).click();
+	await page.getByRole("button", {name: "Язык: Русский"}).click();
 	// список не уезжает за край экрана (на мобильных кнопка — справа)
 	const menu = await page.locator(".lang-menu__list").boundingBox();
 	const width = page.viewportSize()?.width ?? 0;
 	expect(menu?.x).toBeGreaterThanOrEqual(0);
 	expect((menu?.x ?? 0) + (menu?.width ?? 0)).toBeLessThanOrEqual(width);
-	await page.getByRole("button", { name: "English" }).click();
+	await page.getByRole("button", {name: "English"}).click();
 	await expect(title).toHaveText("Vasilisa the Beautiful");
 	await expect(page.locator("html")).toHaveAttribute("lang", "en");
-	await expect(
-		page.getByRole("button", { name: /Read the tale/ }),
-	).toBeVisible();
+	await expect(page.getByRole("button", {name: /Read the tale/})).toBeVisible();
 
 	await page.reload();
 	await expect(title).toHaveText("Vasilisa the Beautiful");
-	await page.getByRole("button", { name: "Language: English" }).click();
-	await page.getByRole("button", { name: "中文" }).click();
+	await page.getByRole("button", {name: "Language: English"}).click();
+	await page.getByRole("button", {name: "中文"}).click();
 	await expect(title).toHaveText("美丽的瓦西丽莎");
 	await expect(page.locator("html")).toHaveAttribute("lang", "zh");
 
-	await page.getByRole("button", { name: "语言: 中文" }).click();
-	await page.getByRole("button", { name: "Español" }).click();
+	await page.getByRole("button", {name: "语言: 中文"}).click();
+	await page.getByRole("button", {name: "Español"}).click();
 	await expect(title).toHaveText("Vasilisa la Hermosa");
 
-	await page.getByRole("button", { name: "Idioma: Español" }).click();
-	await page.getByRole("button", { name: "Русский" }).click();
+	await page.getByRole("button", {name: "Idioma: Español"}).click();
+	await page.getByRole("button", {name: "Русский"}).click();
 	await expect(title).toHaveText("Василиса Прекрасная");
 });

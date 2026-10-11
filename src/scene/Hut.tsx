@@ -1,13 +1,13 @@
-import { useGLTF } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
-import { useMemo, useRef } from "react";
-import type { Group, MeshStandardMaterial, PointLight } from "three";
+import {useGLTF} from "@react-three/drei";
+import {useFrame} from "@react-three/fiber";
+import {useMemo, useRef} from "react";
+import type {Group, MeshStandardMaterial, PointLight} from "three";
 
-import { useSceneStore } from "../state/sceneStore";
-import { currentSample } from "../story/currentSample";
-import { ChimneySmoke } from "./effects/ChimneySmoke";
-import { enableShadows, MODEL_URLS, materialsOf } from "./models";
-import { paletteAt } from "./sky/timeOfDay";
+import {useSceneStore} from "../state/sceneStore";
+import {currentSample} from "../story/currentSample";
+import {ChimneySmoke} from "./effects/ChimneySmoke";
+import {enableShadows, MODEL_URLS, materialsOf} from "./models";
+import {paletteAt} from "./sky/timeOfDay";
 
 /**
  * Избушка на курьих ножках — модель «A hut on chicken legs» (vet.doc, CC-BY 4.0).
@@ -22,7 +22,7 @@ const ROTATION_Y = Math.atan2(0.835, -0.55);
 const CHIMNEY_TOP: [number, number, number] = [5.9, 15, -5.9];
 
 export function Hut() {
-	const { scene } = useGLTF(MODEL_URLS.hut);
+	const {scene} = useGLTF(MODEL_URLS.hut);
 	const model = useMemo(() => {
 		const clone = scene.clone(true);
 		enableShadows(clone);

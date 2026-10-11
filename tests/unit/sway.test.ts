@@ -1,6 +1,6 @@
-import { describe, expect, test } from "bun:test";
+import {describe, expect, test} from "bun:test";
 
-import { swayAt } from "../../src/scene/pointerParallax";
+import {swayAt} from "../../src/scene/pointerParallax";
 
 describe("покачивание камеры без мыши", () => {
 	test("лёгкое: не дальше половины хода мыши и без рывков", () => {

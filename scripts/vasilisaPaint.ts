@@ -3,7 +3,7 @@
  * сгенерированной модели нет ни текстур, ни UV. Зоны определяются по мировым
  * координатам (Y вверх, лицом к +Z, веточка в руке на +X, рушник на -X).
  */
-import type { Document, mat4, Node, Primitive } from "@gltf-transform/core";
+import type {Document, mat4, Node, Primitive} from "@gltf-transform/core";
 
 type RGB = [number, number, number];
 
@@ -134,7 +134,7 @@ function boundsOf(doc: Document): Bounds {
 			}
 		}
 	}
-	return { min, max };
+	return {min, max};
 }
 
 let cachedBounds: Bounds | null = null;
@@ -173,7 +173,7 @@ function removeTriangles(
  */
 export function paintVasilisa(doc: Document, prim: Primitive) {
 	cachedBounds ??= boundsOf(doc);
-	const { min, max } = cachedBounds;
+	const {min, max} = cachedBounds;
 	const m = worldMatrixOf(doc, prim);
 	const pos = prim.getAttribute("POSITION");
 	if (!pos) return;

@@ -1,26 +1,26 @@
-import { PerformanceMonitor } from "@react-three/drei";
-import { Canvas } from "@react-three/fiber";
-import { Suspense, useState } from "react";
+import {PerformanceMonitor} from "@react-three/drei";
+import {Canvas} from "@react-three/fiber";
+import {Suspense, useState} from "react";
 
-import { AudioDirector } from "../audio/AudioDirector";
-import { debugFlags } from "../debugFlags";
-import { BabaYaga } from "./actors/BabaYaga";
-import { Birds } from "./actors/Birds";
-import { Riders } from "./actors/Riders";
-import { Vasilisa } from "./actors/Vasilisa";
-import { CameraRig } from "./CameraRig";
-import { Fence } from "./Fence";
-import { Forest } from "./forest/Forest";
-import { Garden } from "./Garden";
-import { House } from "./House";
-import { Hut } from "./Hut";
-import { quality } from "./quality";
-import { Lighting } from "./sky/Lighting";
-import { SkyDome } from "./sky/SkyDome";
-import { TerrainMesh } from "./TerrainMesh";
-import { Torch } from "./Torch";
-import { heightAt } from "./terrain";
-import { Vegetation } from "./vegetation/Vegetation";
+import {AudioDirector} from "../audio/AudioDirector";
+import {debugFlags} from "../debugFlags";
+import {BabaYaga} from "./actors/BabaYaga";
+import {Birds} from "./actors/Birds";
+import {Riders} from "./actors/Riders";
+import {Vasilisa} from "./actors/Vasilisa";
+import {CameraRig} from "./CameraRig";
+import {Fence} from "./Fence";
+import {Forest} from "./forest/Forest";
+import {Garden} from "./Garden";
+import {House} from "./House";
+import {Hut} from "./Hut";
+import {quality} from "./quality";
+import {Lighting} from "./sky/Lighting";
+import {SkyDome} from "./sky/SkyDome";
+import {TerrainMesh} from "./TerrainMesh";
+import {Torch} from "./Torch";
+import {heightAt} from "./terrain";
+import {Vegetation} from "./vegetation/Vegetation";
 
 const GROUND_Y = heightAt(0, 0);
 
@@ -44,11 +44,11 @@ export function SceneCanvas() {
 		<Canvas
 			shadows={quality.shadows ? "percentage" : false}
 			dpr={dpr}
-			gl={{ antialias: quality.antialias, powerPreference: "high-performance" }}
-			camera={{ position: [7.5, 2.2, 11.5], fov: 55, near: 0.1, far: 600 }}
-			onCreated={({ gl }) => {
+			gl={{antialias: quality.antialias, powerPreference: "high-performance"}}
+			camera={{position: [7.5, 2.2, 11.5], fov: 55, near: 0.1, far: 600}}
+			onCreated={({gl}) => {
 				// для отладки производительности из консоли: __renderer.info.render
-				if (import.meta.env.DEV) Object.assign(window, { __renderer: gl });
+				if (import.meta.env.DEV) Object.assign(window, {__renderer: gl});
 			}}
 		>
 			<PerformanceMonitor

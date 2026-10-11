@@ -1,5 +1,5 @@
-import { smooth01 as smooth, wrapAngle } from "../lib/math";
-import { pathFrame } from "../scene/terrain";
+import {smooth01 as smooth, wrapAngle} from "../lib/math";
+import {pathFrame} from "../scene/terrain";
 
 /**
  * «Череп-светоч»: Василиса стоит лицом к Бабе Яге, потом разворачивается и
@@ -25,7 +25,7 @@ export interface DeparturePose {
 	heading: number;
 }
 
-const cache = { x: Number.NaN, z: Number.NaN, d: 0 };
+const cache = {x: Number.NaN, z: Number.NaN, d: 0};
 
 /** Ближайшая точка тропы к [x, z] — расстояние от избушки, м (с кэшем: точка старта одна). */
 export function distanceAlongPath(x: number, z: number): number {
@@ -40,7 +40,7 @@ export function distanceAlongPath(x: number, z: number): number {
 			best = d;
 		}
 	}
-	Object.assign(cache, { x, z, d: best });
+	Object.assign(cache, {x, z, d: best});
 	return best;
 }
 
@@ -58,7 +58,7 @@ export function departureAt(
 	t: number,
 	start: [number, number],
 	facing: number,
-	out: DeparturePose = { x: 0, z: 0, heading: 0 },
+	out: DeparturePose = {x: 0, z: 0, heading: 0},
 ): DeparturePose {
 	const d0 = distanceAlongPath(start[0], start[1]);
 	const walked = Math.min(

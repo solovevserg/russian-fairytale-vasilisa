@@ -1,6 +1,6 @@
-import { useGLTF } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
-import { useMemo, useRef } from "react";
+import {useGLTF} from "@react-three/drei";
+import {useFrame} from "@react-three/fiber";
+import {useMemo, useRef} from "react";
 import {
 	BufferGeometry,
 	DoubleSide,
@@ -11,10 +11,10 @@ import {
 	Object3D,
 } from "three";
 
-import { createRandom } from "../../lib/random";
-import { currentSample } from "../../story/currentSample";
-import { MODEL_URLS } from "../models";
-import { paletteAt } from "../sky/timeOfDay";
+import {createRandom} from "../../lib/random";
+import {currentSample} from "../../story/currentSample";
+import {MODEL_URLS} from "../models";
+import {paletteAt} from "../sky/timeOfDay";
 
 const COUNT = 16;
 const COLOR = "#1d1b19";
@@ -86,7 +86,7 @@ export function Birds() {
 	const birds = useMemo<Bird[]>(() => {
 		const random = createRandom(2024);
 		// половина стаи кружит низко над поляной (там нет деревьев), половина — высоко над лесом
-		return Array.from({ length: COUNT }, (_, i) => ({
+		return Array.from({length: COUNT}, (_, i) => ({
 			radius: i % 2 ? 6 + random() * 5 : 22 + random() * 22,
 			height: i % 2 ? 10 + random() * 6 : 28 + random() * 8,
 			speed: 5 + random() * 3,
@@ -100,8 +100,8 @@ export function Birds() {
 			direction: random() < 0.75 ? 1 : -1,
 		}));
 	}, []);
-	const { scene } = useGLTF(MODEL_URLS.bird);
-	const { body, left, right } = useMemo(() => {
+	const {scene} = useGLTF(MODEL_URLS.bird);
+	const {body, left, right} = useMemo(() => {
 		let geometry: BufferGeometry | null = null;
 		scene.updateMatrixWorld(true);
 		scene.traverse((child) => {
@@ -124,11 +124,11 @@ export function Birds() {
 		[],
 	);
 
-	useFrame(({ clock }) => {
+	useFrame(({clock}) => {
 		const t = clock.elapsedTime;
 		const night = paletteAt(currentSample.timeOfDay).night;
 		const presence = Math.max(0, 1 - Math.max(0, night - 0.5) * 2.5);
-		const { dummy, wing, base, shoulder } = temp;
+		const {dummy, wing, base, shoulder} = temp;
 		birds.forEach((b, i) => {
 			const angle = b.phase + (b.direction * t * b.speed) / b.radius;
 			const x = b.centerX + Math.cos(angle) * b.radius;

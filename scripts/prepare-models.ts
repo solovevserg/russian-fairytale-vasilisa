@@ -6,10 +6,10 @@
  *   bun run models:prepare            — все модели
  *   bun run models:prepare skull house — только перечисленные
  */
-import { mkdirSync } from "node:fs";
+import {mkdirSync} from "node:fs";
 
-import { type Document, NodeIO, type Primitive } from "@gltf-transform/core";
-import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
+import {type Document, NodeIO, type Primitive} from "@gltf-transform/core";
+import {ALL_EXTENSIONS} from "@gltf-transform/extensions";
 import {
 	center,
 	dedup,
@@ -24,10 +24,10 @@ import {
 	unweld,
 	weld,
 } from "@gltf-transform/functions";
-import { MeshoptEncoder, MeshoptSimplifier } from "meshoptimizer";
+import {MeshoptEncoder, MeshoptSimplifier} from "meshoptimizer";
 import sharp from "sharp";
 
-import { paintVasilisa } from "./vasilisaPaint";
+import {paintVasilisa} from "./vasilisaPaint";
 
 const SRC = ".cache/models";
 const OUT = "public/models";
@@ -50,7 +50,7 @@ async function finish(doc: Document, name: string) {
 			resize: [1024, 1024],
 			quality: 82,
 		}),
-		meshopt({ encoder: MeshoptEncoder, level: "medium" }),
+		meshopt({encoder: MeshoptEncoder, level: "medium"}),
 	);
 	await io.write(`${OUT}/${name}.glb`, doc);
 	console.log(`✓ ${name}.glb`);
@@ -67,7 +67,7 @@ function forEachPrimitive(doc: Document, fn: (prim: Primitive) => void) {
  */
 async function normalize(doc: Document, height: number) {
 	const scene = doc.getRoot().listScenes()[0];
-	await doc.transform(center({ pivot: "below" }));
+	await doc.transform(center({pivot: "below"}));
 	const b = getBounds(scene);
 	const s = height / (b.max[1] - b.min[1]);
 	const wrapper = doc.createNode("root").setScale([s, s, s]);
@@ -93,7 +93,7 @@ function recolor(
 const only = process.argv.slice(2);
 const wanted = (name: string) => only.length === 0 || only.includes(name);
 
-mkdirSync(OUT, { recursive: true });
+mkdirSync(OUT, {recursive: true});
 
 // Избушка на курьих ножках (vet.doc, CC-BY 4.0)
 if (wanted("hut")) {
@@ -115,7 +115,7 @@ if (wanted("vasilisa")) {
 	const doc = await io.read(`${SRC}/vasilisa/scene.gltf`);
 	await doc.transform(
 		weld(),
-		simplify({ simplifier: MeshoptSimplifier, ratio: 0.11, error: 0.0007 }),
+		simplify({simplifier: MeshoptSimplifier, ratio: 0.11, error: 0.0007}),
 		// у каждого треугольника свои вершины — цвет зоны на треугольник целиком
 		unweld(),
 	);
@@ -127,7 +127,7 @@ if (wanted("vasilisa")) {
 if (wanted("skull")) {
 	const doc = await io.read(`${SRC}/skull-quaternius.glb`);
 	await normalize(doc, 0.25);
-	recolor(doc, { Bone: [0.72, 0.66, 0.52] });
+	recolor(doc, {Bone: [0.72, 0.66, 0.52]});
 	await finish(doc, "skull");
 }
 
@@ -192,6 +192,6 @@ if (wanted("bird")) {
 			}
 		}
 	}
-	recolor(doc, { blinn3SG: [0.03, 0.028, 0.026] });
+	recolor(doc, {blinn3SG: [0.03, 0.028, 0.026]});
 	await finish(doc, "bird");
 }

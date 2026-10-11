@@ -1,4 +1,4 @@
-import { type Object3D, Vector3 } from "three";
+import {type Object3D, Vector3} from "three";
 
 const scratch = new Vector3();
 

@@ -1,8 +1,8 @@
-import { createNoise2D } from "simplex-noise";
+import {createNoise2D} from "simplex-noise";
 
-import { smoothstep } from "../lib/math";
-import { createRandom } from "../lib/random";
-import { distanceToPath, TERRAIN_SIZE, wildness } from "./terrain";
+import {smoothstep} from "../lib/math";
+import {createRandom} from "../lib/random";
+import {distanceToPath, TERRAIN_SIZE, wildness} from "./terrain";
 
 const edgeNoise = createNoise2D(createRandom(808));
 const patchNoise = createNoise2D(createRandom(909));

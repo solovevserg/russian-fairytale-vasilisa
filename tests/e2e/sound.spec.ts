@@ -1,6 +1,6 @@
-import { expect, test } from "@playwright/test";
+import {expect, test} from "@playwright/test";
 
-test("кнопка звука включает и выключает звук без ошибок", async ({ page }) => {
+test("кнопка звука включает и выключает звук без ошибок", async ({page}) => {
 	const errors: string[] = [];
 	page.on("pageerror", (error) => errors.push(error.message));
 

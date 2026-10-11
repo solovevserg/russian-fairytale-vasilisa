@@ -1,5 +1,5 @@
-import { useFrame } from "@react-three/fiber";
-import { useMemo, useRef } from "react";
+import {useFrame} from "@react-three/fiber";
+import {useMemo, useRef} from "react";
 import {
 	BackSide,
 	Color,
@@ -9,10 +9,10 @@ import {
 	Vector3,
 } from "three";
 
-import { frameDt } from "../../lib/damp";
-import { useSceneStore } from "../../state/sceneStore";
-import { windUniforms } from "../forest/wind";
-import { moonDirection, paletteAt, sunDirection } from "./timeOfDay";
+import {frameDt} from "../../lib/damp";
+import {useSceneStore} from "../../state/sceneStore";
+import {windUniforms} from "../forest/wind";
+import {moonDirection, paletteAt, sunDirection} from "./timeOfDay";
 
 const vertexShader = /* glsl */ `
 varying vec3 vDirection;
@@ -161,27 +161,27 @@ export function SkyDome() {
 				side: BackSide,
 				depthWrite: false,
 				uniforms: {
-					uZenith: { value: new Color() },
-					uHorizon: { value: new Color() },
-					uSunDirection: { value: new Vector3() },
-					uSunColor: { value: new Color() },
-					uMoonDirection: { value: new Vector3() },
-					uNight: { value: 0 },
-					uCloudOffset: { value: new Vector2() },
-					uCloudCover: { value: 0.5 },
-					uCloudLit: { value: new Color() },
-					uCloudShade: { value: new Color() },
-					uForest: { value: new Color() },
+					uZenith: {value: new Color()},
+					uHorizon: {value: new Color()},
+					uSunDirection: {value: new Vector3()},
+					uSunColor: {value: new Color()},
+					uMoonDirection: {value: new Vector3()},
+					uNight: {value: 0},
+					uCloudOffset: {value: new Vector2()},
+					uCloudCover: {value: 0.5},
+					uCloudLit: {value: new Color()},
+					uCloudShade: {value: new Color()},
+					uForest: {value: new Color()},
 				},
 			}),
 		[],
 	);
 
-	useFrame(({ camera }, delta) => {
+	useFrame(({camera}, delta) => {
 		// небо «на бесконечности»: купол едет вместе с камерой
 		mesh.current?.position.copy(camera.position);
 
-		const { timeOfDay: hours, wind } = useSceneStore.getState();
+		const {timeOfDay: hours, wind} = useSceneStore.getState();
 		const palette = paletteAt(hours);
 		const u = material.uniforms;
 		u.uZenith.value.set(palette.zenith);

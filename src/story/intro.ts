@@ -1,8 +1,8 @@
-import { CatmullRomCurve3, Vector3 } from "three";
+import {CatmullRomCurve3, Vector3} from "three";
 
-import { clamp, lerpAngle, smooth01 } from "../lib/math";
-import { HOME } from "../scene/terrain";
-import { onPath } from "./keyframes";
+import {clamp, lerpAngle, smooth01} from "../lib/math";
+import {HOME} from "../scene/terrain";
+import {onPath} from "./keyframes";
 
 /**
  * Зачин: когда сайт только открылся, Василиса выходит из-за своей избы и
@@ -64,7 +64,7 @@ const point = new Vector3();
 export function introAt(
 	t: number,
 	facing: number,
-	out = { x: 0, z: 0, heading: 0 },
+	out = {x: 0, z: 0, heading: 0},
 ) {
 	const walked = clamp((t - INTRO.delay) * INTRO.speed, 0, length);
 	const u = walked / length;

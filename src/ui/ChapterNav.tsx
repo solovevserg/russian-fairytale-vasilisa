@@ -1,8 +1,8 @@
-import { useEffect, useRef } from "react";
+import {useEffect, useRef} from "react";
 
-import { scrollToCenter } from "../lib/dom";
-import { useStoryStore } from "../state/storyStore";
-import { chapters } from "../story/chapters";
+import {scrollToCenter} from "../lib/dom";
+import {useStoryStore} from "../state/storyStore";
+import {chapters} from "../story/chapters";
 
 /**
  * Остановки навигации: титул, главы, титры. В адресе — их id (#start, #fire,
@@ -40,7 +40,7 @@ export function useChapterHash() {
 		pending.current = index;
 		document
 			.getElementById(STOPS[index])
-			?.scrollIntoView({ block: "center", inline: "center" });
+			?.scrollIntoView({block: "center", inline: "center"});
 	}, []);
 	useEffect(() => {
 		if (pending.current !== null) {
@@ -57,7 +57,7 @@ export function useChapterHash() {
 export function ChapterNav({
 	labels,
 }: {
-	labels: { nav: string; prev: string; next: string };
+	labels: {nav: string; prev: string; next: string};
 }) {
 	const stop = useStop();
 	return (

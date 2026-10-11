@@ -1,10 +1,10 @@
-import { useCallback, useRef, useState } from "react";
+import {useCallback, useRef, useState} from "react";
 
-import { useContent } from "../i18n/content";
-import { LANGS, type Lang, useLangStore } from "../i18n/lang";
-import { useDismiss } from "../lib/hooks/useDismiss";
-import { autoReader } from "../reader/autoReader";
-import { useReaderStore } from "../reader/readerStore";
+import {useContent} from "../i18n/content";
+import {LANGS, type Lang, useLangStore} from "../i18n/lang";
+import {useDismiss} from "../lib/hooks/useDismiss";
+import {autoReader} from "../reader/autoReader";
+import {useReaderStore} from "../reader/readerStore";
 
 /** Кнопка с флагом текущего языка и выпадающий список языков. */
 export function LangMenu() {

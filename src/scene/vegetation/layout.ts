@@ -1,8 +1,8 @@
-import { createNoise2D } from "simplex-noise";
+import {createNoise2D} from "simplex-noise";
 
-import { clamp01 } from "../../lib/math";
-import { createRandom } from "../../lib/random";
-import { KEYFRAMES } from "../../story/keyframes";
+import {clamp01} from "../../lib/math";
+import {createRandom} from "../../lib/random";
+import {KEYFRAMES} from "../../story/keyframes";
 import {
 	CLEARING_RADIUS,
 	distanceToHome,
@@ -106,7 +106,7 @@ export function scatter({
 			const s = scale[0] + random() * (scale[1] - scale[0]);
 			const tint = random();
 			if (Math.hypot(x, z) > radius || roll > density(x, z)) continue;
-			plants.push({ x, y: heightAt(x, z), z, rotation, scale: s, tint });
+			plants.push({x, y: heightAt(x, z), z, rotation, scale: s, tint});
 		}
 	}
 	return plants;

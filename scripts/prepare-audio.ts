@@ -6,11 +6,11 @@
  *
  * Лицензии и авторы — в docs/assets.md.
  */
-import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import {spawnSync} from "node:child_process";
+import {existsSync, mkdirSync, readFileSync, writeFileSync} from "node:fs";
+import {join} from "node:path";
 
-import { unzipSync } from "fflate";
+import {unzipSync} from "fflate";
 import ffmpegPath from "ffmpeg-static";
 
 const CACHE = ".cache/audio-src";
@@ -121,9 +121,9 @@ const SOURCES: Source[] = [
 
 /** Целевая громкость (LUFS) и битрейт по типу звука. */
 const ENCODING = {
-	music: { lufs: -20, opus: "64k", mp3: "96k" },
-	loop: { lufs: -24, opus: "48k", mp3: "80k" },
-	sfx: { lufs: -18, opus: "48k", mp3: "80k" },
+	music: {lufs: -20, opus: "64k", mp3: "96k"},
+	loop: {lufs: -24, opus: "48k", mp3: "80k"},
+	sfx: {lufs: -18, opus: "48k", mp3: "80k"},
 } as const;
 
 async function download(url: string, file: string) {
@@ -164,7 +164,7 @@ async function resolveSource(source: Source): Promise<string> {
 
 function encode(input: string, source: Source) {
 	if (!ffmpegPath) throw new Error("ffmpeg-static binary not found");
-	const { lufs, opus, mp3 } = ENCODING[source.kind];
+	const {lufs, opus, mp3} = ENCODING[source.kind];
 	const filters = [`loudnorm=I=${lufs}:TP=-2:LRA=11`];
 	const common = [
 		"-y",
@@ -198,8 +198,8 @@ function encode(input: string, source: Source) {
 	console.log(`✓ ${source.name}`);
 }
 
-mkdirSync(CACHE, { recursive: true });
-mkdirSync(OUT, { recursive: true });
+mkdirSync(CACHE, {recursive: true});
+mkdirSync(OUT, {recursive: true});
 for (const source of SOURCES) {
 	encode(await resolveSource(source), source);
 }

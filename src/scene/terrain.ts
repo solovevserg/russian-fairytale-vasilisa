@@ -1,14 +1,14 @@
-import { createNoise2D } from "simplex-noise";
+import {createNoise2D} from "simplex-noise";
 
-import { smoothstep } from "../lib/math";
-import { createRandom } from "../lib/random";
+import {smoothstep} from "../lib/math";
+import {createRandom} from "../lib/random";
 
 export const TERRAIN_SIZE = 180;
 /** Радиус ровной поляны вокруг избушки. */
 export const CLEARING_RADIUS = 13;
 const BLEND_WIDTH = 10;
 /** Направление тропинки от избушки (к камере по умолчанию). */
-const PATH_DIRECTION = { x: 0.55, z: 0.835 };
+const PATH_DIRECTION = {x: 0.55, z: 0.835};
 const PATH_HALF_WIDTH = 1.3;
 
 const noise = createNoise2D(createRandom(1337));
@@ -65,7 +65,7 @@ export function pathFrame(distance: number): PathFrame {
 	const p = point(distance);
 	const q = point(Math.max(distance - 0.5, 0));
 	const len = Math.hypot(q.x - p.x, q.z - p.z) || 1;
-	return { ...p, toHutX: (q.x - p.x) / len, toHutZ: (q.z - p.z) / len };
+	return {...p, toHutX: (q.x - p.x) / len, toHutZ: (q.z - p.z) / len};
 }
 
 function rawHeight(x: number, z: number): number {

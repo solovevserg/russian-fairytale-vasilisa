@@ -1,4 +1,4 @@
-import type { Chapter } from "../story/chapters";
+import type {Chapter} from "../story/chapters";
 
 /** Минимальная пауза на чтение главы, с. */
 export const MIN_READING_SECONDS = 10;

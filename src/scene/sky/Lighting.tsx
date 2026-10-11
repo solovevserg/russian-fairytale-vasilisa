@@ -1,5 +1,5 @@
-import { useFrame, useThree } from "@react-three/fiber";
-import { useLayoutEffect, useRef } from "react";
+import {useFrame, useThree} from "@react-three/fiber";
+import {useLayoutEffect, useRef} from "react";
 import {
 	type DirectionalLight,
 	FogExp2,
@@ -7,11 +7,11 @@ import {
 	Vector3,
 } from "three";
 
-import { clamp01, smoothstep } from "../../lib/math";
-import { useSceneStore } from "../../state/sceneStore";
-import { currentSample } from "../../story/currentSample";
-import { quality } from "../quality";
-import { moonDirection, paletteAt, sunDirection } from "./timeOfDay";
+import {clamp01, smoothstep} from "../../lib/math";
+import {useSceneStore} from "../../state/sceneStore";
+import {currentSample} from "../../story/currentSample";
+import {quality} from "../quality";
+import {moonDirection, paletteAt, sunDirection} from "./timeOfDay";
 
 const LIGHT_DISTANCE = 60;
 /**

@@ -1,6 +1,6 @@
-import { expect, type Page, test } from "@playwright/test";
+import {expect, type Page, test} from "@playwright/test";
 
-import { chapters } from "../../src/story/chapters";
+import {chapters} from "../../src/story/chapters";
 
 interface StoryState {
 	progress: number;
@@ -10,7 +10,7 @@ interface StoryState {
 function storyState(page: Page) {
 	return page.evaluate(() =>
 		(
-			window as unknown as { __STORY__: { getState: () => StoryState } }
+			window as unknown as {__STORY__: {getState: () => StoryState}}
 		).__STORY__.getState(),
 	);
 }
@@ -20,11 +20,11 @@ async function scrollToChapter(page: Page, id: string) {
 		const el = document.querySelector(`[data-keyframe="${chapterId}"]`);
 		if (!el) throw new Error(`chapter ${chapterId} not found`);
 		// на мобильных главы листаются горизонтально — scrollIntoView работает для обеих осей
-		el.scrollIntoView({ block: "center", inline: "center" });
+		el.scrollIntoView({block: "center", inline: "center"});
 	}, id);
 }
 
-test("прокрутка переключает активную главу", async ({ page }) => {
+test("прокрутка переключает активную главу", async ({page}) => {
 	// проверяем логику прокрутки, а не графику: облегчённая сцена,
 	// (без леса и травы), чтобы программный WebGL в headless-браузере не тормозил кадры
 	await page.goto("./?noforest&nograss&noshadows");
@@ -53,7 +53,7 @@ test("ссылка с якорем открывает главу, кнопки �
 		.poll(async () => (await storyState(page)).activeChapter)
 		.toBe(skull);
 
-	await page.getByRole("button", { name: "Следующая глава" }).click();
+	await page.getByRole("button", {name: "Следующая глава"}).click();
 	await expect
 		.poll(async () => (await storyState(page)).activeChapter)
 		.toBe(skull + 1);

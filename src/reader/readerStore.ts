@@ -1,6 +1,6 @@
-import { create } from "zustand";
+import {create} from "zustand";
 
-import { readStored, writeStored } from "../lib/storage";
+import {readStored, writeStored} from "../lib/storage";
 
 const NARRATE_KEY = "izbushka:narrate";
 
@@ -21,10 +21,10 @@ export const useReaderStore = create<ReaderState>((set) => ({
 	// по умолчанию включена; выключается явным выбором пользователя
 	narrate: typeof window !== "undefined" && readStored(NARRATE_KEY) !== "off",
 	speaking: null,
-	setPlaying: (playing) => set({ playing }),
+	setPlaying: (playing) => set({playing}),
 	setNarrate: (narrate) => {
 		writeStored(NARRATE_KEY, narrate ? "on" : "off");
-		set({ narrate });
+		set({narrate});
 	},
-	setSpeaking: (speaking) => set({ speaking }),
+	setSpeaking: (speaking) => set({speaking}),
 }));

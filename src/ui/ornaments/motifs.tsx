@@ -17,7 +17,7 @@ export function Rosette({
 }) {
 	return (
 		<g>
-			{Array.from({ length: petals }, (_, i) => (
+			{Array.from({length: petals}, (_, i) => (
 				<ellipse
 					// biome-ignore lint/suspicious/noArrayIndexKey: лепестки статичны
 					key={i}
@@ -59,7 +59,7 @@ export function Leaf({
 	);
 }
 
-export function Berry({ x, y, r }: { x: number; y: number; r: number }) {
+export function Berry({x, y, r}: {x: number; y: number; r: number}) {
 	return (
 		<g>
 			<circle cx={x} cy={y} r={r} fill="var(--orn-red)" />
@@ -101,7 +101,7 @@ export function CornerVine() {
 }
 
 /** Четыре зеркальных четверти: узор на всё поле 100×100. */
-export function MirroredField({ children }: { children: React.ReactNode }) {
+export function MirroredField({children}: {children: React.ReactNode}) {
 	return (
 		<g>
 			<g>{children}</g>

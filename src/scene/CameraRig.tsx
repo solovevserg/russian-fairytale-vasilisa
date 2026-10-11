@@ -1,14 +1,14 @@
-import { useFrame, useThree } from "@react-three/fiber";
-import { useMemo, useRef } from "react";
-import { type PerspectiveCamera, Vector3 } from "three";
+import {useFrame, useThree} from "@react-three/fiber";
+import {useMemo, useRef} from "react";
+import {type PerspectiveCamera, Vector3} from "three";
 
-import { debugFlags } from "../debugFlags";
-import { damp, dampFactor, ramp } from "../lib/damp";
-import { smooth01 } from "../lib/math";
-import { urlFlag } from "../lib/url";
-import { useSceneStore } from "../state/sceneStore";
-import { useStoryStore } from "../state/storyStore";
-import { currentSample, sceneProgress } from "../story/currentSample";
+import {debugFlags} from "../debugFlags";
+import {damp, dampFactor, ramp} from "../lib/damp";
+import {smooth01} from "../lib/math";
+import {urlFlag} from "../lib/url";
+import {useSceneStore} from "../state/sceneStore";
+import {useStoryStore} from "../state/storyStore";
+import {currentSample, sceneProgress} from "../story/currentSample";
 import {
 	creditsCamera,
 	HOMECOMING,
@@ -16,15 +16,15 @@ import {
 	homecomingClock,
 	homecomingNight,
 } from "../story/homecoming";
-import { KEYFRAMES, TITLE_SHIFT } from "../story/keyframes";
+import {KEYFRAMES, TITLE_SHIFT} from "../story/keyframes";
 import {
 	delayedTimeProgress,
 	easeScene,
 	stepLight,
 	stepScene,
 } from "../story/lightDelay";
-import { riderStarts } from "../story/riderClock";
-import { createSample, createTimeline, shapeProgress } from "../story/timeline";
+import {riderStarts} from "../story/riderClock";
+import {createSample, createTimeline, shapeProgress} from "../story/timeline";
 import {
 	drift,
 	PARALLAX_LOOK,
@@ -32,7 +32,7 @@ import {
 	pointer,
 	swayPointer,
 } from "./pointerParallax";
-import { heightAt } from "./terrain";
+import {heightAt} from "./terrain";
 
 /** Скорость догоняния прокрутки: больше — резче. */
 const DAMPING = 2.5;
@@ -80,20 +80,20 @@ export function CameraRig() {
 	const camera = useThree((s) => s.camera) as PerspectiveCamera;
 	const timeline = useMemo(() => createTimeline(KEYFRAMES), []);
 	const sample = currentSample;
-	const parallax = useRef({ x: 0, y: 0 });
+	const parallax = useRef({x: 0, y: 0});
 	const lightProgress = useRef<number | null>(null);
 	/** Прогресс сцены до сглаживания перехода (см. easeScene). */
 	const staged = useRef<number | null>(null);
 	/** Доля съёмки эпилога (0 — камера по таймлайну, 1 — по homecoming.ts). */
 	const epilogue = useRef(0);
 	/** Сглаженные доли «на титуле» и «ушли к титрам» (см. storyStore). */
-	const edges = useRef<{ title: number } | null>(null);
+	const edges = useRef<{title: number} | null>(null);
 	/** Подъём камеры на титрах: 0 — там, где кончился эпилог, 1 — высоко. */
 	const rise = useRef(0);
 	/** Сколько осталось подлёта при открытии сайта: 1 — в начале, 0 — на месте. */
 	const intro = useRef<number | null>(null);
 
-	useFrame(({ clock }, delta) => {
+	useFrame(({clock}, delta) => {
 		const progress = useStoryStore.getState().progress;
 		const target = shapeProgress(progress);
 		// сцена (камера, герои): экспоненциально догоняет прокрутку, но
@@ -150,7 +150,7 @@ export function CameraRig() {
 		// титул — камера дальше от Василисы, к прологу подлетает ближе;
 		// титры — взлетает высоко над избушкой (даже если эпилог не досмотрен)
 		const story = useStoryStore.getState();
-		const e = edges.current ?? { title: story.title };
+		const e = edges.current ?? {title: story.title};
 		edges.current = e;
 		// с титула к прологу — не спеша
 		e.title = debugFlags.instant

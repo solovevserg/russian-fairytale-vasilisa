@@ -1,4 +1,4 @@
-import { defineConfig } from "@playwright/test";
+import {defineConfig} from "@playwright/test";
 
 import base from "./playwright.config";
 
@@ -13,7 +13,7 @@ export default defineConfig({
 	testDir: "tests/visual",
 	timeout: 120_000,
 	expect: {
-		toMatchSnapshot: { maxDiffPixelRatio: 0.03, threshold: 0.25 },
+		toMatchSnapshot: {maxDiffPixelRatio: 0.03, threshold: 0.25},
 	},
 	snapshotPathTemplate: "{testDir}/__screenshots__/{projectName}/{arg}{ext}",
 });

@@ -1,8 +1,8 @@
-import { SceneCanvas } from "./scene/SceneCanvas";
-import { BackToStart } from "./ui/BackToStart";
-import { ControlBar } from "./ui/ControlBar";
-import { StoryColumn } from "./ui/StoryColumn";
-import { SwipeHint } from "./ui/SwipeHint";
+import {SceneCanvas} from "./scene/SceneCanvas";
+import {BackToStart} from "./ui/BackToStart";
+import {ControlBar} from "./ui/ControlBar";
+import {StoryColumn} from "./ui/StoryColumn";
+import {SwipeHint} from "./ui/SwipeHint";
 
 export function App() {
 	return (

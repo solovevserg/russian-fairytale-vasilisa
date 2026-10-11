@@ -1,4 +1,4 @@
-import { Color, Vector3 } from "three";
+import {Color, Vector3} from "three";
 
 export interface SkyPalette {
 	zenith: string;
@@ -191,7 +191,7 @@ export function paletteAt(hours: number): SkyPalette {
 }
 
 /** Направление восхода: от тропы к избушке (см. PATH_DIRECTION в terrain.ts). */
-const SUNRISE = { x: -0.55, z: -0.835 };
+const SUNRISE = {x: -0.55, z: -0.835};
 
 /**
  * Направление на солнце (единичный вектор). Восход ~6:00 со стороны избушки
