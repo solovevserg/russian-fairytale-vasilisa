@@ -8,6 +8,7 @@ import {
 	STORY_SUBTITLE,
 	STORY_TITLE,
 } from "../story/chapters";
+import { ChapterNav, useChapterHash } from "./ChapterNav";
 import { Divider, Tailpiece } from "./ornaments/Divider";
 import { DropCap } from "./ornaments/DropCap";
 
@@ -68,6 +69,7 @@ function ChapterSection({
 		<section
 			className={active ? "chapter chapter--active" : "chapter"}
 			aria-current={active ? "step" : undefined}
+			id={chapter.id}
 			data-keyframe={chapter.id}
 		>
 			{index > 0 && <Divider />}
@@ -93,6 +95,7 @@ function ChapterSection({
 export function StoryColumn() {
 	const root = useRef<HTMLElement>(null);
 	useScrollProgress(root);
+	useChapterHash();
 	const activeChapter = useStoryStore((s) => s.activeChapter);
 	const speaking = useReaderStore((s) => s.speaking);
 
@@ -115,6 +118,9 @@ export function StoryColumn() {
 				/>
 			))}
 			<Credits />
+			<ChapterNav
+				labels={{ prev: "Предыдущая глава", next: "Следующая глава" }}
+			/>
 		</main>
 	);
 }

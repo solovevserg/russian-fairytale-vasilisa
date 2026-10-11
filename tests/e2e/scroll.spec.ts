@@ -43,3 +43,23 @@ test("прокрутка переключает активную главу", as
 		).toHaveAttribute("aria-current", "step");
 	}
 });
+
+test("ссылка с якорем открывает главу, кнопки ↑/↓ листают главы", async ({
+	page,
+	isMobile,
+}) => {
+	test.skip(isMobile, "кнопки глав — только на десктопе");
+	const skull = chapters.findIndex((c) => c.id === "skull");
+	await page.goto("./?noforest&nograss&noshadows#skull");
+	await expect
+		.poll(async () => (await storyState(page)).activeChapter)
+		.toBe(skull);
+
+	await page.getByRole("button", { name: "Следующая глава" }).click();
+	await expect
+		.poll(async () => (await storyState(page)).activeChapter)
+		.toBe(skull + 1);
+	await expect
+		.poll(() => page.evaluate(() => window.location.hash))
+		.toBe(`#${chapters[skull + 1].id}`);
+});
