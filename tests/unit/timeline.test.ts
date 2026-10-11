@@ -2,7 +2,7 @@ import {describe, expect, test} from "bun:test";
 
 import {heightAt} from "../../src/scene/terrain";
 import {chapters} from "../../src/story/chapters";
-import {KEYFRAMES} from "../../src/story/keyframes";
+import {KEYFRAMES} from "../../src/story/scenes";
 import {
 	createTimeline,
 	progressFromAnchors,

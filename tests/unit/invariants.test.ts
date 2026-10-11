@@ -4,9 +4,10 @@ import {PerspectiveCamera, Vector3} from "three";
 
 import {heightAt, pathFrame} from "../../src/scene/terrain";
 import {creditsCamera, HOMECOMING} from "../../src/story/homecoming";
-import {KEYFRAMES, type SceneKeyframe} from "../../src/story/keyframes";
 import {stepScene} from "../../src/story/lightDelay";
+import {KEYFRAMES} from "../../src/story/scenes";
 import {createSample, createTimeline} from "../../src/story/timeline";
+import type {SceneKeyframe} from "../../src/story/types";
 
 /**
  * Сквозные свойства сцены — сеть безопасности для рефакторинга (см.
@@ -60,7 +61,7 @@ describe("кадр на телефоне", () => {
 			if (!v) throw new Error(`в «${id}» нет героини`);
 			const camera = cameraOf(k, PHONE_ASPECT);
 			const [x, z] = v.at;
-			const ground = heightAt(x, z) + (v.elevation ?? 0);
+			const ground = heightAt(x, z) + v.elevation;
 			const head = new Vector3(x, ground + (v.pose === "sleep" ? 0.3 : 1.4), z);
 			const p = head.project(camera);
 			expect(p.z).toBeLessThan(1);
@@ -80,8 +81,7 @@ describe("непрерывность таймлайна", () => {
 	function allowedJump(i: number): number {
 		const b = KEYFRAMES[i + 1]?.vasilisa;
 		const a = KEYFRAMES[i]?.vasilisa;
-		if (b?.window && b.window[0] === b.window[1])
-			return Number.POSITIVE_INFINITY;
+		if (b && b.window[0] === b.window[1]) return Number.POSITIVE_INFINITY;
 		return (a?.onward ?? 0) + 0.5;
 	}
 

@@ -2,7 +2,7 @@ import {CatmullRomCurve3, Vector3} from "three";
 
 import {clamp, lerpAngle, smooth01} from "../lib/math";
 import {HOME} from "../scene/terrain";
-import {onPath} from "./keyframes";
+import {HOME_SPOT, onPath} from "./places";
 
 /**
  * Зачин: когда сайт только открылся, Василиса выходит из-за своей избы и
@@ -18,8 +18,8 @@ export const INTRO = {
 	turn: 1.2,
 };
 
-/** Где она стоит в прологе (как atHome в keyframes.ts). */
-const SPOT = onPath(51, 0, -2.6);
+/** Где она стоит в прологе. */
+const SPOT = onPath(HOME_SPOT.path, 0, HOME_SPOT.side);
 
 /** Из осей избы (x — вдоль фасада, z — от фасада к тропе) в мир. */
 function fromHouse(lx: number, lz: number): Vector3 {

@@ -16,7 +16,6 @@ import {
 	homecomingClock,
 	homecomingNight,
 } from "../story/homecoming";
-import {KEYFRAMES, TITLE_SHIFT} from "../story/keyframes";
 import {
 	delayedTimeProgress,
 	easeScene,
@@ -24,6 +23,7 @@ import {
 	stepScene,
 } from "../story/lightDelay";
 import {riderStarts} from "../story/riderClock";
+import {KEYFRAMES, TITLE_SHIFT} from "../story/scenes";
 import {createSample, createTimeline, shapeProgress} from "../story/timeline";
 import {
 	drift,

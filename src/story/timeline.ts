@@ -15,7 +15,7 @@ import {
 	type SceneKeyframe,
 	type VasilisaState,
 	type Vec3,
-} from "./keyframes";
+} from "./types";
 
 /**
  * Прогресс истории по положению глав: дробный индекс 0..N-1.
@@ -161,7 +161,7 @@ function sampleVasilisa(
 	t: number,
 	out: TimelineSample["vasilisa"],
 ) {
-	const s = b?.window ? within(t, ...b.window) : t;
+	const s = b ? within(t, ...b.window) : t;
 	// стоит на кадре a (прогресс догоняет экспоненциально — не ровно 0)
 	const rest = s < 0.03;
 	const nearest = s < 0.5 ? a : b;
@@ -169,10 +169,10 @@ function sampleVasilisa(
 		out.visible = true;
 		if (a.path !== undefined && b.path !== undefined) {
 			// с кадра, где она шла дальше (onward), — оттуда, куда дошла
-			const from = rest ? a.path : a.path - (a.onward ?? 0);
+			const from = rest ? a.path : a.path - a.onward;
 			const d = pathDistance(from, b.path, s, b.stop);
 			out.path = d;
-			const side = lerp(a.side ?? 0, b.side ?? 0, s);
+			const side = lerp(a.side, b.side, s);
 			const f = pathFrame(d);
 			out.x = f.x - f.toHutZ * side;
 			out.z = f.z + f.toHutX * side;
@@ -187,14 +187,14 @@ function sampleVasilisa(
 			out.z = lerp(a.at[1], b.at[1], s);
 			out.heading = lerpAngle(a.heading, b.heading, s);
 		}
-		out.elevation = lerp(a.elevation ?? 0, b.elevation ?? 0, s);
+		out.elevation = lerp(a.elevation, b.elevation, s);
 	} else if (nearest) {
 		out.visible = true;
 		out.path = nearest.path ?? Number.NaN;
 		out.x = nearest.at[0];
 		out.z = nearest.at[1];
 		out.heading = nearest.heading;
-		out.elevation = nearest.elevation ?? 0;
+		out.elevation = nearest.elevation;
 	} else {
 		out.visible = false;
 	}
@@ -203,7 +203,7 @@ function sampleVasilisa(
 		out.prop = nearest.prop;
 	}
 	// идёт дальше только стоя на кадре
-	out.onward = rest && a ? (a.onward ?? 0) : 0;
+	out.onward = rest && a ? a.onward : 0;
 }
 
 const MIN_CAMERA_HEIGHT = 0.4;
@@ -216,7 +216,7 @@ export function createTimeline(keyframes: SceneKeyframe[]): Timeline {
 	const knots: {position: Vec3; target: Vec3}[] = [];
 	const knotOf: number[] = [];
 	for (const k of keyframes) {
-		knots.push(...(k.camera.via ?? []));
+		knots.push(...k.camera.via);
 		knotOf.push(knots.length);
 		knots.push(k.camera);
 	}
@@ -271,15 +271,14 @@ export function createTimeline(keyframes: SceneKeyframe[]): Timeline {
 			const k1 = keyframes[i + 1] ?? k0;
 			out.skulls = lerp(k0.skulls, k1.skulls, t);
 			out.magic = lerp(k0.magic, k1.magic, t);
-			out.fog = lerp(k0.fog ?? 1, k1.fog ?? 1, t);
+			out.fog = lerp(k0.fog, k1.fog, t);
 			sampleVasilisa(k0.vasilisa, k1.vasilisa, t, out.vasilisa);
 			out.babaYaga = t < 0.5 ? k0.babaYaga : k1.babaYaga;
-			out.house = (t < 0.5 ? k0 : k1).house ?? false;
+			out.house = (t < 0.5 ? k0 : k1).house;
 			// погас — так на весь переход: окна не вспыхивают, пока темнеет
-			out.houseLit =
-				(k0.houseLit ?? true) && (t === 0 || (k1.houseLit ?? true));
+			out.houseLit = k0.houseLit && (t === 0 || k1.houseLit);
 			// избушка появляется сразу, как только начался переход к главе с ней
-			out.hut = (k0.hut ?? true) || ((k1.hut ?? true) && t > HUT_APPEAR);
+			out.hut = k0.hut || (k1.hut && t > HUT_APPEAR);
 			return out;
 		},
 	};

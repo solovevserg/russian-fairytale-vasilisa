@@ -8,6 +8,7 @@ import {currentSample} from "../story/currentSample";
 import {Deferred} from "./Deferred";
 import {ChimneySmoke} from "./effects/ChimneySmoke";
 import {enableShadows, MODEL_URLS, materialsOf} from "./models";
+import MODEL_META from "./models.meta.json" with {type: "json"};
 import {paletteAt} from "./sky/timeOfDay";
 
 /**
@@ -15,8 +16,8 @@ import {paletteAt} from "./sky/timeOfDay";
  * В исходнике ~34 единицы в высоту, дверь смотрит в −X, труба — на +X.
  */
 const SCALE = 0.235;
-/** Нижняя точка модели (кончики когтей) в её единицах. */
-const MODEL_BOTTOM = -16.3;
+/** Нижняя точка модели (кончики когтей) в её единицах (scripts/prepare-models.ts). */
+const MODEL_BOTTOM = MODEL_META.hut.min[1];
 /** Поворот, при котором дверь (−X модели) смотрит на ворота и тропу. */
 const ROTATION_Y = Math.atan2(0.835, -0.55);
 /** Верх трубы в координатах модели. */

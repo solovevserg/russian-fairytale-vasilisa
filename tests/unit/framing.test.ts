@@ -3,13 +3,10 @@ import {describe, expect, test} from "bun:test";
 import {CatmullRomCurve3, PerspectiveCamera, Vector3} from "three";
 
 import {HOME, heightAt} from "../../src/scene/terrain";
-import {
-	BABA_YAGA_FLIGHT,
-	BABA_YAGA_STAND,
-	KEYFRAMES,
-	type SceneKeyframe,
-	TITLE_SHIFT,
-} from "../../src/story/keyframes";
+import {BABA_YAGA_FLIGHT} from "../../src/story/flights";
+import {BABA_YAGA_STAND} from "../../src/story/places";
+import {KEYFRAMES, TITLE_SHIFT} from "../../src/story/scenes";
+import type {SceneKeyframe} from "../../src/story/types";
 
 // Кадр сцены на десктопе: колонка 60% ширины, высота экрана
 const ASPECT = 864 / 900;
@@ -47,9 +44,9 @@ describe("кадрирование ключевых кадров", () => {
 			const camera = cameraOf(k);
 			const [x, z] = heroine.at;
 			const height = heroine.pose === "sleep" ? 0.3 : 1.0;
-			expect(
-				inFrame(camera, onGround(x, z, height + (heroine.elevation ?? 0))),
-			).toBe(true);
+			expect(inFrame(camera, onGround(x, z, height + heroine.elevation))).toBe(
+				true,
+			);
 		});
 	}
 

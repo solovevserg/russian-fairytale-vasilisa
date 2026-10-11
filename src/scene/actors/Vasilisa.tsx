@@ -15,6 +15,7 @@ import {
 } from "../../story/homecoming";
 import {INTRO_TIME, introAt} from "../../story/intro";
 import {enableShadows, MODEL_URLS} from "../models";
+import MODEL_META from "../models.meta.json" with {type: "json"};
 import {paletteAt} from "../sky/timeOfDay";
 import {heightAt, pathFrame} from "../terrain";
 import {setShown} from "./presence";
@@ -26,9 +27,16 @@ import {Doll, DollMagic, SkullLantern} from "./props";
  * середине фигуры, ось тела смещена на x ≈ 0.1, лицо смотрит в +Z.
  */
 const HEIGHT = 1.5;
-const SOURCE_HEIGHT = 1.9;
+/** Габариты модели (scripts/prepare-models.ts): низ и рост в её единицах. */
+const SOURCE_BOTTOM = MODEL_META.vasilisa.min[1];
+const SOURCE_HEIGHT = MODEL_META.vasilisa.max[1] - SOURCE_BOTTOM;
 const SCALE = HEIGHT / SOURCE_HEIGHT;
-const MODEL_OFFSET: [number, number, number] = [-0.1 * SCALE, 0.95 * SCALE, 0];
+/** Ступни — на землю; по X ось фигуры (подобрано вручную), не центр габаритов. */
+const MODEL_OFFSET: [number, number, number] = [
+	-0.1 * SCALE,
+	-SOURCE_BOTTOM * SCALE,
+	0,
+];
 /**
  * Левая рука согнута и вынесена вперёд на уровень груди (замерено по вершинам
  * модели) — на эту ладонь и садится куколка. Лицо фигуры смотрит в +Z,
@@ -48,7 +56,7 @@ const ONWARD_SPEED = 0.35;
  * середина лица x ≈ 0.1, высота y = −0.951 + h · 1.899 (h — доля роста),
  * глубина z — по замерам поверхности лица (scripts: вершины модели).
  */
-const FACE_Y = (h: number) => -0.951 + h * 1.899;
+const FACE_Y = (h: number) => SOURCE_BOTTOM + h * SOURCE_HEIGHT;
 const EYES: [number, number, number][] = [
 	[0.068, FACE_Y(0.915), 0.088],
 	[0.132, FACE_Y(0.915), 0.088],

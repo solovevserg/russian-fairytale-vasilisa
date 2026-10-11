@@ -9,7 +9,7 @@
  * Для телефонов (quality.lightAssets) у тяжёлых моделей есть облегчённые
  * копии `<имя>-mobile.glb`: сетка проще, текстуры меньше.
  */
-import {mkdirSync} from "node:fs";
+import {existsSync, mkdirSync, readFileSync, writeFileSync} from "node:fs";
 
 import {type Document, NodeIO, type Primitive} from "@gltf-transform/core";
 import {ALL_EXTENSIONS} from "@gltf-transform/extensions";
@@ -34,6 +34,17 @@ import {paintVasilisa} from "./vasilisaPaint";
 
 const SRC = ".cache/models";
 const OUT = "public/models";
+/**
+ * Габариты моделей (в их собственных единицах) — для кода сцены: рост,
+ * смещение до земли. Перегенерировали модель — замеры обновились сами.
+ */
+const META = "src/scene/models.meta.json";
+
+type Bounds = {min: number[]; max: number[]};
+const meta: Record<string, Bounds> = existsSync(META)
+	? JSON.parse(readFileSync(META, "utf8"))
+	: {};
+const round = (v: number) => Math.round(v * 1000) / 1000;
 
 await MeshoptEncoder.ready;
 await MeshoptSimplifier.ready;
@@ -60,6 +71,8 @@ async function finish(doc: Document, name: string, textureSize = TEXTURE_SIZE) {
 		meshopt({encoder: MeshoptEncoder, level: "medium"}),
 	);
 	await io.write(`${OUT}/${name}.glb`, doc);
+	const {min, max} = getBounds(doc.getRoot().listScenes()[0]);
+	meta[name] = {min: min.map(round), max: max.map(round)};
 	console.log(`✓ ${name}.glb`);
 }
 
@@ -213,3 +226,6 @@ if (wanted("bird")) {
 	recolor(doc, {blinn3SG: [0.03, 0.028, 0.026]});
 	await finish(doc, "bird");
 }
+
+writeFileSync(META, `${JSON.stringify(meta, null, "\t")}\n`);
+console.log(`✓ ${META}`);

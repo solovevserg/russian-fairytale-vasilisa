@@ -1,5 +1,6 @@
-import {quality} from "../scene/quality";
-import {RIDER_PATHS, type RiderColor} from "./keyframes";
+import {type QualityTier, quality} from "../scene/quality";
+import {RIDERS} from "./riders";
+import type {RiderColor} from "./types";
 
 /**
  * Когда всадник начал скакать (clock.elapsedTime сцены). Пишет Riders,
@@ -8,15 +9,13 @@ import {RIDER_PATHS, type RiderColor} from "./keyframes";
 export const riderStarts: Partial<Record<RiderColor, number>> = {};
 
 /**
- * Сколько длится скачка, с. На слабых устройствах (уровень low) все всадники
- * скачут медленнее, на телефонах (medium) — чёрный: иначе их не разглядеть.
+ * Сколько длится скачка, с: на слабых устройствах — медленнее
+ * (`RIDERS[color].slowerOn`), иначе всадника не разглядеть.
  */
-export function riderDuration(color: RiderColor): number {
-	const pace =
-		quality.tier === "low"
-			? 0.75
-			: quality.tier === "medium" && color === "black"
-				? 0.85
-				: 1;
-	return RIDER_PATHS[color].duration / pace;
+export function riderDuration(
+	color: RiderColor,
+	tier: QualityTier = quality.tier,
+): number {
+	const {duration, slowerOn} = RIDERS[color];
+	return duration * (slowerOn[tier] ?? 1);
 }

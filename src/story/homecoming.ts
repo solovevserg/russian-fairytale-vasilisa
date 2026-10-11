@@ -3,10 +3,10 @@ import {CatmullRomCurve3, Vector3} from "three";
 import {clamp, lerpAngle, smooth01 as smooth} from "../lib/math";
 import {HOME, heightAt, pathFrame} from "../scene/terrain";
 import {distanceAlongPath} from "./departure";
-import {onPath} from "./keyframes";
+import {HOME_SPOT, HUT_GROUND, onPath} from "./places";
 
-/** Где Василиса стоит у своей избы — как в прологе (atHome в keyframes.ts). */
-const HOME_SPOT = onPath(51, 0, -2.6);
+/** Где Василиса стоит у своей избы — как в прологе. */
+const HOME_POINT = onPath(HOME_SPOT.path, 0, HOME_SPOT.side);
 
 /**
  * «Эпилог»: Василиса с черепом идёт дальше по тропе — с того места, где её
@@ -143,7 +143,7 @@ export function homecomingRoute(
 	for (let i = 0; i <= steps; i++) {
 		points.push(aroundPoint(theta0 + dir * (i / steps) * sweep));
 	}
-	const [hx, , hz] = HOME_SPOT;
+	const [hx, , hz] = HOME_POINT;
 	points.push(new Vector3(hx, 0, hz));
 
 	const curve = new CatmullRomCurve3(points, false, "centripetal");
@@ -203,6 +203,18 @@ export function homecomingNight(route: HomecomingRoute, t: number): number {
 	return smooth((t - aroundTime - HOMECOMING.riseDelay) / HOMECOMING.rise);
 }
 
+/**
+ * Точка [x, z], над которой камера заканчивает эпилог: в стороне от тропы
+ * (HOMECOMING.finalDistance, finalSide). Титры — на продолжении той же линии.
+ */
+const EPILOGUE_END: [number, number] = (() => {
+	const f = pathFrame(HOMECOMING.finalDistance);
+	return [
+		f.x + f.toHutZ * HOMECOMING.finalSide,
+		f.z - f.toHutX * HOMECOMING.finalSide,
+	];
+})();
+
 const follow = new Vector3();
 const her = new Vector3();
 const final = new Vector3();
@@ -236,9 +248,7 @@ export function homecomingCamera(
 	const r = (t - aroundTime - HOMECOMING.riseDelay) / HOMECOMING.rise;
 	const up = smooth(r * 1.8);
 	const across = smooth(r);
-	const f = pathFrame(HOMECOMING.finalDistance);
-	const fx = f.x + f.toHutZ * HOMECOMING.finalSide;
-	const fz = f.z - f.toHutX * HOMECOMING.finalSide;
+	const [fx, fz] = EPILOGUE_END;
 	final.set(fx, heightAt(fx, fz) + HOMECOMING.finalHeight, fz);
 	position.set(
 		follow.x + (final.x - follow.x) * across,
@@ -252,11 +262,9 @@ export function homecomingCamera(
 
 /** Камера на титрах: высоко над избушкой (см. HOMECOMING.creditsHeight). */
 export function creditsCamera(position: Vector3, target: Vector3): void {
-	const f = pathFrame(HOMECOMING.finalDistance);
-	const fx = f.x + f.toHutZ * HOMECOMING.finalSide;
-	const fz = f.z - f.toHutX * HOMECOMING.finalSide;
+	const [fx, fz] = EPILOGUE_END;
 	const k = HOMECOMING.creditsAcross;
-	position.set(fx * k, heightAt(0, 0) + HOMECOMING.creditsHeight, fz * k);
+	position.set(fx * k, HUT_GROUND + HOMECOMING.creditsHeight, fz * k);
 	const ahead = HOMECOMING.creditsLookAhead;
 	const [hx, hy, hz] = HOMECOMING.finalTarget;
 	target.set(

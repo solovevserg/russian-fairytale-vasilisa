@@ -1,7 +1,7 @@
 import {describe, expect, test} from "bun:test";
 
-import {KEYFRAMES} from "../../src/story/keyframes";
 import {stepLight} from "../../src/story/lightDelay";
+import {KEYFRAMES} from "../../src/story/scenes";
 
 describe("смена времени суток", () => {
 	const clearing = KEYFRAMES.findIndex((k) => k.id === "clearing");

@@ -1,6 +1,6 @@
 import {type Camera, Vector3} from "three";
 
-import {MUSIC_TRACKS, type MusicTrack} from "../story/keyframes";
+import {MUSIC_TRACKS, type MusicTrack} from "../story/types";
 import {
 	audioUrl,
 	fallbackUrl,

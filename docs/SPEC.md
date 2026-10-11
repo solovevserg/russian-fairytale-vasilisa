@@ -126,7 +126,7 @@ interface SceneKeyframe {
 }
 ```
 
-Все ключевые кадры описаны **данными** (`src/story/keyframes.ts`), а не кодом — сюжет можно править, не трогая рендеринг.
+Все ключевые кадры описаны **данными** (`SCENES` в `src/story/scenes.ts`), а не кодом — сюжет можно править, не трогая рендеринг.
 
 ### 4.2. Вычисление прогресса
 
@@ -267,7 +267,11 @@ src/
     content.ts             # тексты по языкам: главы по CHAPTER_IDS, подписи глав
   story/
     chapters.ts            # CHAPTER_IDS — порядок и id глав; главы с русским текстом
-    keyframes.ts           # ключевые кадры сцены
+    types.ts               # типы кадра: KeyframeInput (сценарий) и SceneKeyframe (полный)
+    places.ts              # места на карте по имени: тропа, крыльцо, дом, ворота
+    scenes.ts              # SCENES: Record<ChapterId, кадр>; KEYFRAMES = resolveKeyframe по порядку
+    riders.ts              # RIDERS: всё о каждом всаднике (путь, темп, свет, цвета)
+    flights.ts             # полёт Бабы Яги
     timeline.ts            # интерполяция кадров, события (чистые функции — покрыты bun test)
   state/
     storyStore.ts          # zustand: прогресс, текущая глава, звук

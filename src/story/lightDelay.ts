@@ -1,20 +1,22 @@
 import {damp} from "../lib/damp";
 import {clamp, smooth01} from "../lib/math";
-import {KEYFRAMES, type RiderColor} from "./keyframes";
 import {riderDuration} from "./riderClock";
+import {RIDERS} from "./riders";
+import {KEYFRAMES} from "./scenes";
+import type {RiderColor} from "./types";
+
+/** Самая быстрая смена света, с (мгновенная — `fade: 0` у всадника). */
+const MIN_FADE = 0.01;
 
 /**
- * Когда меняется свет относительно скачки: `after` — доля пути всадника до
- * начала смены, `fade` — длительность смены, с. Белый — светает вместе со
- * скачкой; чёрный — темнеет, пока он кружит, и к его уходу в чащу — ночь;
- * красный время не
- * меняет вовсе (рассвет — в следующей главе «Восход»).
+ * Когда меняется свет относительно скачки (см. RIDERS[color].light): начало
+ * смены — с начала скачки, длительность — с.
  */
-export const RIDER_LIGHT: Record<RiderColor, {after: number; fade: number}> = {
-	white: {after: 0, fade: riderDuration("white")},
-	red: {after: 0, fade: 0.01},
-	black: {after: 0.05, fade: riderDuration("black") * 0.9},
-};
+export function riderLight(color: RiderColor): {after: number; fade: number} {
+	const duration = riderDuration(color);
+	const {after, fade} = RIDERS[color].light;
+	return {after: duration * after, fade: Math.max(duration * fade, MIN_FADE)};
+}
 const RIDER_CHAPTERS = KEYFRAMES.flatMap((k, i) =>
 	k.rider ? [{index: i, color: k.rider}] : [],
 );
@@ -35,9 +37,8 @@ export function delayedTimeProgress(
 		// пролистывании вперёд всплывал бы свет предыдущей, дневной главы)
 		if (progress <= index - 1 || progress > index) continue;
 		const start = starts[color];
-		const {after, fade} = RIDER_LIGHT[color];
-		const lightStart =
-			start === undefined ? Infinity : start + riderDuration(color) * after;
+		const {after, fade} = riderLight(color);
+		const lightStart = start === undefined ? Infinity : start + after;
 		result = Math.min(result, index - 1 + smooth01((now - lightStart) / fade));
 	}
 	return result;

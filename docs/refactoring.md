@@ -99,6 +99,18 @@ src/lib/
 
 ## Фаза 2. Один источник правды для данных истории
 
+> **Статус: сделано.** `keyframes.ts` разложен (это и п. 3.1):
+> `story/types.ts` (KeyframeInput / SceneKeyframe), `places.ts` (места по
+> имени, `facing`), `scenes.ts` (`SCENES: Record<ChapterId, …>`, `KEYFRAMES`
+> из `CHAPTER_IDS` через `resolveKeyframe` — в коде больше нет `?? 1`,
+> `?? true`), `riders.ts` (`RIDERS`: путь, темп по уровню качества, смена
+> света, цвета), `flights.ts`. Габариты моделей пишет
+> `scripts/prepare-models.ts` в `src/scene/models.meta.json`; точки на
+> деталях (ладонь, хват, глаза, труба, крыльцо) остаются ручными замерами —
+> без эвристик их из вершин не вывести. Таблица `docs/scenario.md` сверяется
+> с кадрами тестом `scenario.test.ts` (время и музыка) — тест сразу нашёл
+> расхождения (красный всадник «6:35» при 5,3 ч в кадре).
+
 ### 2.1 Список глав
 
 Сейчас порядок глав задан дважды: `id` в `src/i18n/locales/ru.json` и `id` в

@@ -1,4 +1,4 @@
-import type {MusicTrack} from "../story/keyframes";
+import type {MusicTrack} from "../story/types";
 
 export const LOOPS = ["amb-forest-day", "amb-crickets", "amb-wind"] as const;
 export type LoopId = (typeof LOOPS)[number];
