@@ -6,6 +6,7 @@ import {defineConfig} from "vite";
 import {ezTreeTextures} from "./scripts/vite/ezTreeTextures";
 import {glslWhitespace} from "./scripts/vite/glslWhitespace";
 import {preloadFonts} from "./scripts/vite/preloadFonts";
+import {prerender} from "./scripts/vite/prerender";
 import {serviceWorker} from "./scripts/vite/serviceWorker";
 
 export default defineConfig({
@@ -41,6 +42,8 @@ export default defineConfig({
 			/ruslan-display-cyrillic-400-normal-.+\.woff2$/,
 			/old-standard-tt-cyrillic-400-normal-.+\.woff2$/,
 		]),
+		// готовый текст сказки в index.html — виден до загрузки JS
+		prerender({entry: "/src/ssg/render.tsx"}),
 		serviceWorker({
 			entry: fileURLToPath(new URL("./src/sw/sw.ts", import.meta.url)),
 		}),

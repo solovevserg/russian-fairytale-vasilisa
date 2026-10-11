@@ -8,7 +8,7 @@ import {useStoryStore} from "../state/storyStore";
 import type {Chapter} from "../story/chapters";
 import {ChapterNav, useChapterHash} from "./ChapterNav";
 import {Divider, Tailpiece} from "./ornaments/Divider";
-import {DropCap} from "./ornaments/DropCap";
+import {DropCap, DropCapDefs} from "./ornaments/DropCap";
 
 /** Первый абзац главы с буквицей; буква остаётся в тексте для скринридеров и поиска. */
 function OpeningParagraph({
@@ -99,6 +99,7 @@ export function StoryColumn() {
 
 	return (
 		<main className="story" ref={root}>
+			<DropCapDefs />
 			<header className="story__header" id="start">
 				<Divider large />
 				<p className="story__kicker">{content.subtitle}</p>
