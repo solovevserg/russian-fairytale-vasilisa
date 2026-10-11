@@ -1,3 +1,4 @@
+import { currentContent } from "../i18n/content";
 import { splitSentences } from "./timing";
 
 export function isSpeechSupported(): boolean {
@@ -19,32 +20,41 @@ function loadVoices(): Promise<SpeechSynthesisVoice[]> {
 	return voicesPromise;
 }
 
-let chosenVoice: SpeechSynthesisVoice | null | undefined;
+const chosenVoices = new Map<string, SpeechSynthesisVoice | null>();
 
-/** Русский голос; в Chrome лучше всего звучат голоса Google. */
-async function russianVoice(): Promise<SpeechSynthesisVoice | null> {
-	if (chosenVoice !== undefined) return chosenVoice;
-	const russian = (await loadVoices()).filter((v) =>
-		v.lang.toLowerCase().startsWith("ru"),
+/** Голос для языка (ru-RU, en-GB…); в Chrome лучше всего звучат голоса Google. */
+async function voiceFor(lang: string): Promise<SpeechSynthesisVoice | null> {
+	const cached = chosenVoices.get(lang);
+	if (cached !== undefined) return cached;
+	const prefix = lang.slice(0, 2).toLowerCase();
+	const voices = (await loadVoices()).filter((v) =>
+		v.lang.toLowerCase().startsWith(prefix),
 	);
-	chosenVoice =
-		russian.find((v) => /google/i.test(v.name)) ??
-		russian.find((v) => !v.localService) ??
-		russian[0] ??
+	const exact = voices.filter(
+		(v) => v.lang.toLowerCase() === lang.toLowerCase(),
+	);
+	const voice =
+		exact.find((v) => /google/i.test(v.name)) ??
+		voices.find((v) => /google/i.test(v.name)) ??
+		voices.find((v) => !v.localService) ??
+		exact[0] ??
+		voices[0] ??
 		null;
-	return chosenVoice;
+	chosenVoices.set(lang, voice);
+	return voice;
 }
 
 /** true — фраза прозвучала; false — синтез не сработал (нет голосов, ошибка). */
 function speakOne(
 	text: string,
 	voice: SpeechSynthesisVoice | null,
+	lang: string,
 	signal: AbortSignal,
 ): Promise<boolean> {
 	return new Promise((resolve) => {
 		if (signal.aborted) return resolve(true);
 		const utterance = new SpeechSynthesisUtterance(text);
-		utterance.lang = "ru-RU";
+		utterance.lang = lang;
 		if (voice) utterance.voice = voice;
 		utterance.rate = 0.95;
 		utterance.pitch = 1;
@@ -74,7 +84,8 @@ export async function narrate(
 	onParagraph: (index: number) => void,
 ): Promise<boolean> {
 	if ((await loadVoices()).length === 0) return false;
-	const voice = await russianVoice();
+	const lang = currentContent().speechLang;
+	const voice = await voiceFor(lang);
 	const stop = () => window.speechSynthesis.cancel();
 	signal.addEventListener("abort", stop, { once: true });
 	try {
@@ -82,7 +93,7 @@ export async function narrate(
 			onParagraph(index);
 			for (const sentence of splitSentences(paragraph)) {
 				if (signal.aborted) return true;
-				if (!(await speakOne(sentence, voice, signal))) return false;
+				if (!(await speakOne(sentence, voice, lang, signal))) return false;
 			}
 		}
 		return true;

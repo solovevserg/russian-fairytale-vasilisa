@@ -1,6 +1,7 @@
 import { audioEngine } from "../audio/AudioEngine";
+import { currentContent } from "../i18n/content";
 import { useStoryStore } from "../state/storyStore";
-import { chapters, STORY_SUBTITLE, STORY_TITLE } from "../story/chapters";
+import { chapters } from "../story/chapters";
 import {
 	scrollPosition,
 	scrollPositionFor,
@@ -113,7 +114,8 @@ class AutoReader {
 			useReaderStore.getState().narrate
 		) {
 			audioEngine.setDucked(true);
-			await narrate([`${STORY_TITLE}. ${STORY_SUBTITLE}.`], signal, () => {});
+			const { title, subtitle } = currentContent();
+			await narrate([`${title}. ${subtitle}.`], signal, () => {});
 			audioEngine.setDucked(false);
 			await wait(800, signal);
 		}
@@ -122,7 +124,7 @@ class AutoReader {
 			await scrollToChapter(index, signal);
 			if (signal.aborted) return;
 			const reader = useReaderStore.getState();
-			const chapter = chapters[index];
+			const chapter = currentContent().chapters[index];
 			let narrated = false;
 			if (reader.narrate) {
 				audioEngine.setDucked(true);

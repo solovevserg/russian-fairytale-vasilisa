@@ -49,12 +49,12 @@ export function useChapterHash() {
 export function ChapterNav({
 	labels,
 }: {
-	labels: { prev: string; next: string };
+	labels: { nav: string; prev: string; next: string };
 }) {
 	const activeChapter = useStoryStore((s) => s.activeChapter);
 	const last = chapters.length - 1;
 	return (
-		<nav className="chapter-nav" aria-label="Главы">
+		<nav className="chapter-nav" aria-label={labels.nav}>
 			<button
 				type="button"
 				className="chapter-nav__button"

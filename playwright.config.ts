@@ -14,6 +14,8 @@ export default defineConfig({
 	use: {
 		baseURL: `http://localhost:${PORT}/russian-fairytale-vasilisa/`,
 		trace: "on-first-retry",
+		// язык сайта берётся из браузера — тесты ждут русскую версию по умолчанию
+		locale: "ru-RU",
 	},
 	projects: [
 		{ name: "desktop", use: { ...devices["Desktop Chrome"] } },

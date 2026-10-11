@@ -1,36 +1,12 @@
 import { useRef } from "react";
 import { useScrollProgress } from "../hooks/useScrollProgress";
+import { type Content, useContent } from "../i18n/content";
 import { useReaderStore } from "../reader/readerStore";
 import { useStoryStore } from "../state/storyStore";
-import {
-	type Chapter,
-	chapters,
-	STORY_SUBTITLE,
-	STORY_TITLE,
-} from "../story/chapters";
+import type { Chapter } from "../story/chapters";
 import { ChapterNav, useChapterHash } from "./ChapterNav";
 import { Divider, Tailpiece } from "./ornaments/Divider";
 import { DropCap } from "./ornaments/DropCap";
-
-const ORDINALS = [
-	"первая",
-	"вторая",
-	"третья",
-	"четвёртая",
-	"пятая",
-	"шестая",
-	"седьмая",
-	"восьмая",
-	"девятая",
-	"десятая",
-];
-
-/** Подпись над названием главы: «Зачин», «Глава первая»…, «Концовка». */
-function chapterCaption(index: number): string {
-	if (index === 0) return "Зачин";
-	if (index === chapters.length - 1) return "Концовка";
-	return `Глава ${ORDINALS[index - 1] ?? index}`;
-}
 
 /** Первый абзац главы с буквицей; буква остаётся в тексте для скринридеров и поиска. */
 function OpeningParagraph({
@@ -54,12 +30,16 @@ function OpeningParagraph({
 
 function ChapterSection({
 	chapter,
+	caption,
 	index,
+	last,
 	active,
 	speaking,
 }: {
 	chapter: Chapter;
+	caption: string;
 	index: number;
+	last: boolean;
 	active: boolean;
 	/** Абзац, который сейчас читается вслух, или null. */
 	speaking: number | null;
@@ -73,7 +53,7 @@ function ChapterSection({
 			data-keyframe={chapter.id}
 		>
 			{index > 0 && <Divider />}
-			<p className="chapter__caption">{chapterCaption(index)}</p>
+			<p className="chapter__caption">{caption}</p>
 			<h2>{chapter.title}</h2>
 			{first && (
 				<OpeningParagraph
@@ -87,7 +67,7 @@ function ChapterSection({
 					{text}
 				</p>
 			))}
-			{index === chapters.length - 1 && <Tailpiece />}
+			{last && <Tailpiece />}
 		</section>
 	);
 }
@@ -96,30 +76,38 @@ export function StoryColumn() {
 	const root = useRef<HTMLElement>(null);
 	useScrollProgress(root);
 	useChapterHash();
+	const content = useContent();
 	const activeChapter = useStoryStore((s) => s.activeChapter);
 	const speaking = useReaderStore((s) => s.speaking);
+	const chapters = content.chapters;
 
 	return (
 		<main className="story" ref={root}>
 			<header className="story__header">
 				<Divider large />
-				<p className="story__kicker">{STORY_SUBTITLE}</p>
-				<h1>{STORY_TITLE}</h1>
-				<p className="story__subtitle">по мотивам собрания А. Н. Афанасьева</p>
+				<p className="story__kicker">{content.subtitle}</p>
+				<h1>{content.title}</h1>
+				<p className="story__subtitle">{content.source}</p>
 				<Divider large />
 			</header>
 			{chapters.map((chapter, i) => (
 				<ChapterSection
 					key={chapter.id}
 					chapter={chapter}
+					caption={content.caption(i)}
 					index={i}
+					last={i === chapters.length - 1}
 					active={i === activeChapter}
 					speaking={speaking?.[0] === i ? speaking[1] : null}
 				/>
 			))}
-			<Credits />
+			<Credits content={content} />
 			<ChapterNav
-				labels={{ prev: "Предыдущая глава", next: "Следующая глава" }}
+				labels={{
+					nav: content.ui.chaptersNav,
+					prev: content.ui.prevChapter,
+					next: content.ui.nextChapter,
+				}}
 			/>
 		</main>
 	);
@@ -127,42 +115,49 @@ export function StoryColumn() {
 
 const REPO = "https://github.com/solovevserg/russian-fairytale-vasilisa";
 const AUTHOR_URL = "https://sergsol.dev";
+const MODELS = [
+	[
+		"https://sketchfab.com/3d-models/a-hut-on-chicken-legs-b0117d56bb9b401f91442a1ce7f81329",
+		"A hut on chicken legs",
+		"vet.doc",
+	],
+	[
+		"https://sketchfab.com/3d-models/witch-2a7672475d514543b618b5a82fd5582b",
+		"Witch",
+		"MAXDESIGN",
+	],
+	[
+		"https://sketchfab.com/3d-models/red-slavic-folk-dress-dc0fbf4dc6db4f3da414c5738ad02255",
+		"Red Slavic Folk Dress",
+		"akot777",
+	],
+] as const;
 
 /** Источники и лицензии — CC-BY требует указывать авторов прямо на сайте. */
-function Credits() {
+function Credits({ content }: { content: Content }) {
+	const c = content.ui.credits;
 	return (
 		<footer className="story__credits">
+			<p>{c.music}</p>
 			<p>
-				Музыка — М. П. Мусоргский, «Картинки с выставки» (записи Musopen,
-				общественное достояние). Звуки леса — OpenGameArt и BigSoundBank (CC0).
-				Текстуры земли — Poly Haven (CC0). Деревья — ez-tree (MIT). Шрифты —
-				Ruslan Display и Old Standard TT (OFL).
-			</p>
-			<p>
-				3D-модели (CC BY 4.0, изменены: упрощены, сжаты, Василиса раскрашена):{" "}
-				<a href="https://sketchfab.com/3d-models/a-hut-on-chicken-legs-b0117d56bb9b401f91442a1ce7f81329">
-					«A hut on chicken legs»
-				</a>{" "}
-				— vet.doc,{" "}
-				<a href="https://sketchfab.com/3d-models/witch-2a7672475d514543b618b5a82fd5582b">
-					«Witch»
-				</a>{" "}
-				— MAXDESIGN,{" "}
-				<a href="https://sketchfab.com/3d-models/red-slavic-folk-dress-dc0fbf4dc6db4f3da414c5738ad02255">
-					«Red Slavic Folk Dress»
-				</a>{" "}
-				— akot777.
+				{c.models}{" "}
+				{MODELS.map(([url, title, author], i) => (
+					<span key={url}>
+						<a href={url}>«{title}»</a> — {author}
+						{i < MODELS.length - 1 ? ", " : "."}
+					</span>
+				))}
 			</p>
 			<p className="story__author">
-				Сайт создан <a href={AUTHOR_URL}>Сергеем Соловьёвым</a> вместе с{" "}
+				{c.author[0]}
+				<a href={AUTHOR_URL}>{c.author[1]}</a>
+				{c.author[2]}
 				<a href="https://claude.ai">Claude</a>.
 			</p>
 			<p>
-				<a href={`${REPO}/blob/master/docs/assets.md`}>
-					Все источники и лицензии
-				</a>
+				<a href={`${REPO}/blob/master/docs/assets.md`}>{c.allSources}</a>
 				{" · "}
-				<a href={REPO}>Исходный код</a>
+				<a href={REPO}>{c.sourceCode}</a>
 			</p>
 		</footer>
 	);

@@ -49,3 +49,21 @@ test("тёмная тема переключается и запоминаетс
 	await page.reload();
 	await expect(html).toHaveAttribute("data-theme", "dark");
 });
+
+test("язык переключается на лету и запоминается", async ({ page }) => {
+	await page.goto("./?noforest&nograss&noshadows");
+	const title = page.getByRole("heading", { level: 1 });
+	await expect(title).toHaveText("Василиса Прекрасная");
+
+	await page.getByRole("button", { name: "Read in English" }).click();
+	await expect(title).toHaveText("Vasilisa the Beautiful");
+	await expect(page.locator("html")).toHaveAttribute("lang", "en");
+	await expect(
+		page.getByRole("button", { name: /Read the tale/ }),
+	).toBeVisible();
+
+	await page.reload();
+	await expect(title).toHaveText("Vasilisa the Beautiful");
+	await page.getByRole("button", { name: "Читать по-русски" }).click();
+	await expect(title).toHaveText("Василиса Прекрасная");
+});
