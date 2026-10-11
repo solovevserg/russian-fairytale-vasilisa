@@ -84,14 +84,36 @@ async function smallest(
 	return {source: original, extension: format === "jpeg" ? "jpg" : format};
 }
 
+/** Наибольшая сторона облегчённых копий (для телефонов). */
+const LIGHT_SIZE = 512;
+
+/** Облегчённая копия текстуры: не больше LIGHT_SIZE, WebP. */
+function lightCopy(original: Buffer, quality: number): Promise<Buffer> {
+	return sharp(original)
+		.resize(LIGHT_SIZE, LIGHT_SIZE, {fit: "inside", withoutEnlargement: true})
+		.webp({quality, alphaQuality: 90})
+		.toBuffer();
+}
+
+export interface EzTreeTexturesOptions {
+	/**
+	 * Модуль с настройками качества (путь в файловой системе): из его экспорта
+	 * `quality.lightAssets` код ez-tree узнаёт, брать ли облегчённые копии.
+	 */
+	qualityModule: string;
+}
+
 /**
  * ez-tree вшивает в свой код 20 текстур коры и листвы в base64 (~4 МБ) и при
  * импорте грузит их все. При сборке нужные текстуры выносятся отдельными
- * файлами (кэшируются и декодируются браузером отдельно от JS), а ненужные
- * заменяются пустой картинкой — их не качаем вовсе. В dev-режиме библиотека
- * остаётся как есть.
+ * файлами (кэшируются и декодируются браузером отдельно от JS) — каждая в
+ * двух размерах: полном и облегчённом (512, для телефонов; выбор — по
+ * `quality.lightAssets`). Ненужные заменяются пустой картинкой — их не
+ * качаем вовсе. В dev-режиме библиотека остаётся как есть.
  */
-export function ezTreeTextures(): Plugin {
+export function ezTreeTextures({qualityModule}: EzTreeTexturesOptions): Plugin {
+	const modulePath = JSON.stringify(qualityModule.replaceAll("\\", "/"));
+	const qualityImport = `import {quality as __quality} from ${modulePath};\n`;
 	return {
 		name: "ez-tree-textures",
 		apply: "build",
@@ -113,21 +135,24 @@ export function ezTreeTextures(): Plugin {
 				}
 				let replacement = `${variable} = "${EMPTY_PNG}"`;
 				if (needed.has(name)) {
-					const {source, extension} = await smallest(
-						Buffer.from(base64, "base64"),
-						format,
-						webpQuality(name),
-					);
-					const ref = this.emitFile({
+					const original = Buffer.from(base64, "base64");
+					const quality = webpQuality(name);
+					const full = await smallest(original, format, quality);
+					const fullRef = this.emitFile({
 						type: "asset",
-						name: `ez-tree-${name}.${extension}`,
-						source,
+						name: `ez-tree-${name}.${full.extension}`,
+						source: full.source,
 					});
-					replacement = `${variable} = import.meta.ROLLUP_FILE_URL_${ref}`;
+					const lightRef = this.emitFile({
+						type: "asset",
+						name: `ez-tree-${name}-light.webp`,
+						source: await lightCopy(original, quality),
+					});
+					replacement = `${variable} = __quality.lightAssets ? import.meta.ROLLUP_FILE_URL_${lightRef} : import.meta.ROLLUP_FILE_URL_${fullRef}`;
 				}
 				result = result.replace(whole, replacement);
 			}
-			return {code: result, map: null};
+			return {code: qualityImport + result, map: null};
 		},
 	};
 }

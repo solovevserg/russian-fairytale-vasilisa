@@ -21,13 +21,18 @@ export function musicFile(track: MusicTrack): string {
 
 let extension: "webm" | "mp3" | undefined;
 
-/** Opus/WebM, если браузер умеет, иначе MP3 (см. scripts/prepare-audio.ts). */
-export function audioUrl(name: string): string {
+/** Формат звука: Opus/WebM, если браузер умеет, иначе MP3 (см. scripts/prepare-audio.ts). */
+export function audioExtension(): "webm" | "mp3" {
 	if (!extension) {
 		const probe = document.createElement("audio");
 		extension = probe.canPlayType('audio/webm; codecs="opus"') ? "webm" : "mp3";
 	}
-	return `${import.meta.env.BASE_URL}audio/${name}.${extension}`;
+	return extension;
+}
+
+/** Адрес звука в формате, который умеет браузер. */
+export function audioUrl(name: string): string {
+	return `${import.meta.env.BASE_URL}audio/${name}.${audioExtension()}`;
 }
 
 export function fallbackUrl(name: string): string {
