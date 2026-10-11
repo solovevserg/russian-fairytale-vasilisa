@@ -15,7 +15,8 @@ const PALETTE = {
 	embroidery: hex("#b5281c"),
 	skin: hex("#e7bfa0"),
 	blush: hex("#e3a08c"),
-	hair: hex("#9a6b34"),
+	hair: hex("#7a4f24"),
+	hairDark: hex("#4e3016"),
 	// платок — не кроваво-красный, а соломенно-золотой, с красной каймой у лица
 	scarf: hex("#d8bd84"),
 	scarfBorder: hex("#a8321f"),
@@ -67,13 +68,17 @@ export function zoneColor(h: number, x: number, z: number): RGB {
 		const nearFace = z > 0.02 && x > 0.005 && x < 0.19 && h < 0.972 && h > 0.86;
 		return nearFace ? PALETTE.scarfBorder : PALETTE.scarf;
 	}
+	// русая коса — спереди по правой стороне груди, от шеи вниз; пряди
+	// перевиваются наискосок — светлые и тёмные полосы
+	if (x > 0.15 && x < 0.225 && h > 0.66 && h < 0.85 && z > 0) {
+		const strand = Math.floor((h * 90 + (x - 0.15) * 160) % 3);
+		return strand === 0 ? PALETTE.hairDark : PALETTE.hair;
+	}
 	// шея и ворот рубахи (ворот — с золотой полосой)
 	if (h > 0.81) {
 		if (z > 0.03 && x > 0.04 && x < 0.16 && h > 0.83) return PALETTE.skin;
 		return h < 0.825 ? PALETTE.trim : PALETTE.blouse;
 	}
-	// коса — спереди по правой стороне груди
-	if (x > 0.17 && x < 0.24 && z > 0.09 && h > 0.6) return PALETTE.hair;
 	// рукава рубахи; манжеты с вышивкой
 	if (x < -0.05 && h > 0.55)
 		return x < -0.2 && h < 0.63 ? PALETTE.embroidery : PALETTE.blouse;
@@ -84,9 +89,6 @@ export function zoneColor(h: number, x: number, z: number): RGB {
 	// пояс (свисающие концы и подол остаются цвета сарафана: по координатам
 	// они неотделимы от юбки, и полосы выходили рваными)
 	if (h > 0.6 && h < 0.63) return PALETTE.trim;
-	// застёжка спереди сарафана — золотые пуговки в ряд
-	if (z > 0.05 && Math.abs(x - 0.1) < 0.014 && h > 0.3 && h < 0.76)
-		return Math.floor(h * 60) % 3 === 0 ? PALETTE.trim : PALETTE.sarafan;
 	// подол: золотая кайма и над ней вышитая полоса
 	if (h < 0.035) return PALETTE.trim;
 	if (h > 0.055 && h < 0.07) return PALETTE.hemStitch;
