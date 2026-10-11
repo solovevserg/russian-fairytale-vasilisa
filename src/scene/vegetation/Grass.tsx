@@ -12,6 +12,7 @@ import {
 import { windUniforms } from "../forest/wind";
 import { quality } from "../quality";
 import { createRandom } from "../random";
+import { heightAt } from "../terrain";
 import { type PlantPlacement, scatter } from "./layout";
 
 /**
@@ -162,6 +163,8 @@ function grassMaterial(
 	return material;
 }
 
+/** Выше скольких метров над землёй трава на уровне low не рисуется. */
+const LOW_GRASS_CEILING = 12;
 const CHUNK = 15;
 
 function chunked(plants: PlantPlacement[]): PlantPlacement[][] {
@@ -201,7 +204,12 @@ function GrassChunk({
 		const distance =
 			Math.hypot(camera.position.x - center.x, camera.position.z - center.z) -
 			CHUNK * 0.7;
-		m.visible = distance < quality.grassDistance;
+		// на слабых устройствах с высоты (над лесом) травы не видно — не рисуем
+		const aloft =
+			quality.tier === "low" &&
+			camera.position.y - heightAt(camera.position.x, camera.position.z) >
+				LOW_GRASS_CEILING;
+		m.visible = !aloft && distance < quality.grassDistance;
 	});
 
 	useLayoutEffect(() => {
