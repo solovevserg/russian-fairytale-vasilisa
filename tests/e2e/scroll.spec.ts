@@ -18,11 +18,8 @@ async function scrollToChapter(page: Page, id: string) {
 	await page.evaluate((chapterId) => {
 		const el = document.querySelector(`[data-keyframe="${chapterId}"]`);
 		if (!el) throw new Error(`chapter ${chapterId} not found`);
-		const rect = el.getBoundingClientRect();
-		window.scrollTo(
-			0,
-			rect.top + window.scrollY + rect.height / 2 - window.innerHeight / 2,
-		);
+		// на мобильных главы листаются горизонтально — scrollIntoView работает для обеих осей
+		el.scrollIntoView({ block: "center", inline: "center" });
 	}, id);
 }
 

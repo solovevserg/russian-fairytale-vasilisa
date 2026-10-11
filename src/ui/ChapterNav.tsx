@@ -10,6 +10,7 @@ export function scrollToChapter(index: number) {
 	document.getElementById(chapter.id)?.scrollIntoView({
 		behavior: reduce ? "auto" : "smooth",
 		block: "center",
+		inline: "center",
 	});
 }
 
@@ -31,7 +32,7 @@ export function useChapterHash() {
 		pending.current = index;
 		document
 			.getElementById(chapters[index].id)
-			?.scrollIntoView({ block: "center" });
+			?.scrollIntoView({ block: "center", inline: "center" });
 	}, []);
 	useEffect(() => {
 		if (pending.current !== null) {

@@ -1,6 +1,11 @@
 import { audioEngine } from "../audio/AudioEngine";
 import { useStoryStore } from "../state/storyStore";
 import { chapters, STORY_SUBTITLE, STORY_TITLE } from "../story/chapters";
+import {
+	scrollPosition,
+	scrollPositionFor,
+	setScrollPosition,
+} from "../ui/scrollAxis";
 import { narrate } from "./narrator";
 import { useReaderStore } from "./readerStore";
 import { easeInOutCubic, readingSeconds } from "./timing";
@@ -36,21 +41,14 @@ function wait(ms: number, signal: AbortSignal): Promise<void> {
 	});
 }
 
-/** Позиция прокрутки, при которой середина главы — в центре экрана (как в useScrollProgress). */
-function chapterScrollY(index: number): number | null {
-	const el = document.querySelectorAll<HTMLElement>("[data-keyframe]")[index];
-	if (!el) return null;
-	const rect = el.getBoundingClientRect();
-	return rect.top + window.scrollY + rect.height / 2 - window.innerHeight / 2;
-}
-
 /** Плавная прокрутка к главе своей анимацией (а не scroll-behavior) — ради управляемости. */
 function scrollToChapter(index: number, signal: AbortSignal): Promise<void> {
-	const target = chapterScrollY(index);
-	if (target === null) return Promise.resolve();
-	const from = window.scrollY;
+	const el = document.querySelectorAll<HTMLElement>("[data-keyframe]")[index];
+	if (!el) return Promise.resolve();
+	const target = scrollPositionFor(el);
+	const from = scrollPosition();
 	if (prefersReducedMotion() || Math.abs(target - from) < 2) {
-		window.scrollTo(0, target);
+		setScrollPosition(target);
 		return Promise.resolve();
 	}
 	return new Promise((resolve) => {
@@ -58,7 +56,7 @@ function scrollToChapter(index: number, signal: AbortSignal): Promise<void> {
 		const step = (now: number) => {
 			if (signal.aborted) return resolve();
 			const t = (now - start) / SCROLL_MS;
-			window.scrollTo(0, from + (target - from) * easeInOutCubic(t));
+			setScrollPosition(from + (target - from) * easeInOutCubic(t));
 			if (t < 1) requestAnimationFrame(step);
 			else resolve();
 		};
@@ -105,13 +103,13 @@ class AutoReader {
 		const { progress } = useStoryStore.getState();
 		// если читатель уже на главе — начинаем с неё, иначе со следующей
 		let index = Math.round(progress);
-		const atChapter = Math.abs(progress - index) < 0.15 && window.scrollY > 0;
+		const atChapter = Math.abs(progress - index) < 0.15 && scrollPosition() > 0;
 		if (!atChapter) index = Math.ceil(progress);
 
 		// с самого начала — сперва звучит название сказки
 		if (
 			index === 0 &&
-			window.scrollY < 50 &&
+			scrollPosition() < 50 &&
 			useReaderStore.getState().narrate
 		) {
 			audioEngine.setDucked(true);
