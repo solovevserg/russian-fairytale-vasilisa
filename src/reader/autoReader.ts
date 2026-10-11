@@ -169,7 +169,17 @@ class AutoReader {
 				pause();
 		};
 		window.addEventListener("wheel", pause, { passive: true, signal });
-		window.addEventListener("touchstart", pause, { passive: true, signal });
+		// касание кнопок панели (звук, тема, язык) — не повод останавливаться:
+		// «Читать» сама переключает паузу, остальное чтению не мешает
+		const onTouch = (event: TouchEvent) => {
+			if (
+				event.target instanceof Element &&
+				event.target.closest(".control-bar")
+			)
+				return;
+			pause();
+		};
+		window.addEventListener("touchstart", onTouch, { passive: true, signal });
 		window.addEventListener("keydown", onKey, { signal });
 	}
 }

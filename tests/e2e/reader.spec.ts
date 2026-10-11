@@ -37,6 +37,26 @@ test("автопрокрутка переходит от главы к глав�
 	await expect(play).toHaveAttribute("aria-pressed", "false");
 });
 
+test("на телефоне включение звука не прерывает автопрокрутку", async ({
+	page,
+	isMobile,
+}) => {
+	test.skip(!isMobile, "касания — только на мобильных");
+	await page.addInitScript(() =>
+		window.localStorage.setItem("izbushka:narrate", "off"),
+	);
+	await page.goto("./?noforest&nograss&noshadows&readtime=1");
+	const play = page.locator(".control-button--primary");
+	await play.tap();
+	await expect(play).toHaveAttribute("aria-pressed", "true");
+	await page.locator(".sound-toggle").tap();
+	await expect(page.locator(".sound-toggle")).toHaveAttribute(
+		"aria-pressed",
+		"true",
+	);
+	await expect(play).toHaveAttribute("aria-pressed", "true");
+});
+
 test("тёмная тема переключается и запоминается", async ({ page }) => {
 	await page.emulateMedia({ colorScheme: "light" });
 	await page.goto("./?noforest&nograss&noshadows");
