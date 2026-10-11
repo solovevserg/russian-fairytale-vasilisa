@@ -31,10 +31,10 @@ const MODEL_OFFSET: [number, number, number] = [-0.1 * SCALE, 0.95 * SCALE, 0];
  */
 const LEFT_PALM: [number, number, number] = [0.226, 1.045, 0.2];
 /**
- * Куколка колдует рядом со спящей: −X — от стены избы (Василиса лежит почти
- * вдоль стены), так она стоит на настиле крыльца — поверх досок, а не в них.
+ * Куколка колдует рядом со спящей: −X — от стены избы, к переднему краю
+ * крыльца (ближе к камере), и парит над настилом — не задевает доски.
  */
-const DOLL_MAGIC_OFFSET: [number, number, number] = [-0.25, 0.04, 0.05];
+const DOLL_MAGIC_OFFSET: [number, number, number] = [-0.42, 0.2, 0.12];
 /** Где палка черепа-светоча проходит через руку. */
 const LANTERN_GRIP: [number, number, number] = [0.22, 1.0, 0.05];
 

@@ -90,8 +90,12 @@ function updateMagic(u: ParticleUniforms) {
 /** Куколка колдует: голубоватый свет и искры. Видна, пока `magic` > 0. */
 export function DollMagic() {
 	const light = useRef<PointLight>(null);
+	const hover = useRef<Object3D>(null);
 	useFrame(({ clock }) => {
 		const pulse = 0.8 + 0.2 * Math.sin(clock.elapsedTime * 3.1);
+		// парит над настилом, чуть покачиваясь
+		if (hover.current)
+			hover.current.position.y = Math.sin(clock.elapsedTime * 1.7) * 0.04;
 		if (light.current) {
 			light.current.intensity = isShown(light.current)
 				? currentSample.magic * 6 * pulse
@@ -100,7 +104,9 @@ export function DollMagic() {
 	});
 	return (
 		<group>
-			<Doll scale={2} casting />
+			<group ref={hover}>
+				<Doll scale={2} casting />
+			</group>
 			<pointLight
 				ref={light}
 				position={[0, 0.5, 0]}
