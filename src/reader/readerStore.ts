@@ -1,15 +1,7 @@
 import { create } from "zustand";
+import { readStored, writeStored } from "../lib/storage";
 
 const NARRATE_KEY = "izbushka:narrate";
-
-function readNarrate(): boolean {
-	try {
-		// по умолчанию включена; выключается явным выбором пользователя
-		return window.localStorage.getItem(NARRATE_KEY) !== "off";
-	} catch {
-		return true;
-	}
-}
 
 interface ReaderState {
 	/** Идёт автоматическое чтение (прокрутка от главы к главе). */
@@ -25,15 +17,12 @@ interface ReaderState {
 
 export const useReaderStore = create<ReaderState>((set) => ({
 	playing: false,
-	narrate: typeof window !== "undefined" && readNarrate(),
+	// по умолчанию включена; выключается явным выбором пользователя
+	narrate: typeof window !== "undefined" && readStored(NARRATE_KEY) !== "off",
 	speaking: null,
 	setPlaying: (playing) => set({ playing }),
 	setNarrate: (narrate) => {
-		try {
-			window.localStorage.setItem(NARRATE_KEY, narrate ? "on" : "off");
-		} catch {
-			// хранилище недоступно — просто не запоминаем
-		}
+		writeStored(NARRATE_KEY, narrate ? "on" : "off");
 		set({ narrate });
 	},
 	setSpeaking: (speaking) => set({ speaking }),

@@ -1,4 +1,6 @@
 import { create } from "zustand";
+import { readStored, writeStored } from "../lib/storage";
+import { urlString } from "../lib/url";
 
 export type Lang = "ru" | "en" | "es" | "zh";
 
@@ -28,14 +30,10 @@ export function pickLang(preferred: readonly string[]): Lang {
 function initialLang(): Lang {
 	if (typeof window === "undefined") return "ru";
 	// ?lang=en — ссылка на версию на языке (для поисковиков: hreflang)
-	const linked = new URLSearchParams(window.location.search).get("lang");
+	const linked = urlString("lang");
 	if (isLang(linked)) return linked;
-	try {
-		const saved = window.localStorage.getItem(LANG_KEY);
-		if (isLang(saved)) return saved;
-	} catch {
-		// хранилище недоступно — берём язык браузера
-	}
+	const saved = readStored(LANG_KEY);
+	if (isLang(saved)) return saved;
 	const nav = window.navigator;
 	return pickLang(nav.languages?.length ? nav.languages : [nav.language]);
 }
@@ -49,11 +47,7 @@ interface LangState {
 export const useLangStore = create<LangState>((set) => ({
 	lang: initialLang(),
 	setLang: (lang) => {
-		try {
-			window.localStorage.setItem(LANG_KEY, lang);
-		} catch {
-			// не запомнится — не страшно
-		}
+		writeStored(LANG_KEY, lang);
 		set({ lang });
 	},
 }));

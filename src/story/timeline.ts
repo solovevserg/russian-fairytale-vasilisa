@@ -1,4 +1,12 @@
 import { CatmullRomCurve3, Vector3 } from "three";
+import {
+	clamp,
+	clamp01,
+	inverseLerp,
+	lerp,
+	lerpAngle,
+	smoothstep,
+} from "../lib/math";
 import { heightAt, pathFrame } from "../scene/terrain";
 import {
 	MUSIC_TRACKS,
@@ -20,11 +28,6 @@ export function progressFromAnchors(anchors: number[], focus: number): number {
 	let i = 0;
 	while (focus >= anchors[i + 1]) i++;
 	return i + (focus - anchors[i]) / (anchors[i + 1] - anchors[i]);
-}
-
-function smoothstep(edge0: number, edge1: number, x: number): number {
-	const t = Math.min(Math.max((x - edge0) / (edge1 - edge0), 0), 1);
-	return t * t * (3 - 2 * t);
 }
 
 /**
@@ -97,10 +100,6 @@ export interface Timeline {
 	sample: (progress: number, out?: TimelineSample) => TimelineSample;
 }
 
-function lerp(a: number, b: number, t: number): number {
-	return a + (b - a) * t;
-}
-
 export function createSample(): TimelineSample {
 	return {
 		position: new Vector3(),
@@ -132,16 +131,10 @@ export function createSample(): TimelineSample {
 	};
 }
 
-/** Интерполяция угла по кратчайшей дуге. */
-export function lerpAngle(a: number, b: number, t: number): number {
-	const delta = Math.atan2(Math.sin(b - a), Math.cos(b - a));
-	return a + delta * t;
-}
-
 /** Доля перехода `t`, пересчитанная на окно [from, to] (до — 0, после — 1). */
 function within(t: number, from: number, to: number): number {
 	if (to <= from) return t >= from ? 1 : 0;
-	return Math.min(Math.max((t - from) / (to - from), 0), 1);
+	return clamp01(inverseLerp(from, to, t));
 }
 
 /** Сколько пройдено по тропе: с остановкой — дошла, постояла, пошла дальше. */
@@ -242,7 +235,7 @@ export function createTimeline(keyframes: SceneKeyframe[]): Timeline {
 	return {
 		length: keyframes.length,
 		sample(progress, out = createSample()) {
-			const p = Math.min(Math.max(progress, 0), last);
+			const p = clamp(progress, 0, last);
 			const i = Math.min(Math.floor(p), last - 1);
 			const t = p - i;
 			const knot =

@@ -9,9 +9,9 @@ import {
 	MeshStandardMaterial,
 	Object3D,
 } from "three";
+import { createRandom } from "../../lib/random";
 import { windUniforms } from "../forest/wind";
 import { quality } from "../quality";
-import { createRandom } from "../random";
 import { heightAt } from "../terrain";
 import { type PlantPlacement, scatter } from "./layout";
 

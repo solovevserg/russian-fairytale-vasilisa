@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { writeStored } from "../lib/storage";
 
 export type Theme = "light" | "dark";
 
@@ -20,11 +21,7 @@ export const useThemeStore = create<ThemeState>((set, get) => ({
 	toggle: () => {
 		const theme: Theme = get().theme === "dark" ? "light" : "dark";
 		document.documentElement.dataset.theme = theme;
-		try {
-			window.localStorage.setItem(THEME_KEY, theme);
-		} catch {
-			// хранилище недоступно — тема просто не запомнится
-		}
+		writeStored(THEME_KEY, theme);
 		set({ theme });
 	},
 }));

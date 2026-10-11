@@ -8,6 +8,7 @@ import {
 	Vector2,
 	Vector3,
 } from "three";
+import { frameDt } from "../../lib/damp";
 import { useSceneStore } from "../../state/sceneStore";
 import { windUniforms } from "../forest/wind";
 import { moonDirection, paletteAt, sunDirection } from "./timeOfDay";
@@ -190,7 +191,7 @@ export function SkyDome() {
 		u.uNight.value = palette.night;
 
 		const dir = windUniforms.uWindDirection.value;
-		const drift = CLOUD_DRIFT * (0.3 + wind) * Math.min(delta, 0.1);
+		const drift = CLOUD_DRIFT * (0.3 + wind) * frameDt(delta);
 		u.uCloudOffset.value.x += dir.x * drift;
 		u.uCloudOffset.value.y += dir.y * drift;
 		// днём облаков меньше, в сумерках и ночью — гуще

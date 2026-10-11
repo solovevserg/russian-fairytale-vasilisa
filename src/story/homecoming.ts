@@ -1,4 +1,5 @@
 import { CatmullRomCurve3, Vector3 } from "three";
+import { clamp, lerpAngle, smooth01 as smooth } from "../lib/math";
 import { HOME, heightAt, pathFrame } from "../scene/terrain";
 import { distanceAlongPath } from "./departure";
 import { onPath } from "./keyframes";
@@ -164,15 +165,6 @@ export interface HomecomingPose {
 	walked: number;
 }
 
-const smooth = (t: number) => {
-	const c = Math.min(Math.max(t, 0), 1);
-	return c * c * (3 - 2 * c);
-};
-
-function lerpAngle(a: number, b: number, t: number): number {
-	return a + Math.atan2(Math.sin(b - a), Math.cos(b - a)) * t;
-}
-
 const point = new Vector3();
 const tangent = new Vector3();
 
@@ -182,7 +174,7 @@ export function homecomingAt(
 	t: number,
 	out: HomecomingPose = { x: 0, z: 0, heading: 0, walked: 0 },
 ): HomecomingPose {
-	const walked = Math.min(Math.max(t, 0) * HOMECOMING.speed, route.length);
+	const walked = clamp(t * HOMECOMING.speed, 0, route.length);
 	const u = walked / route.length;
 	route.curve.getPointAt(u, point);
 	route.curve.getTangentAt(Math.min(u, 0.999), tangent);

@@ -1,5 +1,8 @@
 import { audioEngine } from "../audio/AudioEngine";
 import { currentContent } from "../i18n/content";
+import { prefersReducedMotion } from "../lib/dom";
+import { easeInOutCubic } from "../lib/easing";
+import { urlNumber } from "../lib/url";
 import { useStoryStore } from "../state/storyStore";
 import { chapters } from "../story/chapters";
 import {
@@ -9,7 +12,7 @@ import {
 } from "../ui/scrollAxis";
 import { narrate } from "./narrator";
 import { useReaderStore } from "./readerStore";
-import { easeInOutCubic, readingSeconds } from "./timing";
+import { readingSeconds } from "./timing";
 
 /** Длительность перехода между главами, мс. */
 const SCROLL_MS = 2600;
@@ -20,14 +23,7 @@ const CREDITS_MS = 5000;
 
 /** ?readtime=2 — короткие паузы (для тестов и отладки), в секундах. */
 function readTimeOverride(): number | null {
-	const value = Number.parseFloat(
-		new URLSearchParams(window.location.search).get("readtime") ?? "",
-	);
-	return Number.isFinite(value) ? value : null;
-}
-
-function prefersReducedMotion() {
-	return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+	return urlNumber("readtime");
 }
 
 function wait(ms: number, signal: AbortSignal): Promise<void> {

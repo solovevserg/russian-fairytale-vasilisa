@@ -1,22 +1,7 @@
 import { create } from "zustand";
+import { readStored, writeStored } from "../lib/storage";
 
 const STORAGE_KEY = "izbushka:sound";
-
-function readPreference(): boolean {
-	try {
-		return window.localStorage.getItem(STORAGE_KEY) === "on";
-	} catch {
-		return false;
-	}
-}
-
-function writePreference(enabled: boolean) {
-	try {
-		window.localStorage.setItem(STORAGE_KEY, enabled ? "on" : "off");
-	} catch {
-		// приватный режим / заблокированное хранилище — просто не запоминаем
-	}
-}
 
 interface AudioState {
 	/** Пользователь включил звук. Браузер разрешит его только после клика. */
@@ -28,9 +13,9 @@ interface AudioState {
 
 export const useAudioStore = create<AudioState>((set) => ({
 	enabled: false,
-	preferred: typeof window !== "undefined" && readPreference(),
+	preferred: readStored(STORAGE_KEY) === "on",
 	setEnabled: (enabled) => {
-		writePreference(enabled);
+		writeStored(STORAGE_KEY, enabled ? "on" : "off");
 		set({ enabled, preferred: enabled });
 	},
 }));

@@ -10,7 +10,7 @@ import {
 	ShaderMaterial,
 	Vector3,
 } from "three";
-import { createRandom } from "../random";
+import { createRandom } from "../../lib/random";
 
 const vertexShader = /* glsl */ `
 uniform float uTime;

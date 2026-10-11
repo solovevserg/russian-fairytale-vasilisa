@@ -1,6 +1,7 @@
 import { createNoise2D } from "simplex-noise";
+import { clamp01 } from "../../lib/math";
+import { createRandom } from "../../lib/random";
 import { KEYFRAMES } from "../../story/keyframes";
-import { createRandom } from "../random";
 import {
 	CLEARING_RADIUS,
 	distanceToHome,
@@ -34,7 +35,7 @@ const HUT_CLEAR_RADIUS = 1.4;
 export function grassDensity(x: number, z: number): number {
 	if (Math.hypot(x, z) < HUT_CLEAR_RADIUS) return 0;
 	const path = distanceToPath(x, z);
-	const onPath = 1 - Math.min(Math.max((path - 0.6) / 1.2, 0), 1);
+	const onPath = 1 - clamp01((path - 0.6) / 1.2);
 	const wild = wildness(x, z);
 	return (0.95 - wild * 0.65) * (1 - onPath);
 }

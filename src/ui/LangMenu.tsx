@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useContent } from "../i18n/content";
 import { LANGS, type Lang, useLangStore } from "../i18n/lang";
+import { useDismiss } from "../lib/hooks/useDismiss";
 import { autoReader } from "../reader/autoReader";
 import { useReaderStore } from "../reader/readerStore";
 
@@ -14,23 +15,8 @@ export function LangMenu() {
 	const current = LANGS.find((l) => l.id === lang) ?? LANGS[0];
 
 	// закрывается щелчком мимо и клавишей Escape
-	useEffect(() => {
-		if (!open) return;
-		const onPointer = (event: PointerEvent) => {
-			if (!root.current?.contains(event.target as Node)) setOpen(false);
-		};
-		const onKey = (event: KeyboardEvent) => {
-			if (event.key !== "Escape") return;
-			setOpen(false);
-			root.current?.querySelector<HTMLButtonElement>("button")?.focus();
-		};
-		document.addEventListener("pointerdown", onPointer);
-		document.addEventListener("keydown", onKey);
-		return () => {
-			document.removeEventListener("pointerdown", onPointer);
-			document.removeEventListener("keydown", onKey);
-		};
-	}, [open]);
+	const close = useCallback(() => setOpen(false), []);
+	useDismiss(root, open, close);
 
 	const choose = (next: Lang) => {
 		setOpen(false);

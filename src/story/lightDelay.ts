@@ -1,3 +1,5 @@
+import { damp } from "../lib/damp";
+import { clamp, smooth01 } from "../lib/math";
 import { KEYFRAMES, type RiderColor } from "./keyframes";
 import { riderDuration } from "./riderClock";
 
@@ -37,8 +39,7 @@ export function delayedTimeProgress(
 		const { after, fade } = RIDER_LIGHT[color];
 		const lightStart =
 			start === undefined ? Infinity : start + riderDuration(color) * after;
-		const t = Math.min(Math.max((now - lightStart) / fade, 0), 1);
-		result = Math.min(result, index - 1 + t * t * (3 - 2 * t));
+		result = Math.min(result, index - 1 + smooth01((now - lightStart) / fade));
 	}
 	return result;
 }
@@ -58,8 +59,7 @@ function stepLimited(
 	damping: number,
 	limitOf: (index: number) => number | undefined,
 ): number {
-	const dt = Math.min(delta, 0.1);
-	const next = current + (target - current) * (1 - Math.exp(-damping * dt));
+	const next = damp(current, target, damping, delta);
 	const segment = Math.floor(Math.min(current, next));
 	const fade = segment < 0 ? undefined : limitOf(segment + 1);
 	if (!fade) return next;
@@ -68,7 +68,7 @@ function stepLimited(
 	// только переход к главе, на которой читатель остановится
 	const passing = next < current || target > segment + 1.5;
 	const limit = delta / (passing ? fade * FAST_SHARE : fade);
-	return current + Math.max(-limit, Math.min(limit, next - current));
+	return current + clamp(next - current, -limit, limit);
 }
 
 /** Шаг «прогресса света»: смена времени суток не быстрее `timeFade`. */
@@ -111,5 +111,5 @@ export function easeScene(progress: number): number {
 	const i = Math.floor(progress);
 	const t = progress - i;
 	if (t === 0 || !KEYFRAMES[i + 1]?.transition) return progress;
-	return i + t * t * (3 - 2 * t);
+	return i + smooth01(t);
 }

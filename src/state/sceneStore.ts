@@ -1,12 +1,8 @@
 import { create } from "zustand";
+import { urlNumber } from "../lib/url";
 
-function initialTime(): number {
-	if (typeof window === "undefined") return 19;
-	const fromUrl = Number.parseFloat(
-		new URLSearchParams(window.location.search).get("time") ?? "",
-	);
-	return Number.isFinite(fromUrl) ? fromUrl : 19;
-}
+/** Время суток при открытии, если не задано в адресе (?time=HH). */
+const DEFAULT_TIME = 19;
 
 interface SceneState {
 	/** Время суток, часы 0..24. Управляется прокруткой (CameraRig), ?time=HH фиксирует. */
@@ -18,7 +14,7 @@ interface SceneState {
 }
 
 export const useSceneStore = create<SceneState>((set) => ({
-	timeOfDay: initialTime(),
+	timeOfDay: urlNumber("time") ?? DEFAULT_TIME,
 	wind: 0.5,
 	setTimeOfDay: (timeOfDay) => set({ timeOfDay }),
 	setWind: (wind) => set({ wind }),

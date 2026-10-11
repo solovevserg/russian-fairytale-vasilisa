@@ -1,3 +1,4 @@
+import { smooth01 as smooth, wrapAngle } from "../lib/math";
 import { pathFrame } from "../scene/terrain";
 
 /**
@@ -22,15 +23,6 @@ export interface DeparturePose {
 	x: number;
 	z: number;
 	heading: number;
-}
-
-const smooth = (t: number) => {
-	const c = Math.min(Math.max(t, 0), 1);
-	return c * c * (3 - 2 * c);
-};
-
-function wrapAngle(a: number): number {
-	return Math.atan2(Math.sin(a), Math.cos(a));
 }
 
 const cache = { x: Number.NaN, z: Number.NaN, d: 0 };

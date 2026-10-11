@@ -2,6 +2,9 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
 import { type PerspectiveCamera, Vector3 } from "three";
 import { debugFlags } from "../debugFlags";
+import { damp, dampFactor, ramp } from "../lib/damp";
+import { smooth01 } from "../lib/math";
+import { urlFlag } from "../lib/url";
 import { useSceneStore } from "../state/sceneStore";
 import { useStoryStore } from "../state/storyStore";
 import { currentSample, sceneProgress } from "../story/currentSample";
@@ -66,9 +69,7 @@ const creditsTarget = new Vector3();
 const EPILOGUE_BLEND = 1.2;
 
 // ?time=HH фиксирует время суток (для отладки освещения)
-const timeLocked =
-	typeof window !== "undefined" &&
-	new URLSearchParams(window.location.search).has("time");
+const timeLocked = urlFlag("time");
 
 /**
  * Ведёт камеру, время суток и ветер по таймлайну истории.
@@ -133,9 +134,12 @@ export function CameraRig() {
 			const night = homecomingNight(home.route, t);
 			sample.timeOfDay += (HOMECOMING.nightHour - sample.timeOfDay) * night;
 		}
-		epilogue.current +=
-			((filming ? 1 : 0) - epilogue.current) *
-			(1 - Math.exp(-EPILOGUE_BLEND * Math.min(delta, 0.1)));
+		epilogue.current = damp(
+			epilogue.current,
+			filming ? 1 : 0,
+			EPILOGUE_BLEND,
+			delta,
+		);
 		if (debugFlags.instant) epilogue.current = filming ? 1 : 0;
 		if (epilogue.current > 1e-3) {
 			sample.position.lerp(epiloguePosition, epilogue.current);
@@ -148,12 +152,11 @@ export function CameraRig() {
 		const e = edges.current ?? { title: story.title };
 		edges.current = e;
 		// с титула к прологу — не спеша
-		const ke = debugFlags.instant
-			? 1
-			: 1 - Math.exp(-TITLE_DAMPING * Math.min(delta, 0.1));
-		e.title += (story.title - e.title) * ke;
+		e.title = debugFlags.instant
+			? story.title
+			: damp(e.title, story.title, TITLE_DAMPING, delta);
 		if (e.title > 1e-3) {
-			const k = e.title * e.title * (3 - 2 * e.title);
+			const k = smooth01(e.title);
 			sample.position.x += TITLE_SHIFT[0] * k;
 			sample.position.y += TITLE_SHIFT[1] * k;
 			sample.position.z += TITLE_SHIFT[2] * k;
@@ -161,20 +164,17 @@ export function CameraRig() {
 		// на титрах — медленно, за CREDITS_RISE секунд, с того места, где
 		// закончился эпилог; ушли с титров — быстро обратно
 		const onCredits = story.edge === "credits";
-		rise.current = Math.min(
-			Math.max(
-				rise.current +
-					(onCredits ? 1 / CREDITS_RISE : -1 / CREDITS_RETURN) *
-						Math.min(delta, 0.1),
-				0,
-			),
-			1,
+		rise.current = ramp(
+			rise.current,
+			onCredits,
+			CREDITS_RISE,
+			CREDITS_RETURN,
+			delta,
 		);
 		if (debugFlags.instant) rise.current = onCredits ? 1 : 0;
 		if (rise.current > 1e-4) {
 			creditsCamera(creditsPosition, creditsTarget);
-			const r = rise.current;
-			const k = r * r * (3 - 2 * r);
+			const k = smooth01(rise.current);
 			sample.position.lerp(creditsPosition, k);
 			sample.target.lerp(creditsTarget, Math.min(k * 2, 1));
 		}
@@ -185,14 +185,10 @@ export function CameraRig() {
 			intro.current = sceneProgress.value < 0.02 && !debugFlags.instant ? 1 : 0;
 		if (intro.current > 0) {
 			const atStart = sceneProgress.value < 0.02;
-			intro.current = Math.max(
-				intro.current -
-					Math.min(delta, 0.1) / (atStart ? INTRO_FLY : INTRO_SKIP),
-				0,
-			);
-			const k = intro.current;
+			const fly = atStart ? INTRO_FLY : INTRO_SKIP;
+			intro.current = ramp(intro.current, false, fly, fly, delta);
 			// плавно тормозит у цели
-			const offset = INTRO_BACK * k * k * (3 - 2 * k);
+			const offset = INTRO_BACK * smooth01(intro.current);
 			back.subVectors(sample.position, sample.target).normalize();
 			sample.position.addScaledVector(back, offset);
 		}
@@ -203,7 +199,7 @@ export function CameraRig() {
 		// лёгкий параллакс от мыши: камера сдвигается за курсором и чуть
 		// доворачивает взгляд; амплитуда — доля расстояния до цели
 		const p = parallax.current;
-		const k = 1 - Math.exp(-PARALLAX_DAMPING * Math.min(delta, 0.1));
+		const k = dampFactor(PARALLAX_DAMPING, delta);
 		p.x += (pointer.x + drift.x - p.x) * k;
 		p.y += (pointer.y + drift.y - p.y) * k;
 		forward.subVectors(sample.target, sample.position);

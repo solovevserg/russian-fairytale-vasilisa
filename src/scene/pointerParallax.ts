@@ -1,3 +1,10 @@
+import { debugFlags } from "../debugFlags";
+import {
+	matchesMedia,
+	prefersReducedMotion,
+	REDUCED_MOTION_QUERY,
+} from "../lib/dom";
+
 /**
  * Положение мыши для лёгкого параллакса камеры: x, y в диапазоне -1..1
  * (0 — центр окна). На сенсорных экранах вместо мыши — медленное покачивание,
@@ -28,8 +35,8 @@ export function swayAt(time: number, out = { x: 0, y: 0 }) {
 /** true — курсора нет (телефон, планшет): камера покачивается сама. */
 export const autoSway =
 	typeof window !== "undefined" &&
-	!window.matchMedia("(pointer: fine)").matches &&
-	!window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+	!matchesMedia("(pointer: fine)") &&
+	!prefersReducedMotion();
 
 /**
  * Лёгкое покачивание поверх мыши (на устройствах с курсором): камера чуть
@@ -39,15 +46,14 @@ const MOUSE_SWAY = 0.35;
 /** Добавка покачивания к положению мыши (на сенсорных экранах — 0). */
 export const drift = { x: 0, y: 0 };
 
-const reducedMotion =
-	typeof window !== "undefined" &&
-	window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const reducedMotion = prefersReducedMotion();
 
 /**
  * Вызывается каждый кадр: на сенсорных экранах ведёт «указатель» по кругу,
  * с мышью — добавляет к ней малое покачивание.
  */
 export function swayPointer(time: number) {
+	if (debugFlags.still) return;
 	if (autoSway) {
 		swayAt(time, pointer);
 	} else if (!reducedMotion) {
@@ -59,7 +65,7 @@ export function swayPointer(time: number) {
 
 if (typeof window !== "undefined") {
 	const finePointer = window.matchMedia("(pointer: fine)");
-	const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+	const reducedMotion = window.matchMedia(REDUCED_MOTION_QUERY);
 	window.addEventListener(
 		"pointermove",
 		(event) => {

@@ -1,5 +1,5 @@
+import { createRandom } from "../lib/random";
 import type { ForestZone } from "./forest/variants";
-import { createRandom } from "./random";
 import { CLEARING_RADIUS, forestDensity, HOME, heightAt } from "./terrain";
 
 export interface TreePlacement {

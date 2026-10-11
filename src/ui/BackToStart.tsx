@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useContent } from "../i18n/content";
+import { scrollToCenter } from "../lib/dom";
 import { autoReader } from "../reader/autoReader";
 import { useReaderStore } from "../reader/readerStore";
 import { useStoryStore } from "../state/storyStore";
@@ -28,14 +29,7 @@ export function BackToStart() {
 
 	const back = () => {
 		if (useReaderStore.getState().playing) autoReader.stop();
-		const reduce = window.matchMedia(
-			"(prefers-reduced-motion: reduce)",
-		).matches;
-		document.getElementById("start")?.scrollIntoView({
-			behavior: reduce ? "auto" : "smooth",
-			block: "center",
-			inline: "center",
-		});
+		scrollToCenter("start");
 	};
 
 	return (

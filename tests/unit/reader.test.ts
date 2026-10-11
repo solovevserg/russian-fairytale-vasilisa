@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
+import { easeInOutCubic } from "../../src/lib/easing";
 import {
-	easeInOutCubic,
 	MIN_READING_SECONDS,
 	readingSeconds,
 	splitSentences,

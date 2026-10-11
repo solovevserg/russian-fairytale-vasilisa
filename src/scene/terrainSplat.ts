@@ -1,5 +1,6 @@
 import { createNoise2D } from "simplex-noise";
-import { createRandom } from "./random";
+import { smoothstep } from "../lib/math";
+import { createRandom } from "../lib/random";
 import { distanceToPath, TERRAIN_SIZE, wildness } from "./terrain";
 
 const edgeNoise = createNoise2D(createRandom(808));
@@ -7,11 +8,6 @@ const patchNoise = createNoise2D(createRandom(909));
 
 /** Полуширина утоптанной тропы, м. */
 const PATH_HALF_WIDTH = 0.75;
-
-function smoothstep(edge0: number, edge1: number, x: number): number {
-	const t = Math.min(Math.max((x - edge0) / (edge1 - edge0), 0), 1);
-	return t * t * (3 - 2 * t);
-}
 
 /**
  * Веса материалов земли в точке: [трава поляны, лесная подстилка, тропа].

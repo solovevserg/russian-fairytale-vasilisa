@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { scrollToCenter } from "../lib/dom";
 import { useStoryStore } from "../state/storyStore";
 import { chapters } from "../story/chapters";
 
@@ -11,13 +12,7 @@ const STOPS = ["start", ...chapters.map((c) => c.id), "credits"];
 /** Плавно прокручивает к остановке (центр экрана — как при CSS scroll-snap). */
 function scrollToStop(index: number) {
 	const id = STOPS[index];
-	if (!id) return;
-	const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-	document.getElementById(id)?.scrollIntoView({
-		behavior: reduce ? "auto" : "smooth",
-		block: "center",
-		inline: "center",
-	});
+	if (id) scrollToCenter(id);
 }
 
 /** Где читатель сейчас: индекс в STOPS. */

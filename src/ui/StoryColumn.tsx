@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { useScrollProgress } from "../hooks/useScrollProgress";
 import { type Content, useContent } from "../i18n/content";
+import { toRoman } from "../lib/roman";
 import { useReaderStore } from "../reader/readerStore";
 import { useStoryStore } from "../state/storyStore";
 import type { Chapter } from "../story/chapters";
@@ -26,25 +27,6 @@ function OpeningParagraph({
 			{text.slice(1)}
 		</p>
 	);
-}
-
-const ROMAN: [number, string][] = [
-	[10, "X"],
-	[9, "IX"],
-	[5, "V"],
-	[4, "IV"],
-	[1, "I"],
-];
-
-function toRoman(n: number): string {
-	let out = "";
-	for (const [value, digits] of ROMAN) {
-		while (n >= value) {
-			out += digits;
-			n -= value;
-		}
-	}
-	return out;
 }
 
 function ChapterSection({

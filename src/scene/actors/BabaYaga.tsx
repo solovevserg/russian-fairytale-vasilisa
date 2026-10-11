@@ -13,6 +13,7 @@ import {
 	Vector3,
 } from "three";
 import { clone as cloneSkinned } from "three/examples/jsm/utils/SkeletonUtils.js";
+import { smoothstep } from "../../lib/math";
 import { currentSample } from "../../story/currentSample";
 import { BABA_YAGA_FLIGHT, BABA_YAGA_STAND } from "../../story/keyframes";
 import { enableShadows, MODEL_URLS } from "../models";
@@ -155,8 +156,7 @@ export function BabaYaga() {
 		flyingWitch.mixer.update(delta);
 
 		// к концу пути — плавно выравниваемся и встаём на землю
-		const landing = Math.min(Math.max((t - 0.9) / 0.1, 0), 1);
-		const settle = 1 - landing * landing * (3 - 2 * landing);
+		const settle = 1 - smoothstep(0.9, 1, t);
 		FLIGHT.getPointAt(t, f.position);
 		f.position.y +=
 			Math.sin(now * 2.3) * 0.2 * settle +

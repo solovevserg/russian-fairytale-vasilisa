@@ -3,6 +3,8 @@ import { useFrame } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
 import type { Group, PointLight } from "three";
 import { debugFlags } from "../../debugFlags";
+import { dampFactor } from "../../lib/damp";
+import { smooth01 } from "../../lib/math";
 import { currentSample, sceneProgress } from "../../story/currentSample";
 import { departureAt } from "../../story/departure";
 import {
@@ -215,7 +217,7 @@ export function Vasilisa() {
 				1,
 			);
 			// трогается и останавливается мягко
-			const f = pathFrame(v.path - v.onward * k * k * (3 - 2 * k));
+			const f = pathFrame(v.path - v.onward * smooth01(k));
 			const dx = v.x - pathFrame(v.path).x;
 			const dz = v.z - pathFrame(v.path).z;
 			vx = f.x + dx;
@@ -239,7 +241,7 @@ export function Vasilisa() {
 			}
 		}
 		wasSpecial.current = special;
-		const decay = Math.exp(-Math.min(delta, 0.1) * 3);
+		const decay = 1 - dampFactor(3, delta);
 		jx.x *= decay;
 		jx.z *= decay;
 		x += jx.x;

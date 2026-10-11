@@ -1,4 +1,6 @@
 import { debugFlags } from "../debugFlags";
+import { prefersReducedMotion } from "../lib/dom";
+import { urlString } from "../lib/url";
 
 /**
  * Адаптивное качество сцены. Уровень выбирается один раз при загрузке —
@@ -162,14 +164,13 @@ function readDevice(): DeviceInfo {
 		gpu: readGpu(),
 		pixels: window.innerWidth * window.innerHeight * dpr * dpr,
 		touch: window.matchMedia("(pointer: coarse)").matches,
-		reducedMotion: window.matchMedia("(prefers-reduced-motion: reduce)")
-			.matches,
+		reducedMotion: prefersReducedMotion(),
 	};
 }
 
 function resolveQuality(): QualitySettings {
 	if (typeof window === "undefined") return settingsFor("high");
-	const forced = new URLSearchParams(window.location.search).get("quality");
+	const forced = urlString("quality");
 	const device = readDevice();
 	const tier =
 		forced === "low" || forced === "medium" || forced === "high"

@@ -8,9 +8,9 @@ import {
 	Object3D,
 	type PointLight,
 } from "three";
+import { createRandom } from "../lib/random";
 import { currentSample } from "../story/currentSample";
 import { SKULL_EYE, useSkullGeometry } from "./models";
-import { createRandom } from "./random";
 import { heightAt } from "./terrain";
 
 export const FENCE_RADIUS = 6.5;

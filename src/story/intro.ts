@@ -1,4 +1,5 @@
 import { CatmullRomCurve3, Vector3 } from "three";
+import { clamp, lerpAngle, smooth01 } from "../lib/math";
 import { HOME } from "../scene/terrain";
 import { onPath } from "./keyframes";
 
@@ -56,10 +57,6 @@ export const INTRO_TIME = INTRO.delay + length / INTRO.speed;
 const tangent = new Vector3();
 const point = new Vector3();
 
-function lerpAngle(a: number, b: number, t: number): number {
-	return a + Math.atan2(Math.sin(b - a), Math.cos(b - a)) * t;
-}
-
 /**
  * Где Василиса в момент `t`, с; `facing` — её поворот в прологе (к лесу).
  */
@@ -68,7 +65,7 @@ export function introAt(
 	facing: number,
 	out = { x: 0, z: 0, heading: 0 },
 ) {
-	const walked = Math.min(Math.max(t - INTRO.delay, 0) * INTRO.speed, length);
+	const walked = clamp((t - INTRO.delay) * INTRO.speed, 0, length);
 	const u = walked / length;
 	route.getPointAt(u, point);
 	route.getTangentAt(Math.min(u, 0.999), tangent);
@@ -80,7 +77,7 @@ export function introAt(
 	out.heading = lerpAngle(
 		Math.atan2(tangent.x, tangent.z),
 		facing,
-		turn * turn * (3 - 2 * turn),
+		smooth01(turn),
 	);
 	return out;
 }
