@@ -300,8 +300,21 @@ body {
 		scroll-snap-stop: always;
 	}
 
+	/* титры — отдельный экран после концовки: до него можно докрутить */
+	.story {
+		padding-bottom: 0;
+	}
+
 	.story__credits {
-		scroll-snap-align: end;
+		box-sizing: border-box;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		min-height: 100vh;
+		margin-top: 0;
+		padding: 8vh 0;
+		border-top: 0;
+		scroll-snap-align: start;
 	}
 }
 

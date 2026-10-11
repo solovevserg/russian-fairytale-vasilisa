@@ -105,6 +105,14 @@ const PORCH_CENTER: [number, number] = [
 	PORCH.dir[0] * (PORCH.wall + PORCH.depth / 2),
 	PORCH.dir[1] * (PORCH.wall + PORCH.depth / 2),
 ];
+/**
+ * Где спит Василиса: у самой стены, чтобы колдующая рядом куколка
+ * (см. DOLL_MAGIC_OFFSET в Vasilisa.tsx) тоже стояла на настиле.
+ */
+const SLEEP_SPOT: [number, number] = [
+	PORCH.dir[0] * (PORCH.wall + 0.2),
+	PORCH.dir[1] * (PORCH.wall + 0.2),
+];
 /** Поворот «вдоль стены с дверью» — так Василиса ложится на крыльце. */
 const ALONG_PORCH = Math.atan2(PORCH.dir[1], -PORCH.dir[0]);
 const AT_GATE = walker(8.5, { pose: "stand", prop: "doll" });
@@ -280,7 +288,7 @@ export const KEYFRAMES: SceneKeyframe[] = [
 		wind: 0.3,
 		music: { track: "cum-mortuis", volume: 0.6 },
 		vasilisa: {
-			at: PORCH_CENTER,
+			at: SLEEP_SPOT,
 			heading: ALONG_PORCH,
 			pose: "sleep",
 			prop: null,

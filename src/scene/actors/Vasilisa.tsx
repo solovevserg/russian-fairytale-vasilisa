@@ -25,6 +25,11 @@ const MODEL_OFFSET: [number, number, number] = [-0.1 * SCALE, 0.95 * SCALE, 0];
  * поэтому левая рука — со стороны +X.
  */
 const LEFT_PALM: [number, number, number] = [0.226, 1.045, 0.2];
+/**
+ * Куколка колдует рядом со спящей: −X — от стены избы (Василиса лежит вдоль
+ * стены), так она стоит на настиле крыльца, а не в воздухе.
+ */
+const DOLL_MAGIC_OFFSET: [number, number, number] = [-0.28, 0, 0.1];
 /** Где палка черепа-светоча проходит через руку. */
 const LANTERN_GRIP: [number, number, number] = [0.22, 1.0, 0.05];
 
@@ -141,7 +146,7 @@ export function Vasilisa() {
 				decay={1.6}
 			/>
 			{/* куколка стоит перед спящей Василисой (снаружи, у края крыльца) */}
-			<group ref={magic} position={[-0.5, 0, 0.1]}>
+			<group ref={magic} position={DOLL_MAGIC_OFFSET}>
 				<DollMagic />
 			</group>
 		</group>
