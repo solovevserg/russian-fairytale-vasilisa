@@ -47,7 +47,9 @@ describe("эпилог: дорога домой", () => {
 		let prevAngle: number | null = null;
 		for (let t = aroundTime; t <= total; t += 0.1) {
 			const p = homecomingAt(route, t);
-			expect(distanceToHouse(p.x, p.z)).toBeGreaterThan(0.8);
+			// под конец подходит к крыльцу — туда, где стоит в прологе
+			const approach = t > total - 4;
+			expect(distanceToHouse(p.x, p.z)).toBeGreaterThan(approach ? 0.4 : 0.8);
 			const a = Math.atan2(p.z - HOME.z, p.x - HOME.x);
 			if (prevAngle !== null)
 				angle += Math.atan2(Math.sin(a - prevAngle), Math.cos(a - prevAngle));

@@ -1,6 +1,10 @@
 import { CatmullRomCurve3, Vector3 } from "three";
 import { HOME, heightAt, pathFrame } from "../scene/terrain";
 import { distanceAlongPath } from "./departure";
+import { onPath } from "./keyframes";
+
+/** Где Василиса стоит у своей избы — как в прологе (atHome в keyframes.ts). */
+const HOME_SPOT = onPath(51, 0, -2.6);
 
 /**
  * «Эпилог»: Василиса с черепом идёт дальше по тропе — с того места, где её
@@ -50,6 +54,8 @@ const AROUND_POINTS = 28;
 const AROUND_SQUARENESS = 2.3;
 /** С какого угла (рад) до точки напротив тропы начинается обход. */
 const AROUND_LEAD = 0.3;
+/** Насколько (рад) раньше точки напротив тропы обход сворачивает к крыльцу — без рывка. */
+const END_SHORT = 0.9;
 
 export interface HomecomingRoute {
 	curve: CatmullRomCurve3;
@@ -114,9 +120,15 @@ export function homecomingRoute(
 	const along = (b.x - a.x) * -exit.toHutX + (b.z - a.z) * -exit.toHutZ;
 	const dir = along >= 0 ? 1 : -1;
 	const theta0 = thetaFront - dir * AROUND_LEAD;
-	for (let i = 0; i <= AROUND_POINTS; i++) {
-		points.push(aroundPoint(theta0 + dir * (i / AROUND_POINTS) * Math.PI * 2));
+	// почти полный круг, а оттуда плавно к крыльцу:
+	// встаёт там же, где стоит в прологе, — назад к ней идти не придётся
+	const sweep = Math.PI * 2 + AROUND_LEAD - END_SHORT;
+	const steps = Math.round((AROUND_POINTS * sweep) / (Math.PI * 2));
+	for (let i = 0; i <= steps; i++) {
+		points.push(aroundPoint(theta0 + dir * (i / steps) * sweep));
 	}
+	const [hx, , hz] = HOME_SPOT;
+	points.push(new Vector3(hx, 0, hz));
 
 	const curve = new CatmullRomCurve3(points, false, "centripetal");
 	const divisions = 600;
