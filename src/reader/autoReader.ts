@@ -15,6 +15,8 @@ import { easeInOutCubic, readingSeconds } from "./timing";
 const SCROLL_MS = 2600;
 /** Пауза после озвучки перед переходом, мс. */
 const AFTER_NARRATION_MS = 1500;
+/** Сколько стоят титры без озвучки, мс. */
+const CREDITS_MS = 5000;
 
 /** ?readtime=2 — короткие паузы (для тестов и отладки), в секундах. */
 function readTimeOverride(): number | null {
@@ -46,6 +48,11 @@ function wait(ms: number, signal: AbortSignal): Promise<void> {
 function scrollToChapter(index: number, signal: AbortSignal): Promise<void> {
 	const el = document.querySelectorAll<HTMLElement>("[data-keyframe]")[index];
 	if (!el) return Promise.resolve();
+	return scrollToElement(el, signal);
+}
+
+/** Плавная прокрутка к элементу: он встаёт в центр области чтения. */
+function scrollToElement(el: HTMLElement, signal: AbortSignal): Promise<void> {
 	const target = scrollPositionFor(el);
 	const from = scrollPosition();
 	if (prefersReducedMotion() || Math.abs(target - from) < 2) {
@@ -147,6 +154,28 @@ class AutoReader {
 					signal,
 				);
 		}
+		if (signal.aborted) return;
+		await this.readCredits(signal);
+	}
+
+	/** Финальный слайд: кто сделал и кому посвящено. */
+	private async readCredits(signal: AbortSignal) {
+		const credits = document.querySelector<HTMLElement>(".story__credits");
+		if (!credits) return;
+		await scrollToElement(credits, signal);
+		if (signal.aborted) return;
+		const c = currentContent().ui.credits;
+		let narrated = false;
+		if (useReaderStore.getState().narrate) {
+			audioEngine.setDucked(true);
+			narrated = await narrate(
+				[`${c.authorRole}: ${c.authorName}.`, c.dedication],
+				signal,
+				() => {},
+			);
+			audioEngine.setDucked(false);
+		}
+		await wait(narrated ? AFTER_NARRATION_MS : CREDITS_MS, signal);
 	}
 
 	/** Колесо, касание или клавиши навигации — читатель взял управление на себя. */
