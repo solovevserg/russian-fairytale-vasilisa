@@ -23,3 +23,8 @@ export const useSceneStore = create<SceneState>((set) => ({
 	setTimeOfDay: (timeOfDay) => set({ timeOfDay }),
 	setWind: (wind) => set({ wind }),
 }));
+
+// Доступ к состоянию сцены (время суток, ветер) для e2e-тестов и отладки.
+if (typeof window !== "undefined") {
+	Object.assign(window, { __SCENE__: useSceneStore });
+}

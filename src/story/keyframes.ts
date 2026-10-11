@@ -27,6 +27,19 @@ export interface VasilisaState {
 	prop: "doll" | "skull" | null;
 	/** Высота над землёй, м (например, на крыльце избушки). */
 	elevation?: number;
+	/**
+	 * Где она на тропе: метров от избушки и вбок (как в onPath). Если задано
+	 * у обоих соседних кадров — переходит между ними по тропе, а не напрямик.
+	 */
+	path?: number;
+	side?: number;
+	/**
+	 * Остановка на пути к этому кадру: дойдя до `at` (м по тропе) к доле
+	 * перехода `from`, стоит до доли `to`, потом идёт дальше.
+	 */
+	stop?: { at: number; from: number; to: number };
+	/** В какой доле перехода к этому кадру она перемещается (до — на месте). */
+	window?: [number, number];
 }
 
 export interface SceneKeyframe {
@@ -38,6 +51,8 @@ export interface SceneKeyframe {
 		position: Vec3;
 		target: Vec3;
 		fov: number;
+		/** Промежуточные точки пролёта на пути к этому кадру (поровну по времени). */
+		via?: { position: Vec3; target: Vec3 }[];
 	};
 	/** Сила ветра 0..1. */
 	wind: number;
@@ -59,6 +74,8 @@ export interface SceneKeyframe {
 	house?: boolean;
 	/** Не быстрее чем за столько секунд меняется время суток при подходе к главе. */
 	timeFade?: number;
+	/** Не быстрее чем за столько секунд сцена (камера, герои) переходит к главе. */
+	transition?: number;
 }
 
 /** Точка на высоте `height` над землёй. */
@@ -87,7 +104,7 @@ function walker(
 ): VasilisaState {
 	const f = pathFrame(distance);
 	const heading = Math.atan2(f.toHutX, f.toHutZ) + (away ? Math.PI : 0);
-	return { at: [f.x, f.z], heading, pose, prop: prop ?? null };
+	return { at: [f.x, f.z], heading, pose, prop: prop ?? null, path: distance };
 }
 
 const HUT: Vec3 = [0, 4.2, 0];
@@ -113,27 +130,49 @@ const PORCH_CENTER: [number, number] = [
 	PORCH.dir[1] * (PORCH.wall + PORCH.depth / 2),
 ];
 /**
- * Где спит Василиса: у самой стены, чтобы колдующая рядом куколка
- * (см. DOLL_MAGIC_OFFSET в Vasilisa.tsx) тоже стояла на настиле.
+ * Где спит Василиса: ноги — у края настила, голова повёрнута к двери и
+ * стене избы (поворот вокруг ступней на SLEEP_TURN от «вдоль стены»).
  */
-const SLEEP_SPOT: [number, number] = [
-	PORCH.dir[0] * (PORCH.wall + 0.2),
-	PORCH.dir[1] * (PORCH.wall + 0.2),
-];
-/** Поворот «вдоль стены с дверью» — так Василиса ложится на крыльце. */
-const ALONG_PORCH = Math.atan2(PORCH.dir[1], -PORCH.dir[0]);
+const SLEEP_TURN = 0.38;
+/** Половина роста лёжа: от центра (там точка героини) до ступней, м. */
+const HALF_BODY = 0.75;
+const SLEEP = (() => {
+	const [dx, dz] = PORCH.dir;
+	const base: [number, number] = [
+		dx * (PORCH.wall + 0.2),
+		dz * (PORCH.wall + 0.2),
+	];
+	// вдоль стены (туда смотрят ноги), как раньше лежала
+	const along = [dz, -dx];
+	const feet = [base[0] + along[0] * HALF_BODY, base[1] + along[1] * HALF_BODY];
+	// ноги на месте, голова ближе к двери: ось тела отклоняется от стены
+	const c = Math.cos(SLEEP_TURN);
+	const sn = Math.sin(SLEEP_TURN);
+	const axis = [along[0] * c + dx * sn, along[1] * c + dz * sn];
+	const at: [number, number] = [
+		feet[0] - axis[0] * HALF_BODY,
+		feet[1] - axis[1] * HALF_BODY,
+	];
+	return {
+		at,
+		heading: Math.atan2(axis[0], axis[1]),
+		// настил ровный, а земля у тропы проседает — высота от земли под избушкой
+		elevation: heightAt(0, 0) + PORCH.height - heightAt(at[0], at[1]),
+	};
+})();
 const AT_GATE = walker(8.5, { pose: "stand", prop: "doll" });
 
 /** Василиса у своей избы (в начале тропы), лицом к лесу и избушке. */
 function atHome(prop: VasilisaState["prop"]): VasilisaState {
 	const [x, , z] = onPath(51, 0, -2.6);
-	return { ...walker(51, { pose: "stand", prop }), at: [x, z] };
+	return { ...walker(51, { pose: "stand", prop }), at: [x, z], side: -2.6 };
 }
 
 /** Зачин и концовка снимаются одной камерой: тропа у избы Василисы. */
 const HOME_CAMERA = {
 	position: onPath(43, 2.3, 2.4),
-	target: onPath(52.5, 1.9, -4.8),
+	// взгляд пониже: на телефоне низ кадра закрыт карточкой с текстом
+	target: onPath(52.5, 0.9, -4.8),
 	fov: 50,
 };
 
@@ -160,6 +199,9 @@ export const KEYFRAMES: SceneKeyframe[] = [
 		id: "fire",
 		timeOfDay: 1,
 		house: true,
+		// от избы по тропинке — шагом, а не рывком; ночь опускается не спеша
+		transition: 6,
+		timeFade: 7,
 		camera: {
 			position: onPath(35, 1.5, 0.7),
 			target: onPath(40, 1.0),
@@ -177,10 +219,17 @@ export const KEYFRAMES: SceneKeyframe[] = [
 		// камера за спиной Василисы, впереди проносится белый всадник, вдали светает
 		id: "white-rider",
 		timeOfDay: 5.3,
+		// она проходит мимо камеры, а камера облетает её справа и встаёт за спину
+		transition: 4.5,
 		camera: {
 			position: onPath(36, 1.75, 0.45),
-			target: onPath(30, 0.9, 2.6),
+			// вдоль тропы, туда, где её перебежит всадник (узкий кадр телефона)
+			target: onPath(28, 1.0, 0.5),
 			fov: 55,
+			via: [
+				{ position: onPath(36.3, 1.6, 1.9), target: onPath(37.7, 1.1) },
+				{ position: onPath(36.9, 1.7, 1.6), target: onPath(35.3, 1.0) },
+			],
 		},
 		wind: 0.3,
 		music: { track: "castle", volume: 0.5 },
@@ -213,10 +262,16 @@ export const KEYFRAMES: SceneKeyframe[] = [
 		// камера чуть снизу показывает лицо Василисы, освещённое взошедшим солнцем
 		id: "sunrise",
 		timeOfDay: 8,
+		// камера не сквозь неё, а облетает справа, не сводя с неё взгляда
+		transition: 3.5,
 		camera: {
 			position: onPath(24.2, 0.8, 0.35),
 			target: onPath(26, 1.35),
 			fov: 45,
+			via: [
+				{ position: onPath(28.9, 1.6, 1.9), target: onPath(27.7, 1.3) },
+				{ position: onPath(25.9, 1.3, 1.9), target: onPath(26.8, 1.35) },
+			],
 		},
 		wind: 0.3,
 		music: { track: "castle", volume: 0.6 },
@@ -232,11 +287,14 @@ export const KEYFRAMES: SceneKeyframe[] = [
 		timeOfDay: 17.3,
 		// «целый день шла»: от утра до заката — не рывком, а за несколько секунд
 		timeFade: 6.5,
+		// идёт не спеша: в нескольких метрах от забора останавливается,
+		// потом подходит ближе
+		transition: 11,
 		// из-за избушки, с высоты: видны стены, вся поляна и Василиса у входа
 		camera: { position: [-10, 16, 2], target: [3, 0.5, 5], fov: 45 },
 		wind: 0.35,
 		music: { track: "catacombs", volume: 0.6 },
-		vasilisa: walker(12),
+		vasilisa: { ...walker(9.8), stop: { at: 13.5, from: 0.6, to: 0.76 } },
 		babaYaga: null,
 		rider: null,
 		skulls: 0,
@@ -247,10 +305,18 @@ export const KEYFRAMES: SceneKeyframe[] = [
 		// у черепов на заборе загораются глаза
 		id: "black-rider",
 		timeOfDay: 21,
+		// не сквозь избушку: полукругом вправо, всё время глядя на неё
+		transition: 5,
 		camera: {
 			position: [11.5, heightAt(11.5, 4.5) + 1.1, 4.5],
-			target: [0, 3.6, 0],
+			// не слишком вверх: на телефоне низ кадра закрыт текстом, а всадник
+			// скачет по земле
+			target: [0, 1.8, 0],
 			fov: 62,
+			via: [
+				{ position: [-7.6, 10, 10.6], target: [0.5, 2.5, 2] },
+				{ position: [3.6, 4.5, 12.4], target: [0, 3.2, 0.5] },
+			],
 		},
 		wind: 0.5,
 		music: { track: "catacombs", volume: 0.7 },
@@ -281,7 +347,8 @@ export const KEYFRAMES: SceneKeyframe[] = [
 	{
 		// камера отдаляется от избы: Василиса спит на земле, куколка колдует
 		id: "tasks",
-		timeOfDay: 23.5,
+		// работа — на весь день: Баба Яга улетает с утра, куколка всё делает
+		timeOfDay: 13,
 		// сверху на крыльцо: Василиса спит, перед ней колдует куколка
 		camera: {
 			position: [
@@ -299,11 +366,11 @@ export const KEYFRAMES: SceneKeyframe[] = [
 		wind: 0.3,
 		music: { track: "cum-mortuis", volume: 0.6 },
 		vasilisa: {
-			at: SLEEP_SPOT,
-			heading: ALONG_PORCH,
+			...SLEEP,
 			pose: "sleep",
 			prop: null,
-			elevation: PORCH.height,
+			// пока камера смотрит в небо — она уже на крыльце
+			window: [0.12, 0.12],
 		},
 		babaYaga: null,
 		rider: null,
@@ -316,9 +383,10 @@ export const KEYFRAMES: SceneKeyframe[] = [
 		timeOfDay: 4,
 		// из-за спины Бабы Яги: Василиса за воротами уходит прочь с черепом
 		camera: {
-			position: [-0.27, heightAt(-0.27, 3.9) + 2.2, 3.9],
+			// пониже: на телефоне Бабу Ягу не закрывает карточка с текстом
+			position: [-0.27, heightAt(-0.27, 3.9) + 1.2, 3.9],
 			// чуть правее места, где она стоит: тропа уводит её вправо, в лес
-			target: [6.4, 1.4, 8.4],
+			target: [6.4, 0.5, 8.4],
 			fov: 50,
 		},
 		wind: 0.6,
@@ -354,37 +422,59 @@ export const KEYFRAMES: SceneKeyframe[] = [
 	},
 ];
 
-/** Где и как проносятся всадники (метры по тропе / от избушки). */
-/** Маршруты всадников (сплайн по точкам на земле) и длительность скачки, с. */
+/** Чёрный всадник скачет кругом вокруг забора, м от центра избушки. */
+const BLACK_RIDER_RADIUS = 10;
+
+/**
+ * Чёрный всадник: из леса — близко мимо камеры, два круга вокруг забора
+ * (каждый раз снова мимо камеры) — и в чащу.
+ */
+function blackRiderPoints(): Vec3[] {
+	const points: Vec3[] = [[19, 0, -4]];
+	const laps = 2;
+	const steps = 12 * laps;
+	// против часовой стрелки (если смотреть сверху), от камеры через ворота
+	for (let i = 0; i <= steps; i++) {
+		const angle = -0.25 + (i / steps) * Math.PI * 2 * laps;
+		points.push([
+			Math.cos(angle) * BLACK_RIDER_RADIUS,
+			0,
+			Math.sin(angle) * BLACK_RIDER_RADIUS,
+		]);
+	}
+	points.push([16, 0, -10], [25, 0, -17]);
+	return points;
+}
+
+/**
+ * Маршруты всадников (сплайн по точкам на земле), длительность скачки и
+ * задержка от входа в главу, с.
+ */
 export const RIDER_PATHS: Record<
 	RiderColor,
-	{ points: Vec3[]; duration: number }
+	{ points: Vec3[]; duration: number; delay: number }
 > = {
-	white: { points: [onPath(27, 0, -16), onPath(27, 0, 16)], duration: 3.5 },
-	red: { points: [onPath(23, 0, 16), onPath(23, 0, -16)], duration: 3.5 },
-	// из леса — прямо перед камерой, кругом вокруг избы — и в чащу
-	black: {
-		points: [
-			[17, 0, -1],
-			[9, 0, 2.6],
-			[4.6, 0, 6.9],
-			[-2, 0, 8],
-			[-7.6, 0, 3],
-			[-7.2, 0, -4],
-			[-1, 0, -8.2],
-			[6, 0, -6],
-			[13, 0, -9],
-			[24, 0, -16],
-		],
-		duration: 9,
+	// перебегает ей дорогу слева направо — наискосок, чтобы дольше быть в кадре
+	white: {
+		points: [onPath(14, 0, -10), onPath(21, 0, 0), onPath(27, 0, 9)],
+		duration: 4.5,
+		delay: 0,
 	},
+	red: {
+		points: [onPath(23, 0, 16), onPath(23, 0, -16)],
+		duration: 3.5,
+		delay: 0,
+	},
+	// секунда — чтобы камера успела встать туда, где он проскачет
+	black: { points: blackRiderPoints(), duration: 17, delay: 1 },
 };
 
 export { HUT };
 
 /**
  * Полёт Бабы Яги (глава «Баба Яга»): сплайн Катмулла-Рома — заходит высоко
- * с края неба, виражом снижается, пролетает мимо камеры и садится у избушки.
+ * с края неба, виражом снижается, пролетает мимо камеры, уходит за избушку,
+ * облетает её кругом и садится во дворе.
  */
 export const BABA_YAGA_FLIGHT: Vec3[] = [
 	[11, 19, -15],
@@ -393,8 +483,13 @@ export const BABA_YAGA_FLIGHT: Vec3[] = [
 	[-9, 10, 1],
 	[-3, 6.5, 6],
 	[4, 3.6, 9.2],
-	[5.5, 2.2, 6.8],
-	[1, 1, 6.2],
+	[9.5, 4.2, 5],
+	[8.5, 5, -3],
+	[2, 5.5, -8.5],
+	[-5, 5, -7.5],
+	[-9, 4, -1],
+	[-7.5, 3, 4.5],
+	[-4.5, 1.4, 5.8],
 	[-2.5, 0, 5],
 ];
 

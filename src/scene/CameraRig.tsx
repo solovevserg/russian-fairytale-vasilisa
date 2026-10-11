@@ -4,7 +4,7 @@ import { type PerspectiveCamera, Vector3 } from "three";
 import { debugFlags } from "../debugFlags";
 import { useSceneStore } from "../state/sceneStore";
 import { useStoryStore } from "../state/storyStore";
-import { currentSample } from "../story/currentSample";
+import { currentSample, sceneProgress } from "../story/currentSample";
 import {
 	HOMECOMING,
 	homecomingCamera,
@@ -12,10 +12,16 @@ import {
 	homecomingNight,
 } from "../story/homecoming";
 import { KEYFRAMES } from "../story/keyframes";
-import { delayedTimeProgress, stepLight } from "../story/lightDelay";
+import {
+	delayedTimeProgress,
+	easeScene,
+	stepLight,
+	stepScene,
+} from "../story/lightDelay";
 import { riderStarts } from "../story/riderClock";
 import { createSample, createTimeline, shapeProgress } from "../story/timeline";
 import {
+	drift,
 	PARALLAX_LOOK,
 	PARALLAX_SHIFT,
 	pointer,
@@ -25,6 +31,8 @@ import { heightAt } from "./terrain";
 
 /** Скорость догоняния прокрутки: больше — резче. */
 const DAMPING = 2.5;
+/** Какую долю пути от главы до главы держится её время суток (с каждой стороны). */
+const LIGHT_HOLD = 0.4;
 /** Скорость, с которой время суток догоняет прокрутку. */
 const LIGHT_DAMPING = 1.6;
 /** Скорость, с которой камера следует за мышью. */
@@ -56,24 +64,30 @@ export function CameraRig() {
 	const camera = useThree((s) => s.camera) as PerspectiveCamera;
 	const timeline = useMemo(() => createTimeline(KEYFRAMES), []);
 	const sample = currentSample;
-	const smoothed = useRef<number | null>(null);
 	const parallax = useRef({ x: 0, y: 0 });
 	const lightProgress = useRef<number | null>(null);
+	/** Прогресс сцены до сглаживания перехода (см. easeScene). */
+	const staged = useRef<number | null>(null);
 	/** Доля съёмки эпилога (0 — камера по таймлайну, 1 — по homecoming.ts). */
 	const epilogue = useRef(0);
 
 	useFrame(({ clock }, delta) => {
-		const target = shapeProgress(useStoryStore.getState().progress);
-		// первый кадр — сразу на место, дальше — экспоненциальное сглаживание
-		const current = debugFlags.instant ? target : (smoothed.current ?? target);
-		smoothed.current =
-			current +
-			(target - current) * (1 - Math.exp(-DAMPING * Math.min(delta, 0.1)));
+		const progress = useStoryStore.getState().progress;
+		const target = shapeProgress(progress);
+		// сцена (камера, герои): экспоненциально догоняет прокрутку, но
+		// медленные переходы — не быстрее заданного
+		const from = debugFlags.instant ? target : (staged.current ?? target);
+		staged.current = debugFlags.instant
+			? target
+			: stepScene(from, target, delta, DAMPING);
+		sceneProgress.value = easeScene(staged.current);
 
-		timeline.sample(smoothed.current, sample);
+		timeline.sample(sceneProgress.value, sample);
 		// свет меняется не сразу, а после того как проскачет всадник
+		// время суток стоит, пока читаешь главу, и меняется ближе к границе
+		// между главами (иначе при чтении конца главы уже начинало темнеть)
 		const timeTarget = delayedTimeProgress(
-			smoothed.current,
+			shapeProgress(progress, LIGHT_HOLD),
 			clock.elapsedTime,
 			riderStarts,
 		);
@@ -82,7 +96,7 @@ export function CameraRig() {
 		lightProgress.current = debugFlags.instant
 			? timeTarget
 			: stepLight(lp, timeTarget, delta, LIGHT_DAMPING);
-		if (Math.abs(lightProgress.current - smoothed.current) > 1e-4) {
+		if (Math.abs(lightProgress.current - sceneProgress.value) > 1e-4) {
 			sample.timeOfDay = timeline.sample(
 				lightProgress.current,
 				timeSample,
@@ -108,14 +122,15 @@ export function CameraRig() {
 			sample.target.lerp(epilogueTarget, epilogue.current);
 		}
 
-		// без мыши (телефон, планшет) — медленное покачивание вместо неё
+		// без мыши (телефон, планшет) — медленное покачивание вместо неё,
+		// с мышью — малое покачивание поверх неё
 		swayPointer(clock.elapsedTime);
 		// лёгкий параллакс от мыши: камера сдвигается за курсором и чуть
 		// доворачивает взгляд; амплитуда — доля расстояния до цели
 		const p = parallax.current;
 		const k = 1 - Math.exp(-PARALLAX_DAMPING * Math.min(delta, 0.1));
-		p.x += (pointer.x - p.x) * k;
-		p.y += (pointer.y - p.y) * k;
+		p.x += (pointer.x + drift.x - p.x) * k;
+		p.y += (pointer.y + drift.y - p.y) * k;
 		forward.subVectors(sample.target, sample.position);
 		const amplitude = forward.length() * PARALLAX_SHIFT;
 		forward.normalize();

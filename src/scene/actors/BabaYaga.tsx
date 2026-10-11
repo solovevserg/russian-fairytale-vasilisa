@@ -28,16 +28,20 @@ const WOOD = "#6b4a2e";
 const WITCH_HEIGHT = 1.02;
 const STAND_SCALE = 1.5 / WITCH_HEIGHT;
 
-/** Полёт: заходит высоко с края неба, виражом снижается, пролетает мимо камеры и садится у избы. */
+/**
+ * Полёт: заходит высоко с края неба, виражом снижается, пролетает мимо
+ * камеры, облетает избушку и садится во дворе.
+ */
 const FLIGHT = new CatmullRomCurve3(
 	BABA_YAGA_FLIGHT.map((p) => new Vector3(...p)),
 	false,
 	"centripetal",
 );
-const FLIGHT_TIME = 10;
+const FLIGHT_TIME = 17;
 /** Крен на вираже: радиан на радиан поворота курса за шаг выборки. */
-const BANK = 9;
-const MAX_BANK = 0.75;
+const BANK = 6;
+/** Крен не круче — чтобы видно было не только ступу, но и её саму. */
+const MAX_BANK = 0.42;
 
 function Mortar() {
 	const geometry = useMemo(
@@ -143,7 +147,7 @@ export function BabaYaga() {
 		flyingWitch.mixer.update(delta);
 
 		// к концу пути — плавно выравниваемся и встаём на землю
-		const landing = Math.min(Math.max((t - 0.82) / 0.18, 0), 1);
+		const landing = Math.min(Math.max((t - 0.9) / 0.1, 0), 1);
 		const settle = 1 - landing * landing * (3 - 2 * landing);
 		FLIGHT.getPointAt(t, f.position);
 		f.position.y +=

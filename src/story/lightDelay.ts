@@ -10,7 +10,7 @@ export const RIDER_LIGHT: Record<RiderColor, { after: number; fade: number }> =
 	{
 		white: { after: 0, fade: RIDER_PATHS.white.duration },
 		red: { after: 0, fade: 0.01 },
-		black: { after: 0.7, fade: 2.5 },
+		black: { after: 0.88, fade: 2.5 },
 	};
 const RIDER_CHAPTERS = KEYFRAMES.flatMap((k, i) =>
 	k.rider ? [{ index: i, color: k.rider }] : [],
@@ -43,21 +43,73 @@ export function delayedTimeProgress(
 	return result;
 }
 
+/** Какую долю времени перехода занимает ускоренный переход (назад, транзитом). */
+const FAST_SHARE = 0.25;
+
 /**
- * Шаг «прогресса света» за кадр: экспоненциально догоняет цель, но в переходе
- * к главе с `timeFade` — не быстрее одного перехода за `timeFade` секунд.
+ * Шаг сглаженного прогресса за кадр: экспоненциально догоняет цель, но в
+ * переходе к главе с ограничением (`timeFade` — для света, `transition` —
+ * для всей сцены) — не быстрее одного перехода за столько секунд.
  */
+function stepLimited(
+	current: number,
+	target: number,
+	delta: number,
+	damping: number,
+	limitOf: (index: number) => number | undefined,
+): number {
+	const dt = Math.min(delta, 0.1);
+	const next = current + (target - current) * (1 - Math.exp(-damping * dt));
+	const segment = Math.floor(Math.min(current, next));
+	const fade = segment < 0 ? undefined : limitOf(segment + 1);
+	if (!fade) return next;
+	// ускоренно: назад листают, чтобы вернуться, а не смотреть; вперёд
+	// через несколько глав — промежуточные проигрываются быстро, медленно
+	// только переход к главе, на которой читатель остановится
+	const passing = next < current || target > segment + 1.5;
+	const limit = delta / (passing ? fade * FAST_SHARE : fade);
+	return current + Math.max(-limit, Math.min(limit, next - current));
+}
+
+/** Шаг «прогресса света»: смена времени суток не быстрее `timeFade`. */
 export function stepLight(
 	current: number,
 	target: number,
 	delta: number,
 	damping: number,
 ): number {
-	const dt = Math.min(delta, 0.1);
-	const next = current + (target - current) * (1 - Math.exp(-damping * dt));
-	const segment = Math.floor(Math.min(current, next));
-	const fade = KEYFRAMES[segment + 1]?.timeFade;
-	if (!fade || segment < 0) return next;
-	const limit = delta / fade;
-	return current + Math.max(-limit, Math.min(limit, next - current));
+	return stepLimited(
+		current,
+		target,
+		delta,
+		damping,
+		(i) => KEYFRAMES[i]?.timeFade,
+	);
+}
+
+/** Шаг прогресса сцены: переход к главе не быстрее её `transition`. */
+export function stepScene(
+	current: number,
+	target: number,
+	delta: number,
+	damping: number,
+): number {
+	return stepLimited(
+		current,
+		target,
+		delta,
+		damping,
+		(i) => KEYFRAMES[i]?.transition,
+	);
+}
+
+/**
+ * Медленные переходы (с `transition`) идут с плавным разгоном и торможением:
+ * равномерный прогресс внутри такого перехода пропускается через smoothstep.
+ */
+export function easeScene(progress: number): number {
+	const i = Math.floor(progress);
+	const t = progress - i;
+	if (t === 0 || !KEYFRAMES[i + 1]?.transition) return progress;
+	return i + t * t * (3 - 2 * t);
 }

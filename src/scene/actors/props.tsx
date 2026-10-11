@@ -20,7 +20,30 @@ const SKIN = "#e8c3a4";
 const DOLL_DRESS = "#c8463a";
 
 /** Куколка Василисы (~20 см): сарафанчик с рукавами, платочек. */
-export function Doll({ scale = 1 }: { scale?: number }) {
+export function Doll({
+	scale = 1,
+	casting = false,
+}: {
+	scale?: number;
+	/** Колдует: ручки подняты и водят над головой. */
+	casting?: boolean;
+}) {
+	const arms = useRef<(Object3D | null)[]>([]);
+	useFrame(({ clock }) => {
+		if (!casting) return;
+		const t = clock.elapsedTime;
+		arms.current.forEach((arm, i) => {
+			if (!arm) return;
+			const side = i === 0 ? -1 : 1;
+			// ручки вверх-вперёд и плавные круги — как будто ворожит
+			const phase = t * 2.6 + i * Math.PI;
+			arm.rotation.set(
+				-1.9 + Math.sin(phase) * 0.45,
+				0,
+				side * (0.5 + Math.cos(phase) * 0.35),
+			);
+		});
+	});
 	return (
 		<group scale={scale}>
 			<mesh position={[0, 0.06, 0]}>
@@ -28,9 +51,12 @@ export function Doll({ scale = 1 }: { scale?: number }) {
 				<meshStandardMaterial color={DOLL_DRESS} roughness={0.9} />
 			</mesh>
 			{/* ручки: рукава от плеч чуть вперёд и в стороны, ладошки */}
-			{[-1, 1].map((side) => (
+			{[-1, 1].map((side, i) => (
 				<group
 					key={side}
+					ref={(el) => {
+						arms.current[i] = el;
+					}}
 					position={[side * 0.022, 0.112, 0]}
 					rotation={[-0.35, 0, side * 0.55]}
 				>
@@ -74,7 +100,7 @@ export function DollMagic() {
 	});
 	return (
 		<group>
-			<Doll scale={2} />
+			<Doll scale={2} casting />
 			<pointLight
 				ref={light}
 				position={[0, 0.5, 0]}

@@ -1,10 +1,11 @@
 import { CatmullRomCurve3, Vector3 } from "three";
-import { heightAt } from "../scene/terrain";
+import { heightAt, pathFrame } from "../scene/terrain";
 import {
 	MUSIC_TRACKS,
 	type MusicTrack,
 	type SceneKeyframe,
 	type VasilisaState,
+	type Vec3,
 } from "./keyframes";
 
 /**
@@ -125,9 +126,28 @@ export function lerpAngle(a: number, b: number, t: number): number {
 	return a + delta * t;
 }
 
+/** Доля перехода `t`, пересчитанная на окно [from, to] (до — 0, после — 1). */
+function within(t: number, from: number, to: number): number {
+	if (to <= from) return t >= from ? 1 : 0;
+	return Math.min(Math.max((t - from) / (to - from), 0), 1);
+}
+
+/** Сколько пройдено по тропе: с остановкой — дошла, постояла, пошла дальше. */
+function pathDistance(
+	from: number,
+	to: number,
+	t: number,
+	stop: VasilisaState["stop"],
+): number {
+	if (!stop) return lerp(from, to, t);
+	if (t < stop.from) return lerp(from, stop.at, smoothstep(0, stop.from, t));
+	return lerp(stop.at, to, smoothstep(stop.to, 1, t));
+}
+
 /**
- * Василиса между кадрами: если она есть в обоих — идёт из точки в точку,
- * иначе появляется/исчезает на середине перехода.
+ * Василиса между кадрами: если она есть в обоих — идёт из точки в точку
+ * (по тропе, если оба кадра на ней), иначе появляется/исчезает на середине
+ * перехода.
  */
 function sampleVasilisa(
 	a: VasilisaState | null,
@@ -135,13 +155,27 @@ function sampleVasilisa(
 	t: number,
 	out: TimelineSample["vasilisa"],
 ) {
-	const nearest = t < 0.5 ? a : b;
+	const s = b?.window ? within(t, ...b.window) : t;
+	const nearest = s < 0.5 ? a : b;
 	if (a && b) {
 		out.visible = true;
-		out.x = lerp(a.at[0], b.at[0], t);
-		out.z = lerp(a.at[1], b.at[1], t);
-		out.heading = lerpAngle(a.heading, b.heading, t);
-		out.elevation = lerp(a.elevation ?? 0, b.elevation ?? 0, t);
+		if (a.path !== undefined && b.path !== undefined) {
+			const d = pathDistance(a.path, b.path, s, b.stop);
+			const side = lerp(a.side ?? 0, b.side ?? 0, s);
+			const f = pathFrame(d);
+			out.x = f.x - f.toHutZ * side;
+			out.z = f.z + f.toHutX * side;
+			// по пути — лицом вперёд по тропе
+			out.heading =
+				b.path < a.path
+					? Math.atan2(f.toHutX, f.toHutZ)
+					: lerpAngle(a.heading, b.heading, s);
+		} else {
+			out.x = lerp(a.at[0], b.at[0], s);
+			out.z = lerp(a.at[1], b.at[1], s);
+			out.heading = lerpAngle(a.heading, b.heading, s);
+		}
+		out.elevation = lerp(a.elevation ?? 0, b.elevation ?? 0, s);
 	} else if (nearest) {
 		out.visible = true;
 		out.x = nearest.at[0];
@@ -161,13 +195,21 @@ const MIN_CAMERA_HEIGHT = 0.4;
 
 /** Таймлайн сцены: камера по сплайнам Катмулла-Рома, остальное — линейно. */
 export function createTimeline(keyframes: SceneKeyframe[]): Timeline {
+	// узлы сплайна: кадры глав и промежуточные точки пролёта между ними
+	const knots: { position: Vec3; target: Vec3 }[] = [];
+	const knotOf: number[] = [];
+	for (const k of keyframes) {
+		knots.push(...(k.camera.via ?? []));
+		knotOf.push(knots.length);
+		knots.push(k.camera);
+	}
 	const positions = new CatmullRomCurve3(
-		keyframes.map((k) => new Vector3(...k.camera.position)),
+		knots.map((k) => new Vector3(...k.position)),
 		false,
 		"centripetal",
 	);
 	const targets = new CatmullRomCurve3(
-		keyframes.map((k) => new Vector3(...k.camera.target)),
+		knots.map((k) => new Vector3(...k.target)),
 		false,
 		"centripetal",
 	);
@@ -180,7 +222,9 @@ export function createTimeline(keyframes: SceneKeyframe[]): Timeline {
 			const p = Math.min(Math.max(progress, 0), last);
 			const i = Math.min(Math.floor(p), last - 1);
 			const t = p - i;
-			const u = last === 0 ? 0 : p / last;
+			const knot =
+				last === 0 ? 0 : lerp(knotOf[i], knotOf[i + 1] ?? knotOf[i], t);
+			const u = knots.length > 1 ? knot / (knots.length - 1) : 0;
 			positions.getPoint(u, out.position);
 			// сплайн между низкими кадрами может нырнуть под землю — держим камеру над рельефом
 			out.position.y = Math.max(

@@ -13,24 +13,24 @@ export const HOMECOMING = {
 	/** Скорость шага, м/с. */
 	speed: 1.3,
 	/** Где (м от избушки по тропе) сворачивает с тропы к дому. */
-	leavePath: 49,
+	leavePath: 43,
 	/**
 	 * Полуоси обхода вокруг сруба (модель 7.1 × 8.6 м, см. House.tsx): по
-	 * ширине и по глубине дома, с запасом около метра на углах.
+	 * ширине и по глубине дома, с запасом на углах.
 	 */
-	aroundX: 5.4,
-	aroundZ: 6.1,
+	aroundX: 5.8,
+	aroundZ: 6.5,
 	/** Сколько секунд после начала обхода камера ещё идёт следом. */
 	riseDelay: 3,
 	/** За сколько секунд камера поднимается и разворачивается на избушку. */
-	rise: 15,
+	rise: 17,
 	/**
 	 * Камера в конце: метров от избушки по тропе, вбок от тропы (ракурс чуть
 	 * сбоку от избушки) и над землёй.
 	 */
-	finalDistance: 20,
-	finalSide: 9,
-	finalHeight: 31.5,
+	finalDistance: 18,
+	finalSide: 8.5,
+	finalHeight: 42,
 	/** Пока камера летит к избушке, вечер сменяется ночью: до этого часа. */
 	nightHour: 23,
 	/** Куда в конце смотрит камера — на избушку. */
@@ -47,7 +47,9 @@ export const homecomingClock: { start: number; route: HomecomingRoute | null } =
 /** Точек на обходе вокруг дома. */
 const AROUND_POINTS = 28;
 /** Насколько квадратный обход: 2 — эллипс, больше — ближе к прямоугольнику. */
-const AROUND_SQUARENESS = 4;
+const AROUND_SQUARENESS = 2.3;
+/** С какого угла (рад) до точки напротив тропы начинается обход. */
+const AROUND_LEAD = 0.3;
 
 export interface HomecomingRoute {
 	curve: CatmullRomCurve3;
@@ -93,18 +95,27 @@ export function homecomingRoute(
 ): HomecomingRoute {
 	const points = [new Vector3(start[0], 0, start[1])];
 	const startDistance = distanceAlongPath(start[0], start[1]);
-	const from = startDistance + 2.5;
-	for (let d = from; d < HOMECOMING.leavePath; d += 3) {
+	const from = startDistance + 3;
+	for (let d = from; d < HOMECOMING.leavePath; d += 4) {
 		const f = pathFrame(d);
 		points.push(new Vector3(f.x, 0, f.z));
 	}
 	const exit = pathFrame(HOMECOMING.leavePath);
-	points.push(new Vector3(exit.x, 0, exit.z));
+	// уже прошла поворот к дому — сразу к обходу, не возвращаясь назад
+	if (startDistance < HOMECOMING.leavePath - 2)
+		points.push(new Vector3(exit.x, 0, exit.z));
 	const aroundIndex = points.length;
-	// кругом против часовой стрелки — с той стороны, что ближе к тропе
-	const theta0 = aroundAngle(exit.x, exit.z);
+	// обход — без резкого поворота: входит по касательной к направлению
+	// шага, чуть раньше точки, что напротив тропы
+	const front = pathFrame(52);
+	const thetaFront = aroundAngle(front.x, front.z);
+	const a = aroundPoint(thetaFront);
+	const b = aroundPoint(thetaFront + 0.01);
+	const along = (b.x - a.x) * -exit.toHutX + (b.z - a.z) * -exit.toHutZ;
+	const dir = along >= 0 ? 1 : -1;
+	const theta0 = thetaFront - dir * AROUND_LEAD;
 	for (let i = 0; i <= AROUND_POINTS; i++) {
-		points.push(aroundPoint(theta0 + (i / AROUND_POINTS) * Math.PI * 2));
+		points.push(aroundPoint(theta0 + dir * (i / AROUND_POINTS) * Math.PI * 2));
 	}
 
 	const curve = new CatmullRomCurve3(points, false, "centripetal");

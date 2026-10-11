@@ -1,6 +1,6 @@
 import type { ForestZone } from "./forest/variants";
 import { createRandom } from "./random";
-import { CLEARING_RADIUS, forestDensity, heightAt } from "./terrain";
+import { CLEARING_RADIUS, forestDensity, HOME, heightAt } from "./terrain";
 
 export interface TreePlacement {
 	x: number;
@@ -87,4 +87,40 @@ export function layoutForest({
 		});
 	}
 	return trees;
+}
+
+/**
+ * Деревья за избой Василисы: [вариант, м за избой, м вбок, масштаб] — чтобы
+ * в эпилоге за домом был не голый склон, а пара деревьев.
+ */
+const HOME_TREES: [string, number, number, number][] = [
+	["oak-old", 10.5, -5.5, 1.05],
+	["aspen", 12, 1.5, 0.95],
+	["pine-edge-a", 10, 7, 1.1],
+];
+
+/** Деревья у избы Василисы (ids вариантов — из списка `variants`). */
+export function layoutHomeTrees(
+	variants: { spec: { id: string } }[],
+): TreePlacement[] {
+	// фасад смотрит на тропу (HOME.heading) — «за избой» значит от тропы
+	const backX = -Math.sin(HOME.heading);
+	const backZ = -Math.cos(HOME.heading);
+	return HOME_TREES.flatMap(([id, back, side, scale], i) => {
+		const variantIndex = variants.findIndex((v) => v.spec.id === id);
+		if (variantIndex < 0) return [];
+		const x = HOME.x + backX * back - backZ * side;
+		const z = HOME.z + backZ * back + backX * side;
+		return [
+			{
+				x,
+				y: heightAt(x, z) - 0.15,
+				z,
+				scale,
+				rotation: i * 2.1,
+				tilt: 0,
+				variantIndex,
+			},
+		];
+	});
 }

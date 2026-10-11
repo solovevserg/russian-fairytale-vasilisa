@@ -2,6 +2,7 @@ import { useFrame } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
 import { CatmullRomCurve3, DoubleSide, type Group, Vector3 } from "three";
 import { useStoryStore } from "../../state/storyStore";
+import { sceneProgress } from "../../story/currentSample";
 import { KEYFRAMES, RIDER_PATHS, type RiderColor } from "../../story/keyframes";
 import { riderStarts } from "../../story/riderClock";
 import { heightAt } from "../terrain";
@@ -27,7 +28,7 @@ const LEGS: [number, number, number][] = [
 function Rider({ color }: { color: RiderColor }) {
 	const root = useRef<Group>(null);
 	const legs = useRef<(Group | null)[]>([]);
-	const run = useRef({ chapter: -1, start: -1 });
+	const run = useRef({ start: -1 });
 	const palette = COLORS[color];
 	const path = RIDER_PATHS[color];
 	const chapterIndex = KEYFRAMES.findIndex((k) => k.rider === color);
@@ -47,13 +48,17 @@ function Rider({ color }: { color: RiderColor }) {
 		const r = root.current;
 		if (!r) return;
 		const now = clock.elapsedTime;
-		const active = useStoryStore.getState().activeChapter;
-		// всадник проносится один раз при входе в свою главу
-		if (active !== run.current.chapter) {
-			run.current.chapter = active;
-			run.current.start = active === chapterIndex ? now : -1;
-			if (run.current.start >= 0) riderStarts[color] = now;
-			else delete riderStarts[color];
+		// всадник проносится один раз, когда сцена пришла в его главу
+		// (а не когда к ней только начали листать); уйдёт из главы — сброс
+		const offset = Math.abs(sceneProgress.value - chapterIndex);
+		const here =
+			offset < 0.05 && useStoryStore.getState().activeChapter === chapterIndex;
+		if (here && run.current.start < 0) {
+			run.current.start = now + path.delay;
+			riderStarts[color] = run.current.start;
+		} else if (offset > 0.5 && run.current.start >= 0) {
+			run.current.start = -1;
+			delete riderStarts[color];
 		}
 		const t =
 			run.current.start < 0 ? -1 : (now - run.current.start) / path.duration;

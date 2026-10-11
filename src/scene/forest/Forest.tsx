@@ -3,7 +3,11 @@ import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { type InstancedMesh, Object3D } from "three";
 import { debugFlags } from "../../debugFlags";
 import { useSceneStore } from "../../state/sceneStore";
-import { layoutForest, type TreePlacement } from "../forestLayout";
+import {
+	layoutForest,
+	layoutHomeTrees,
+	type TreePlacement,
+} from "../forestLayout";
 import { quality } from "../quality";
 import { createTreeVariant, type TreeVariantAssets } from "./createTreeVariant";
 import { TREE_VARIANTS } from "./variants";
@@ -95,7 +99,7 @@ export function Forest() {
 	// Инстансы бьются на угловые секторы: InstancedMesh отсекается по фрустуму
 	// только целиком, а так деревья за спиной камеры не рисуются вовсе.
 	const chunks = useMemo(() => {
-		const trees = layoutForest(LAYOUT);
+		const trees = [...layoutForest(LAYOUT), ...layoutHomeTrees(variants)];
 		const groups = variants.map(() => [] as TreePlacement[]);
 		const bySector = new Map<
 			string,

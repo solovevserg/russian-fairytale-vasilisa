@@ -1,7 +1,8 @@
 /**
  * Положение мыши для лёгкого параллакса камеры: x, y в диапазоне -1..1
- * (0 — центр окна). На сенсорных экранах вместо мыши — медленное покачивание
- * (см. swayPointer), при «уменьшить движение» — всегда 0.
+ * (0 — центр окна). На сенсорных экранах вместо мыши — медленное покачивание,
+ * с мышью — к ней добавляется малое (см. swayPointer); при «уменьшить
+ * движение» — всегда 0.
  */
 export const pointer = { x: 0, y: 0 };
 
@@ -30,9 +31,30 @@ export const autoSway =
 	!window.matchMedia("(pointer: fine)").matches &&
 	!window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/** Вызывается каждый кадр: на сенсорных экранах ведёт «указатель» по кругу. */
+/**
+ * Лёгкое покачивание поверх мыши (на устройствах с курсором): камера чуть
+ * «дышит», даже когда мышь стоит. Доля от покачивания на сенсорных экранах.
+ */
+const MOUSE_SWAY = 0.35;
+/** Добавка покачивания к положению мыши (на сенсорных экранах — 0). */
+export const drift = { x: 0, y: 0 };
+
+const reducedMotion =
+	typeof window !== "undefined" &&
+	window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/**
+ * Вызывается каждый кадр: на сенсорных экранах ведёт «указатель» по кругу,
+ * с мышью — добавляет к ней малое покачивание.
+ */
 export function swayPointer(time: number) {
-	if (autoSway) swayAt(time, pointer);
+	if (autoSway) {
+		swayAt(time, pointer);
+	} else if (!reducedMotion) {
+		swayAt(time, drift);
+		drift.x *= MOUSE_SWAY;
+		drift.y *= MOUSE_SWAY;
+	}
 }
 
 if (typeof window !== "undefined") {
