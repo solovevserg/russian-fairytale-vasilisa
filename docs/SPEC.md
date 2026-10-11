@@ -257,6 +257,8 @@ interface SceneKeyframe {
 src/
   main.tsx
   App.tsx                  # макет: Canvas + колонка текста
+  lib/                     # утилиты без знания о проекте: math, damp, easing,
+                           # random, url, storage, dom, roman, hooks/ (см. refactoring.md)
   i18n/
     chapters/              # тексты глав: ru.ts, en.ts, es.ts, zh.ts (одни id)
     content.ts             # тексты интерфейса на всех языках
@@ -294,8 +296,9 @@ public/
   fonts/
 docs/
 tests/
-  unit/                    # bun test
+  unit/                    # bun test; invariants.test.ts — сквозные свойства сцены
   e2e/                     # Playwright
+  visual/                  # эталонные снимки глав, локально: bun run test:visual
 scripts/
   optimize-assets.ts       # gltf-transform, запускается через bun
 ```
