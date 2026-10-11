@@ -14,8 +14,13 @@ const PALETTE = {
 	blouse: hex("#ece4d2"),
 	embroidery: hex("#b5281c"),
 	skin: hex("#e7bfa0"),
+	blush: hex("#e3a08c"),
 	hair: hex("#9a6b34"),
-	scarf: hex("#b02a1e"),
+	// платок — не кроваво-красный, а соломенно-золотой, с красной каймой у лица
+	scarf: hex("#d8bd84"),
+	scarfBorder: hex("#a8321f"),
+	// изумрудная вышивка по подолу (палитра орнамента сайта)
+	hemStitch: hex("#2f5d50"),
 	towel: hex("#f1ebdd"),
 	leaf: hex("#4f7a36"),
 	stem: hex("#6b4a2a"),
@@ -51,14 +56,22 @@ export function zoneColor(h: number, x: number, z: number): RGB {
 	if (x < -0.27 && h < 0.58 && h > 0.45) return PALETTE.skin;
 	// голова: лицо спереди, остальное — платок
 	if (h > 0.855) {
-		if (z > 0.04 && x > 0.02 && x < 0.175 && h < 0.965) return PALETTE.skin;
-		return PALETTE.scarf;
+		const face = z > 0.04 && x > 0.02 && x < 0.175 && h < 0.965;
+		if (face) {
+			// румянец на щеках
+			const cheek =
+				h > 0.882 && h < 0.912 && Math.abs(Math.abs(x - 0.1) - 0.05) < 0.018;
+			return cheek ? PALETTE.blush : PALETTE.skin;
+		}
+		// кайма платка вокруг лица
+		const nearFace = z > 0.02 && x > 0.005 && x < 0.19 && h < 0.972 && h > 0.86;
+		return nearFace ? PALETTE.scarfBorder : PALETTE.scarf;
 	}
-	// шея и ворот рубахи
-	if (h > 0.81)
-		return z > 0.03 && x > 0.04 && x < 0.16 && h > 0.83
-			? PALETTE.skin
-			: PALETTE.blouse;
+	// шея и ворот рубахи (ворот — с золотой полосой)
+	if (h > 0.81) {
+		if (z > 0.03 && x > 0.04 && x < 0.16 && h > 0.83) return PALETTE.skin;
+		return h < 0.825 ? PALETTE.trim : PALETTE.blouse;
+	}
 	// коса — спереди по правой стороне груди
 	if (x > 0.17 && x < 0.24 && z > 0.09 && h > 0.6) return PALETTE.hair;
 	// рукава рубахи; манжеты с вышивкой
@@ -71,6 +84,13 @@ export function zoneColor(h: number, x: number, z: number): RGB {
 	// пояс (свисающие концы и подол остаются цвета сарафана: по координатам
 	// они неотделимы от юбки, и полосы выходили рваными)
 	if (h > 0.6 && h < 0.63) return PALETTE.trim;
+	// застёжка спереди сарафана — золотые пуговки в ряд
+	if (z > 0.05 && Math.abs(x - 0.1) < 0.014 && h > 0.3 && h < 0.76)
+		return Math.floor(h * 60) % 3 === 0 ? PALETTE.trim : PALETTE.sarafan;
+	// подол: золотая кайма и над ней вышитая полоса
+	if (h < 0.035) return PALETTE.trim;
+	if (h > 0.055 && h < 0.07) return PALETTE.hemStitch;
+	if (h > 0.07 && h < 0.078) return PALETTE.trim;
 	return PALETTE.sarafan;
 }
 
