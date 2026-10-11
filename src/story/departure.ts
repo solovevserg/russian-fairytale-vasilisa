@@ -36,7 +36,7 @@ function wrapAngle(a: number): number {
 const cache = { x: Number.NaN, z: Number.NaN, d: 0 };
 
 /** Ближайшая точка тропы к [x, z] — расстояние от избушки, м (с кэшем: точка старта одна). */
-function distanceAlongPath(x: number, z: number): number {
+export function distanceAlongPath(x: number, z: number): number {
 	if (x === cache.x && z === cache.z) return cache.d;
 	let best = 0;
 	let bestError = Number.POSITIVE_INFINITY;

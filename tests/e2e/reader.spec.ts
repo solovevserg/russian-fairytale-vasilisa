@@ -37,7 +37,7 @@ test("автопрокрутка переходит от главы к глав�
 	await expect(play).toHaveAttribute("aria-pressed", "false");
 });
 
-test("на телефоне включение звука не прерывает автопрокрутку", async ({
+test("автопрокрутка включает музыку; на телефоне кнопка звука её не прерывает", async ({
 	page,
 	isMobile,
 }) => {
@@ -47,13 +47,16 @@ test("на телефоне включение звука не прерывае�
 	);
 	await page.goto("./?noforest&nograss&noshadows&readtime=1");
 	const play = page.locator(".control-button--primary");
+	const sound = page.locator(".sound-toggle");
 	await play.tap();
 	await expect(play).toHaveAttribute("aria-pressed", "true");
-	await page.locator(".sound-toggle").tap();
-	await expect(page.locator(".sound-toggle")).toHaveAttribute(
-		"aria-pressed",
-		"true",
-	);
+	// автовоспроизведение включает музыку само
+	await expect(sound).toHaveAttribute("aria-pressed", "true");
+	// а выключение и включение звука его не прерывают
+	await sound.tap();
+	await expect(sound).toHaveAttribute("aria-pressed", "false");
+	await sound.tap();
+	await expect(sound).toHaveAttribute("aria-pressed", "true");
 	await expect(play).toHaveAttribute("aria-pressed", "true");
 });
 

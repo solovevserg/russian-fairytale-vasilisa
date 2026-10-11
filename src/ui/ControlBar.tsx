@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { audioEngine } from "../audio/AudioEngine";
+import { useAudioStore } from "../audio/audioStore";
 import { useContent } from "../i18n/content";
 import { useLangStore } from "../i18n/lang";
 import { autoReader } from "../reader/autoReader";
@@ -50,7 +52,16 @@ export function ControlBar() {
 				type="button"
 				className="control-button control-button--primary"
 				aria-pressed={playing}
-				onClick={() => autoReader.toggle()}
+				onClick={() => {
+					// автовоспроизведение — сразу с музыкой; звук запускается прямо
+					// в обработчике нажатия, иначе браузер его заблокирует
+					const audio = useAudioStore.getState();
+					if (!playing && !audio.enabled) {
+						audioEngine.start();
+						audio.setEnabled(true);
+					}
+					autoReader.toggle();
+				}}
 			>
 				<span aria-hidden="true">{playing ? "❚❚" : "▶"}</span>
 				{playing ? (
