@@ -14,7 +14,7 @@ const PALETTE = {
 	blouse: hex("#ece4d2"),
 	embroidery: hex("#b5281c"),
 	skin: hex("#e7bfa0"),
-	blush: hex("#e3a08c"),
+	blush: hex("#e8b29b"),
 	hair: hex("#7a4f24"),
 	hairDark: hex("#4e3016"),
 	// платок — не кроваво-красный, а соломенно-золотой, с красной каймой у лица
@@ -165,7 +165,12 @@ function removeTriangles(
 	indices.setArray(new Uint32Array(kept));
 }
 
-/** Добавляет примитиву COLOR_0 по зонам; материал начинает учитывать цвета вершин. */
+/**
+ * Добавляет примитиву COLOR_0 по зонам. Цвет — на треугольник целиком (по его
+ * центру), а не на вершину: иначе на больших треугольниках цвета соседних
+ * зон перетекают друг в друга пятнами. Поэтому примитив должен быть
+ * «развёрнут» (unweld): у каждого треугольника свои вершины.
+ */
 export function paintVasilisa(doc: Document, prim: Primitive) {
 	cachedBounds ??= boundsOf(doc);
 	const { min, max } = cachedBounds;
@@ -173,14 +178,47 @@ export function paintVasilisa(doc: Document, prim: Primitive) {
 	const pos = prim.getAttribute("POSITION");
 	if (!pos) return;
 	const count = pos.getCount();
-	const colors = new Float32Array(count * 3);
-	const branch = new Uint8Array(count);
+	const world: [number, number, number][] = [];
 	const p: number[] = [];
-	for (let i = 0; i < count; i++) {
-		const [x, y, z] = transformPoint(m, pos.getElement(i, p));
-		const h = (y - min[1]) / (max[1] - min[1]);
-		colors.set(zoneColor(h, x, z), i * 3);
-		branch[i] = isBranch(h, x) ? 1 : 0;
+	for (let i = 0; i < count; i++)
+		world.push(transformPoint(m, pos.getElement(i, p)));
+	const height = (y: number) => (y - min[1]) / (max[1] - min[1]);
+	const branch = new Uint8Array(count);
+	for (let i = 0; i < count; i++)
+		branch[i] = isBranch(height(world[i][1]), world[i][0]) ? 1 : 0;
+
+	// после unweld индексов нет — заводим последовательные, чтобы ниже можно
+	// было вырезать треугольники ветки
+	if (!prim.getIndices()) {
+		const sequential = new Uint32Array(count);
+		for (let i = 0; i < count; i++) sequential[i] = i;
+		prim.setIndices(
+			doc
+				.createAccessor()
+				.setType("SCALAR")
+				.setArray(sequential)
+				.setBuffer(pos.getBuffer()),
+		);
+	}
+	const colors = new Float32Array(count * 3);
+	const indices = prim.getIndices()?.getArray();
+	const triangle = (a: number, b: number, c: number) => {
+		const cx = (world[a][0] + world[b][0] + world[c][0]) / 3;
+		const cy = (world[a][1] + world[b][1] + world[c][1]) / 3;
+		const cz = (world[a][2] + world[b][2] + world[c][2]) / 3;
+		const color = zoneColor(height(cy), cx, cz);
+		// лёгкая неровность ткани: чуть светлее/темнее от треугольника к
+		// треугольнику; кожа — ровная, иначе лицо идёт пятнами
+		const skin = color === PALETTE.skin || color === PALETTE.blush;
+		const shade = skin ? 1 : 0.94 + 0.12 * noise(cx * 37 + cy * 53 + cz * 71);
+		for (const v of [a, b, c])
+			colors.set(color.map((k) => k * shade) as RGB, v * 3);
+	};
+	if (indices) {
+		for (let i = 0; i < indices.length; i += 3)
+			triangle(indices[i], indices[i + 1], indices[i + 2]);
+	} else {
+		for (let i = 0; i < count; i += 3) triangle(i, i + 1, i + 2);
 	}
 	removeTriangles(prim, (a, b, c) => branch[a] + branch[b] + branch[c] >= 2);
 	const accessor = doc
@@ -194,4 +232,10 @@ export function paintVasilisa(doc: Document, prim: Primitive) {
 		?.setBaseColorFactor([1, 1, 1, 1])
 		.setRoughnessFactor(0.85)
 		.setMetallicFactor(0);
+}
+
+/** Детерминированный «шум» 0..1 по числу. */
+function noise(n: number): number {
+	const x = Math.sin(n) * 43758.5453;
+	return x - Math.floor(x);
 }

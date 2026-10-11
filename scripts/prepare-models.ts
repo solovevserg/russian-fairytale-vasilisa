@@ -20,6 +20,7 @@ import {
 	resample,
 	simplify,
 	textureCompress,
+	unweld,
 	weld,
 } from "@gltf-transform/functions";
 import { MeshoptEncoder, MeshoptSimplifier } from "meshoptimizer";
@@ -112,7 +113,9 @@ if (wanted("vasilisa")) {
 	const doc = await io.read(`${SRC}/vasilisa/scene.gltf`);
 	await doc.transform(
 		weld(),
-		simplify({ simplifier: MeshoptSimplifier, ratio: 0.09, error: 0.0008 }),
+		simplify({ simplifier: MeshoptSimplifier, ratio: 0.11, error: 0.0007 }),
+		// у каждого треугольника свои вершины — цвет зоны на треугольник целиком
+		unweld(),
 	);
 	forEachPrimitive(doc, (prim) => paintVasilisa(doc, prim));
 	await finish(doc, "vasilisa");
