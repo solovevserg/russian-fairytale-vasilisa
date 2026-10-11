@@ -4,16 +4,19 @@ export function isSpeechSupported(): boolean {
 	return typeof window !== "undefined" && "speechSynthesis" in window;
 }
 
-/** Голоса грузятся асинхронно (особенно в Chrome) — ждём их, но недолго. */
+/** Голоса грузятся асинхронно (особенно в Chrome) — ждём их один раз и недолго. */
+let voicesPromise: Promise<SpeechSynthesisVoice[]> | null = null;
+
 function loadVoices(): Promise<SpeechSynthesisVoice[]> {
 	const synth = window.speechSynthesis;
 	const voices = synth.getVoices();
 	if (voices.length > 0) return Promise.resolve(voices);
-	return new Promise((resolve) => {
+	voicesPromise ??= new Promise((resolve) => {
 		const done = () => resolve(synth.getVoices());
 		synth.addEventListener("voiceschanged", done, { once: true });
 		window.setTimeout(done, 1500);
 	});
+	return voicesPromise;
 }
 
 let chosenVoice: SpeechSynthesisVoice | null | undefined;

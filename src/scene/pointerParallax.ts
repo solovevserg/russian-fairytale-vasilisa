@@ -7,7 +7,7 @@ export const pointer = { x: 0, y: 0 };
 /** Амплитуда параллакса как доля расстояния от камеры до цели. */
 export const PARALLAX_SHIFT = 0.025;
 /** Насколько сильнее (относительно сдвига камеры) доворачивается взгляд. */
-export const PARALLAX_LOOK = 1.8;
+export const PARALLAX_LOOK = 4.5;
 
 if (typeof window !== "undefined") {
 	const finePointer = window.matchMedia("(pointer: fine)");

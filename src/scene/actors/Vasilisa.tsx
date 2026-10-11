@@ -30,6 +30,10 @@ export function Vasilisa() {
 	const model = useMemo(() => {
 		const clone = scene.clone(true);
 		enableShadows(clone);
+		// тени от крон на героине не нужны: в «Восходе» солнце должно освещать лицо
+		clone.traverse((child) => {
+			child.receiveShadow = false;
+		});
 		return clone;
 	}, [scene]);
 
@@ -62,7 +66,7 @@ export function Vasilisa() {
 		const walking = !sleeping && m.speed > 0.08;
 		m.phase += dt * (walking ? 4 + m.speed * 2 : 0);
 
-		r.position.set(v.x, heightAt(v.x, v.z), v.z);
+		r.position.set(v.x, heightAt(v.x, v.z) + v.elevation, v.z);
 		r.rotation.y = v.heading;
 
 		// шаг: лёгкое покачивание и подпрыгивание; во сне — лежит на спине
@@ -102,7 +106,7 @@ export function Vasilisa() {
 					ref={lantern}
 					position={[RIGHT_HAND[0], RIGHT_HAND[1] - 0.45, RIGHT_HAND[2] + 0.02]}
 				>
-					<SkullLantern length={1.4} />
+					<SkullLantern length={1.4} beams />
 				</group>
 			</group>
 			<pointLight
@@ -112,8 +116,8 @@ export function Vasilisa() {
 				distance={5}
 				decay={1.6}
 			/>
-			{/* куколка рядом со спящей Василисой */}
-			<group ref={magic} position={[0.5, 0, -0.1]}>
+			{/* куколка стоит перед спящей Василисой (снаружи, у края крыльца) */}
+			<group ref={magic} position={[-0.5, 0, 0.1]}>
 				<DollMagic />
 			</group>
 		</group>

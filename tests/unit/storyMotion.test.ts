@@ -6,42 +6,43 @@ import {
 	KEYFRAMES,
 	RIDER_PATHS,
 } from "../../src/story/keyframes";
-import {
-	delayedTimeProgress,
-	LIGHT_AFTER_RIDE,
-	LIGHT_FADE,
-} from "../../src/story/lightDelay";
+import { delayedTimeProgress, RIDER_LIGHT } from "../../src/story/lightDelay";
 
 const index = (id: string) => KEYFRAMES.findIndex((k) => k.id === id);
 
-describe("свет меняется после всадника", () => {
+describe("свет и всадники", () => {
 	const white = index("white-rider");
+	const black = index("black-rider");
 	const ride = RIDER_PATHS.white.duration;
 
-	test("пока всадник скачет — время предыдущей главы", () => {
-		expect(delayedTimeProgress(white, 1, { white: 0 })).toBe(white - 1);
-		expect(
-			delayedTimeProgress(white, ride * LIGHT_AFTER_RIDE - 0.1, { white: 0 }),
-		).toBe(white - 1);
-	});
-
-	test("после скачки свет плавно догоняет", () => {
-		const mid = delayedTimeProgress(
-			white,
-			ride * LIGHT_AFTER_RIDE + LIGHT_FADE / 2,
-			{ white: 0 },
-		);
+	test("белый: светает вместе со скачкой", () => {
+		expect(delayedTimeProgress(white, 0, { white: 0 })).toBe(white - 1);
+		const mid = delayedTimeProgress(white, ride / 2, { white: 0 });
 		expect(mid).toBeGreaterThan(white - 1);
 		expect(mid).toBeLessThan(white);
-		expect(delayedTimeProgress(white, 100, { white: 0 })).toBe(white);
+		expect(delayedTimeProgress(white, ride, { white: 0 })).toBe(white);
 	});
 
-	test("если всадник не стартовал (главу пролистали) — свет ждёт, но не дальше середины следующей", () => {
+	test("красный: время суток не меняется", () => {
+		const red = index("red-rider");
+		expect(KEYFRAMES[red].timeOfDay).toBe(KEYFRAMES[red - 1].timeOfDay);
+	});
+
+	test("чёрный: ночь опускается после скачки", () => {
+		const blackRide = RIDER_PATHS.black.duration;
+		const { after, fade } = RIDER_LIGHT.black;
+		expect(
+			delayedTimeProgress(black, blackRide * after - 0.1, { black: 0 }),
+		).toBe(black - 1);
+		expect(
+			delayedTimeProgress(black, blackRide * after + fade, { black: 0 }),
+		).toBe(black);
+	});
+
+	test("всадник не стартовал — свет ждёт только при подходе к главе", () => {
 		expect(delayedTimeProgress(white - 0.5, 0, {})).toBe(white - 1);
-		// дальше середины главы задержки белого нет, но следующая глава — снова всадник (красный)
-		expect(delayedTimeProgress(white + 0.7, 0, { red: -100 })).toBe(
-			white + 0.7,
-		);
+		// после главы со всадником свет не откатывается к предыдущей (дневной) главе
+		expect(delayedTimeProgress(black + 0.3, 0, {})).toBe(black + 0.3);
 	});
 
 	test("в главах без всадников задержки нет", () => {

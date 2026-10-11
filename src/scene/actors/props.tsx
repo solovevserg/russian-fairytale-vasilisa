@@ -1,6 +1,12 @@
 import { useFrame } from "@react-three/fiber";
-import { useRef } from "react";
-import type { PointLight } from "three";
+import { useEffect, useRef } from "react";
+import {
+	AdditiveBlending,
+	DoubleSide,
+	type Object3D,
+	type PointLight,
+	type SpotLight,
+} from "three";
 import { currentSample } from "../../story/currentSample";
 import {
 	type ParticleUniforms,
@@ -48,12 +54,12 @@ export function DollMagic() {
 	});
 	return (
 		<group>
-			<Doll scale={1.3} />
+			<Doll scale={2} />
 			<pointLight
 				ref={light}
-				position={[0, 0.35, 0]}
+				position={[0, 0.5, 0]}
 				color="#a9d4ff"
-				distance={5}
+				distance={6}
 				decay={1.8}
 			/>
 			<group position={[0, 0.12, 0]}>
@@ -74,22 +80,35 @@ export function DollMagic() {
 	);
 }
 
-/** Череп на палке со светящимися глазами — светоч Бабы Яги. */
+/** Длина лучей из глаз черепа, м. */
+const BEAM_LENGTH = 4;
+
+/**
+ * Череп на палке со светящимися глазами. С `beams` из глаз бьют лучи
+ * (светящиеся конусы) и направленный свет вперёд.
+ */
 export function SkullLantern({
 	length = 1.5,
 	stick = true,
+	beams = false,
 }: {
 	length?: number;
 	/** false — только череп (насаживается на чужую палку, например клюку) */
 	stick?: boolean;
+	beams?: boolean;
 }) {
 	const light = useRef<PointLight>(null);
+	const spot = useRef<SpotLight>(null);
+	const target = useRef<Object3D>(null);
+	useEffect(() => {
+		if (spot.current && target.current) spot.current.target = target.current;
+	}, []);
 	useFrame(({ clock }) => {
 		const t = clock.elapsedTime;
 		const flicker = 0.85 + 0.1 * Math.sin(t * 11) + 0.05 * Math.sin(t * 23);
-		if (light.current) {
-			light.current.intensity = isShown(light.current) ? 5 * flicker : 0;
-		}
+		const shown = light.current ? isShown(light.current) : false;
+		if (light.current) light.current.intensity = shown ? 5 * flicker : 0;
+		if (spot.current) spot.current.intensity = shown ? 40 * flicker : 0;
 	});
 	return (
 		<group>
@@ -105,10 +124,30 @@ export function SkullLantern({
 					<meshStandardMaterial color="#ddd3bd" roughness={0.7} />
 				</mesh>
 				{[-1, 1].map((side) => (
-					<mesh key={side} position={[side * 0.038, 0.02, 0.085]}>
-						<sphereGeometry args={[0.024, 8, 6]} />
-						<meshBasicMaterial color="#ffd24a" toneMapped={false} />
-					</mesh>
+					<group key={side} position={[side * 0.038, 0.02, 0.085]}>
+						<mesh>
+							<sphereGeometry args={[0.024, 8, 6]} />
+							<meshBasicMaterial color="#ffd24a" toneMapped={false} />
+						</mesh>
+						{beams && (
+							// конус остриём к глазу, раструбом вперёд
+							<mesh
+								position={[side * 0.05, -0.04, BEAM_LENGTH / 2]}
+								rotation-x={-Math.PI / 2}
+							>
+								<coneGeometry args={[0.32, BEAM_LENGTH, 16, 1, true]} />
+								<meshBasicMaterial
+									color="#ffd45a"
+									transparent
+									opacity={0.16}
+									blending={AdditiveBlending}
+									depthWrite={false}
+									side={DoubleSide}
+									toneMapped={false}
+								/>
+							</mesh>
+						)}
+					</group>
 				))}
 				<pointLight
 					ref={light}
@@ -117,6 +156,20 @@ export function SkullLantern({
 					distance={9}
 					decay={1.7}
 				/>
+				{beams && (
+					<>
+						<spotLight
+							ref={spot}
+							position={[0, 0, 0.12]}
+							color="#ffd36a"
+							angle={0.32}
+							penumbra={0.6}
+							distance={16}
+							decay={1.4}
+						/>
+						<object3D ref={target} position={[0, -0.6, 5]} />
+					</>
+				)}
 			</group>
 		</group>
 	);

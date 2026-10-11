@@ -16,6 +16,10 @@ test("автопрокрутка переходит от главы к глав�
 	isMobile,
 }) => {
 	test.skip(isMobile, "колесо мыши — только на десктопе");
+	// озвучка проверяется вручную: здесь — только логика прокрутки
+	await page.addInitScript(() =>
+		window.localStorage.setItem("izbushka:narrate", "off"),
+	);
 	// readtime=1 — секунда на чтение вместо десяти; лес и трава отключены:
 	// в CI WebGL программный, и полная сцена тормозит страницу до таймаутов
 	await page.goto("./?noforest&nograss&noshadows&readtime=1");

@@ -75,6 +75,8 @@ export interface TimelineSample {
 		heading: number;
 		pose: VasilisaState["pose"];
 		prop: VasilisaState["prop"];
+		/** Высота над землёй, м */
+		elevation: number;
 	};
 	babaYaga: SceneKeyframe["babaYaga"];
 }
@@ -108,6 +110,7 @@ export function createSample(): TimelineSample {
 			heading: 0,
 			pose: "stand",
 			prop: null,
+			elevation: 0,
 		},
 		babaYaga: null,
 	};
@@ -135,11 +138,13 @@ function sampleVasilisa(
 		out.x = lerp(a.at[0], b.at[0], t);
 		out.z = lerp(a.at[1], b.at[1], t);
 		out.heading = lerpAngle(a.heading, b.heading, t);
+		out.elevation = lerp(a.elevation ?? 0, b.elevation ?? 0, t);
 	} else if (nearest) {
 		out.visible = true;
 		out.x = nearest.at[0];
 		out.z = nearest.at[1];
 		out.heading = nearest.heading;
+		out.elevation = nearest.elevation ?? 0;
 	} else {
 		out.visible = false;
 	}

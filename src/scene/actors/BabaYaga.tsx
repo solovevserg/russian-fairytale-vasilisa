@@ -18,7 +18,6 @@ import { BABA_YAGA_FLIGHT, BABA_YAGA_STAND } from "../../story/keyframes";
 import { enableShadows, MODEL_URLS } from "../models";
 import { heightAt } from "../terrain";
 import { setShown } from "./presence";
-import { SkullLantern } from "./props";
 
 const WOOD = "#6b4a2e";
 
@@ -28,8 +27,6 @@ const WOOD = "#6b4a2e";
  */
 const WITCH_HEIGHT = 1.02;
 const STAND_SCALE = 1.5 / WITCH_HEIGHT;
-/** Верх клюки в координатах модели — туда насаживаем череп. */
-const STAFF_TOP: [number, number, number] = [-0.17, 0.95, 0.03];
 
 /** Полёт: заходит высоко с края неба, виражом снижается, пролетает мимо камеры и садится у избы. */
 const FLIGHT = new CatmullRomCurve3(
@@ -107,7 +104,7 @@ function heading(v: Vector3) {
 /**
  * Баба Яга. Глава «Баба Яга»: летит в ступе, пестом погоняет, помелом след
  * заметает — и виражом снижается к избушке. Глава «Череп-светоч»: стоит у
- * избы и протягивает Василисе череп, насаженный на клюку.
+ * избы — череп она уже отдала Василисе.
  */
 export function BabaYaga() {
 	const flyingWitch = useWitch();
@@ -138,7 +135,11 @@ export function BabaYaga() {
 		if (flightStart.current < 0) flightStart.current = now;
 		const t = Math.min((now - flightStart.current) / FLIGHT_TIME, 1);
 		setShown(f, true);
-		if (glow.current) glow.current.intensity = 30;
+		if (glow.current) {
+			const flame =
+				0.85 + 0.1 * Math.sin(now * 9.3) + 0.05 * Math.sin(now * 21.7);
+			glow.current.intensity = 9 * flame;
+		}
 		flyingWitch.mixer.update(delta);
 
 		// к концу пути — плавно выравниваемся и встаём на землю
@@ -173,13 +174,13 @@ export function BabaYaga() {
 	return (
 		<>
 			<group ref={flying} scale={2}>
-				{/* подсветка, чтобы тёмная фигура читалась на ночном небе */}
+				{/* тёплый свет, как от факела в ступе, — фигура читается на ночном небе */}
 				<pointLight
 					ref={glow}
 					position={[0.8, 2, 1.2]}
-					color="#b8c8ff"
-					distance={8}
-					decay={1.5}
+					color="#ff9a45"
+					distance={7}
+					decay={1.8}
 				/>
 				<Mortar />
 				<primitive object={flyingWitch.object} scale={1.2} position-y={0.2} />
@@ -197,16 +198,9 @@ export function BabaYaga() {
 			<group
 				ref={standing}
 				position={[BABA_YAGA_STAND.x, standY, BABA_YAGA_STAND.z]}
+				rotation-y={BABA_YAGA_STAND.heading}
 			>
 				<primitive object={standingWitch.object} scale={STAND_SCALE} />
-				{/* череп со светящимися глазами — на верхушке её клюки */}
-				<group
-					position={
-						STAFF_TOP.map((v) => v * STAND_SCALE) as [number, number, number]
-					}
-				>
-					<SkullLantern stick={false} />
-				</group>
 				<group position={[-0.9, 0, -0.3]}>
 					<Mortar />
 				</group>

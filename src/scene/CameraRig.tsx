@@ -14,6 +14,8 @@ import { heightAt } from "./terrain";
 
 /** Скорость догоняния прокрутки: больше — резче. */
 const DAMPING = 2.5;
+/** Скорость, с которой время суток догоняет прокрутку. */
+const LIGHT_DAMPING = 1.6;
 /** Скорость, с которой камера следует за мышью. */
 const PARALLAX_DAMPING = 3;
 /** Минимальная высота камеры над землёй, м. */
@@ -41,6 +43,7 @@ export function CameraRig() {
 	const sample = currentSample;
 	const smoothed = useRef<number | null>(null);
 	const parallax = useRef({ x: 0, y: 0 });
+	const lightProgress = useRef<number | null>(null);
 
 	useFrame(({ clock }, delta) => {
 		const target = shapeProgress(useStoryStore.getState().progress);
@@ -52,13 +55,23 @@ export function CameraRig() {
 
 		timeline.sample(smoothed.current, sample);
 		// свет меняется не сразу, а после того как проскачет всадник
-		const timeProgress = delayedTimeProgress(
+		const timeTarget = delayedTimeProgress(
 			smoothed.current,
 			clock.elapsedTime,
 			riderStarts,
 		);
-		if (timeProgress !== smoothed.current) {
-			sample.timeOfDay = timeline.sample(timeProgress, timeSample).timeOfDay;
+		// время суток догоняет плавно: никаких скачков света при быстрой прокрутке
+		const lp = lightProgress.current ?? timeTarget;
+		lightProgress.current = debugFlags.instant
+			? timeTarget
+			: lp +
+				(timeTarget - lp) *
+					(1 - Math.exp(-LIGHT_DAMPING * Math.min(delta, 0.1)));
+		if (Math.abs(lightProgress.current - smoothed.current) > 1e-4) {
+			sample.timeOfDay = timeline.sample(
+				lightProgress.current,
+				timeSample,
+			).timeOfDay;
 		}
 
 		// лёгкий параллакс от мыши: камера сдвигается за курсором и чуть

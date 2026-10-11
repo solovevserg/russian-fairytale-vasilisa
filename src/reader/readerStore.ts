@@ -4,9 +4,10 @@ const NARRATE_KEY = "izbushka:narrate";
 
 function readNarrate(): boolean {
 	try {
-		return window.localStorage.getItem(NARRATE_KEY) === "on";
+		// по умолчанию включена; выключается явным выбором пользователя
+		return window.localStorage.getItem(NARRATE_KEY) !== "off";
 	} catch {
-		return false;
+		return true;
 	}
 }
 

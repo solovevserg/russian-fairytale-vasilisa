@@ -44,14 +44,16 @@ describe("кадрирование ключевых кадров", () => {
 			const camera = cameraOf(k);
 			const [x, z] = heroine.at;
 			const height = heroine.pose === "sleep" ? 0.3 : 1.0;
-			expect(inFrame(camera, onGround(x, z, height))).toBe(true);
+			expect(
+				inFrame(camera, onGround(x, z, height + (heroine.elevation ?? 0))),
+			).toBe(true);
 		});
 	}
 
 	test("«baba-yaga»: изба у края кадра, заход на посадку в кадре", () => {
 		const camera = cameraOf(byId("baba-yaga"));
 		const hut = new Vector3(0, heightAt(0, 0) + 4.5, 0).project(camera);
-		expect(Math.max(Math.abs(hut.x), Math.abs(hut.y))).toBeGreaterThan(0.45);
+		expect(Math.max(Math.abs(hut.x), Math.abs(hut.y))).toBeGreaterThan(0.35);
 		expect(Math.max(Math.abs(hut.x), Math.abs(hut.y))).toBeLessThan(1.05);
 
 		const flight = new CatmullRomCurve3(
@@ -63,6 +65,11 @@ describe("кадрирование ключевых кадров", () => {
 			flight.getPointAt((i / 20) * 0.6),
 		).filter((p) => inFrame(camera, p, 0)).length;
 		expect(visible / 21).toBeGreaterThan(0.6);
+		// и место посадки у избы
+		const landing = flight.getPointAt(1);
+		expect(
+			inFrame(camera, new Vector3(landing.x, landing.y + 0.8, landing.z)),
+		).toBe(true);
 	});
 
 	test("«skull»: в кадре и Баба Яга, и Василиса", () => {

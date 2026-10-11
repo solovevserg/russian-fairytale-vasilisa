@@ -21,6 +21,8 @@ export interface VasilisaState {
 	pose: "walk" | "stand" | "sleep";
 	/** Что в руках */
 	prop: "doll" | "skull" | null;
+	/** Высота над землёй, м (например, на крыльце избушки). */
+	elevation?: number;
 }
 
 export interface SceneKeyframe {
@@ -81,6 +83,29 @@ function walker(
 }
 
 const HUT: Vec3 = [0, 4.2, 0];
+
+/**
+ * Крыльцо избушки: помост перед дверью на уровне порога. Дверь смотрит на
+ * ворота и тропу (направление DOOR от центра избы).
+ */
+export const PORCH = {
+	/** Единичный вектор от центра избы к двери (на ворота). */
+	dir: [0.55, 0.835] as [number, number],
+	/** Расстояние от центра избы до стены с дверью, м. */
+	wall: 2.91,
+	/** Высота настила над землёй, м. */
+	height: 2.66,
+	/** Глубина (от стены) и ширина настила, м. */
+	depth: 1.4,
+	width: 2.6,
+};
+/** Центр настила крыльца [x, z]. */
+const PORCH_CENTER: [number, number] = [
+	PORCH.dir[0] * (PORCH.wall + PORCH.depth / 2),
+	PORCH.dir[1] * (PORCH.wall + PORCH.depth / 2),
+];
+/** Поворот «вдоль стены с дверью» — так Василиса ложится на крыльце. */
+const ALONG_PORCH = Math.atan2(PORCH.dir[1], -PORCH.dir[0]);
 const AT_GATE = walker(8.5, { pose: "stand", prop: "doll" });
 
 // Ключевые кадры по главам (см. docs/scenario.md).
@@ -137,7 +162,7 @@ export const KEYFRAMES: SceneKeyframe[] = [
 	{
 		// Василиса чуть дальше, камера за другим плечом, проносится красный всадник
 		id: "red-rider",
-		timeOfDay: 6.6,
+		timeOfDay: 5.3,
 		camera: {
 			position: onPath(31.5, 1.75, -0.2),
 			target: onPath(24, 1.0, 0),
@@ -205,7 +230,12 @@ export const KEYFRAMES: SceneKeyframe[] = [
 		// камера смотрит в небо, изба у края кадра, по небу летит Баба Яга в ступе
 		id: "baba-yaga",
 		timeOfDay: 22.5,
-		camera: { position: [7.5, 1.6, 7.5], target: [-4, 18, -8], fov: 62 },
+		// с тропы у края поляны: в кадре и заход на посадку в небе, и посадка у избы
+		camera: {
+			position: [8, heightAt(8, 11) + 1.4, 11],
+			target: [-3, 12, -5],
+			fov: 70,
+		},
 		wind: 1,
 		music: { track: "hut", volume: 0.85 },
 		vasilisa: AT_GATE,
@@ -218,23 +248,52 @@ export const KEYFRAMES: SceneKeyframe[] = [
 		// камера отдаляется от избы: Василиса спит на земле, куколка колдует
 		id: "tasks",
 		timeOfDay: 23.5,
-		camera: { position: [6.6, 1.9, 7.6], target: [3.3, 0.3, 4.5], fov: 48 },
+		// сверху на крыльцо: Василиса спит, перед ней колдует куколка
+		camera: {
+			position: [
+				PORCH_CENTER[0] + PORCH.dir[0] * 3.6 - PORCH.dir[1] * 1.6,
+				heightAt(0, 0) + PORCH.height + 3.2,
+				PORCH_CENTER[1] + PORCH.dir[1] * 3.6 + PORCH.dir[0] * 1.6,
+			],
+			target: [
+				PORCH_CENTER[0],
+				heightAt(0, 0) + PORCH.height + 0.3,
+				PORCH_CENTER[1],
+			],
+			fov: 45,
+		},
 		wind: 0.3,
 		music: { track: "cum-mortuis", volume: 0.6 },
-		vasilisa: { at: [3.4, 4.6], heading: 2.2, pose: "sleep", prop: null },
+		vasilisa: {
+			at: PORCH_CENTER,
+			heading: ALONG_PORCH,
+			pose: "sleep",
+			prop: null,
+			elevation: PORCH.height,
+		},
 		babaYaga: null,
 		rider: null,
 		skulls: 1,
 		magic: 1,
 	},
 	{
-		// Баба Яга протягивает череп на палке со светящимися глазами
+		// череп на палке уже у Василисы: из глаз бьют лучи, она уходит от Бабы Яги
 		id: "skull",
 		timeOfDay: 4,
-		camera: { position: [3.7, 1.5, 4.5], target: [0.3, 1.2, 3.6], fov: 55 },
+		// из-за спины Бабы Яги: Василиса за воротами уходит прочь с черепом
+		camera: {
+			position: [-0.27, heightAt(-0.27, 3.9) + 2.2, 3.9],
+			target: [4.9, 1.2, 7.4],
+			fov: 50,
+		},
 		wind: 0.6,
 		music: { track: "hut", volume: 0.75 },
-		vasilisa: { at: [0.5, 4.7], heading: Math.PI, pose: "stand", prop: null },
+		vasilisa: {
+			at: [4.9, 7.4],
+			heading: Math.atan2(3.1, 2.1),
+			pose: "stand",
+			prop: "skull",
+		},
 		babaYaga: "stand",
 		rider: null,
 		skulls: 1,
@@ -294,10 +353,14 @@ export const BABA_YAGA_FLIGHT: Vec3[] = [
 	[-9, 10, 1],
 	[-3, 6.5, 6],
 	[4, 3.6, 9.2],
-	[6.6, 2.2, 6.2],
-	[4.4, 0.8, 3.6],
-	[3.2, 0, 3.4],
+	[5.5, 2.2, 6.8],
+	[1, 1, 6.2],
+	[-2.5, 0, 5],
 ];
 
 /** Где стоит Баба Яга, протягивая череп (глава «Череп-светоч»). */
-export const BABA_YAGA_STAND = { x: 0.1, z: 2.7 };
+export const BABA_YAGA_STAND = {
+	x: 1.8,
+	z: 5.3,
+	heading: Math.atan2(3.1, 2.1),
+};
