@@ -282,7 +282,8 @@ export function createTimeline(keyframes: SceneKeyframe[]): Timeline {
 			out.babaYaga = t < 0.5 ? k0.babaYaga : k1.babaYaga;
 			out.house = (t < 0.5 ? k0 : k1).house ?? false;
 			// погас — так на весь переход: окна не вспыхивают, пока темнеет
-			out.houseLit = (k0.houseLit ?? true) && (k1.houseLit ?? true);
+			out.houseLit =
+				(k0.houseLit ?? true) && (t === 0 || (k1.houseLit ?? true));
 			// избушка появляется сразу, как только начался переход к главе с ней
 			out.hut = (k0.hut ?? true) || ((k1.hut ?? true) && t > HUT_APPEAR);
 			return out;
