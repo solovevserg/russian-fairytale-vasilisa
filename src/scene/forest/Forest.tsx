@@ -1,5 +1,5 @@
 import {useFrame} from "@react-three/fiber";
-import {useLayoutEffect, useMemo, useRef} from "react";
+import {useEffect, useLayoutEffect, useMemo, useRef} from "react";
 import {type InstancedMesh, Object3D} from "three";
 
 import {debugFlags} from "../../debugFlags";
@@ -139,6 +139,10 @@ const idOf = (variantIndex: number) => TREE_VARIANTS[variantIndex].id;
 export function Forest() {
 	const variants = useTreeVariants(TREE_VARIANTS, treePriority);
 	const ready = allReady(variants);
+	useEffect(() => {
+		// метка для тестов и отладки: весь лес построен
+		if (ready) document.documentElement.dataset.forest = "ready";
+	}, [ready]);
 
 	const homeTrees = useMemo(() => layoutHomeTrees(TREE_VARIANTS), []);
 	const forestTrees = useMemo(() => layoutForest(LAYOUT), []);

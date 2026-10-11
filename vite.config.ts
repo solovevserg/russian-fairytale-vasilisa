@@ -35,6 +35,9 @@ export default defineConfig({
 			qualityModule: fileURLToPath(
 				new URL("./src/scene/quality.ts", import.meta.url),
 			),
+			loaderModule: fileURLToPath(
+				new URL("./src/scene/forest/bitmapTextureLoader.ts", import.meta.url),
+			),
 		}),
 		glslWhitespace(),
 		// шрифты заголовков и текста на русском (язык по умолчанию)

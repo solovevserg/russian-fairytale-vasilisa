@@ -95,6 +95,8 @@ export function SceneCanvas() {
 	return (
 		<Canvas
 			frameloop={frameloop}
+			// метка для тестов: кадры пошли (сцена загружена и скомпилирована)
+			data-ready={frameloop === "always" ? "" : undefined}
 			shadows={quality.shadows ? "percentage" : false}
 			dpr={dpr}
 			gl={{antialias: quality.antialias, powerPreference: "high-performance"}}

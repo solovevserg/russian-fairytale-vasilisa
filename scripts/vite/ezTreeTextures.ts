@@ -101,7 +101,15 @@ export interface EzTreeTexturesOptions {
 	 * `quality.lightAssets` код ez-tree узнаёт, брать ли облегчённые копии.
 	 */
 	qualityModule: string;
+	/**
+	 * Модуль с `createBitmapTextureLoader()` — загрузчиком вместо
+	 * TextureLoader: декодирует картинки в фоне (createImageBitmap).
+	 */
+	loaderModule: string;
 }
+
+/** Где ez-tree создаёт свой TextureLoader. */
+const TEXTURE_LOADER = /(\w+) = new (\w+)\.TextureLoader\(\)/;
 
 /**
  * ez-tree вшивает в свой код 20 текстур коры и листвы в base64 (~4 МБ) и при
@@ -109,11 +117,20 @@ export interface EzTreeTexturesOptions {
  * файлами (кэшируются и декодируются браузером отдельно от JS) — каждая в
  * двух размерах: полном и облегчённом (512, для телефонов; выбор — по
  * `quality.lightAssets`). Ненужные заменяются пустой картинкой — их не
- * качаем вовсе. В dev-режиме библиотека остаётся как есть.
+ * качаем вовсе. Свой TextureLoader библиотеки заменяется загрузчиком,
+ * который декодирует картинки в фоне (loaderModule). В dev-режиме
+ * библиотека остаётся как есть.
  */
-export function ezTreeTextures({qualityModule}: EzTreeTexturesOptions): Plugin {
-	const modulePath = JSON.stringify(qualityModule.replaceAll("\\", "/"));
-	const qualityImport = `import {quality as __quality} from ${modulePath};\n`;
+export function ezTreeTextures({
+	qualityModule,
+	loaderModule,
+}: EzTreeTexturesOptions): Plugin {
+	const path = (file: string) => JSON.stringify(file.replaceAll("\\", "/"));
+	const imports = [
+		`import {quality as __quality} from ${path(qualityModule)};`,
+		`import {createBitmapTextureLoader as __loader} from ${path(loaderModule)};`,
+		"",
+	].join("\n");
 	return {
 		name: "ez-tree-textures",
 		apply: "build",
@@ -152,7 +169,13 @@ export function ezTreeTextures({qualityModule}: EzTreeTexturesOptions): Plugin {
 				}
 				result = result.replace(whole, replacement);
 			}
-			return {code: qualityImport + result, map: null};
+			if (!TEXTURE_LOADER.test(result)) {
+				throw new Error(
+					"ez-tree: не найден TextureLoader — формат библиотеки изменился",
+				);
+			}
+			result = result.replace(TEXTURE_LOADER, "$1 = __loader()");
+			return {code: imports + result, map: null};
 		},
 	};
 }

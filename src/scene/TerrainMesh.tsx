@@ -1,4 +1,3 @@
-import {useTexture} from "@react-three/drei";
 import {useLayoutEffect, useMemo} from "react";
 import {
 	DataTexture,
@@ -18,6 +17,7 @@ import {replaceGlslLine} from "../lib/glsl";
 import {quality} from "./quality";
 import {heightAt, TERRAIN_SIZE} from "./terrain";
 import {buildSplatMask} from "./terrainSplat";
+import {useBitmapTextures} from "./useBitmapTextures";
 
 const SEGMENTS = 220;
 /** Размер плитки текстуры земли, м. */
@@ -41,7 +41,7 @@ const TEXTURES = {
 };
 
 // грузим сразу при загрузке страницы, а не когда смонтируется сцена
-useTexture.preload(Object.values(TEXTURES));
+useBitmapTextures.preload(TEXTURES);
 
 const SPLAT_PARS = /* glsl */ `
 uniform sampler2D uSplat;
@@ -134,7 +134,7 @@ function applySplat(
 }
 
 export function TerrainMesh() {
-	const textures = useTexture(TEXTURES);
+	const textures = useBitmapTextures(TEXTURES);
 
 	const geometry = useMemo(() => {
 		const plane = new PlaneGeometry(
