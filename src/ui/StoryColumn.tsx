@@ -175,6 +175,16 @@ function Credits({ content }: { content: Content }) {
 	const c = content.ui.credits;
 	return (
 		<footer className="story__credits">
+			{/* сначала — кто сделал: надзаголовок и имя; ниже — источники */}
+			<p className="story__credits-role">{c.authorRole}</p>
+			<h2 className="story__credits-name">
+				<a href={AUTHOR_URL}>{c.authorName}</a>
+			</h2>
+			<p className="story__credits-with">
+				{c.withClaude[0]}
+				<a href="https://claude.ai">Claude</a>
+				{c.withClaude[1]}
+			</p>
 			<p>{c.music}</p>
 			<p>
 				{c.models}{" "}
@@ -184,13 +194,6 @@ function Credits({ content }: { content: Content }) {
 						{i < MODELS.length - 1 ? ", " : "."}
 					</span>
 				))}
-			</p>
-			<p className="story__author">
-				{c.author[0]}
-				<a href={AUTHOR_URL}>{c.author[1]}</a>
-				{c.author[2]}
-				<a href="https://claude.ai">Claude</a>
-				{c.author[3] ?? "."}
 			</p>
 			<p>
 				<a href={`${REPO}/blob/master/docs/assets.md`}>{c.allSources}</a>

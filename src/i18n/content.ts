@@ -96,8 +96,11 @@ export interface Content {
 		credits: {
 			music: string;
 			models: string;
-			/** «…создан» + имя + «вместе с» + Claude + окончание (по умолчанию точка). */
-			author: [before: string, name: string, middle: string, after?: string];
+			/** Надзаголовок титров и имя автора — заголовок. */
+			authorRole: string;
+			authorName: string;
+			/** Текст вокруг ссылки на Claude: «создано вместе с » + Claude + «». */
+			withClaude: [before: string, after: string];
 			allSources: string;
 			sourceCode: string;
 		};
@@ -149,7 +152,9 @@ export const CONTENT: Record<Lang, Content> = {
 					"Музыка — М. П. Мусоргский, «Картинки с выставки» (записи Musopen, общественное достояние). Звуки леса — OpenGameArt и BigSoundBank (CC0). Текстуры земли — Poly Haven (CC0). Деревья — ez-tree (MIT). Черепа — Quaternius (CC0). Шрифты — Ruslan Display и Old Standard TT (OFL).",
 				models:
 					"3D-модели (изменены: упрощены, сжаты, Василиса раскрашена, изба перекрашена):",
-				author: ["Сайт создан ", "Сергеем Соловьёвым", " вместе с "],
+				authorRole: "Автор проекта",
+				authorName: "Сергей Соловьёв",
+				withClaude: ["создано вместе с ", ""],
 				allSources: "Все источники и лицензии",
 				sourceCode: "Исходный код",
 			},
@@ -194,7 +199,9 @@ export const CONTENT: Record<Lang, Content> = {
 					"Music — Modest Mussorgsky, “Pictures at an Exhibition” (Musopen recordings, public domain). Forest sounds — OpenGameArt and BigSoundBank (CC0). Ground textures — Poly Haven (CC0). Trees — ez-tree (MIT). Skulls — Quaternius (CC0). Fonts — Ruslan Display and Old Standard TT (OFL).",
 				models:
 					"3D models (modified: simplified, compressed, Vasilisa painted, cabin recoloured):",
-				author: ["Made by ", "Sergei Solovev", " together with "],
+				authorRole: "Project author",
+				authorName: "Sergei Solovev",
+				withClaude: ["made together with ", ""],
 				allSources: "All sources and licenses",
 				sourceCode: "Source code",
 			},
@@ -242,7 +249,9 @@ export const CONTENT: Record<Lang, Content> = {
 					"Música: Modest Músorgski, «Cuadros de una exposición» (grabaciones de Musopen, dominio público). Sonidos del bosque: OpenGameArt y BigSoundBank (CC0). Texturas del suelo: Poly Haven (CC0). Árboles: ez-tree (MIT). Calaveras: Quaternius (CC0). Tipografías: Ruslan Display y Old Standard TT (OFL).",
 				models:
 					"Modelos 3D (modificados: simplificados, comprimidos, Vasilisa pintada, cabaña recoloreada):",
-				author: ["Sitio creado por ", "Serguéi Solovióv", " junto con "],
+				authorRole: "Autor del proyecto",
+				authorName: "Serguéi Solovióv",
+				withClaude: ["hecho junto con ", ""],
 				allSources: "Todas las fuentes y licencias",
 				sourceCode: "Código fuente",
 			},
@@ -282,7 +291,9 @@ export const CONTENT: Record<Lang, Content> = {
 				music:
 					"音乐：穆索尔斯基《图画展览会》（Musopen 录音，公有领域）。森林音效：OpenGameArt 与 BigSoundBank（CC0）。地面纹理：Poly Haven（CC0）。树木：ez-tree（MIT）。骷髅：Quaternius（CC0）。字体：Ruslan Display 与 Old Standard TT（OFL）。",
 				models: "3D 模型（已修改：简化、压缩，瓦西丽莎上色，木屋重新配色）：",
-				author: ["本网站由", "谢尔盖·索洛维约夫", "与 ", " 共同创建。"],
+				authorRole: "项目作者",
+				authorName: "谢尔盖·索洛维约夫",
+				withClaude: ["与 ", " 共同创建"],
 				allSources: "全部来源与许可",
 				sourceCode: "源代码",
 			},
