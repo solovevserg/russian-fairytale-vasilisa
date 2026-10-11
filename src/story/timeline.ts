@@ -65,6 +65,8 @@ export interface TimelineSample {
 	skulls: number;
 	/** Волшебный свет куколки 0..1 */
 	magic: number;
+	/** Множитель плотности тумана */
+	fog: number;
 	vasilisa: {
 		visible: boolean;
 		/** Позиция на земле (y считает сцена по рельефу) */
@@ -98,6 +100,7 @@ export function createSample(): TimelineSample {
 		) as Record<MusicTrack, number>,
 		skulls: 0,
 		magic: 0,
+		fog: 1,
 		vasilisa: {
 			visible: false,
 			x: 0,
@@ -199,6 +202,7 @@ export function createTimeline(keyframes: SceneKeyframe[]): Timeline {
 			const k1 = keyframes[i + 1] ?? k0;
 			out.skulls = lerp(k0.skulls, k1.skulls, t);
 			out.magic = lerp(k0.magic, k1.magic, t);
+			out.fog = lerp(k0.fog ?? 1, k1.fog ?? 1, t);
 			sampleVasilisa(k0.vasilisa, k1.vasilisa, t, out.vasilisa);
 			out.babaYaga = t < 0.5 ? k0.babaYaga : k1.babaYaga;
 			return out;

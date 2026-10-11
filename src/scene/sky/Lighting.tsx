@@ -7,6 +7,7 @@ import {
 	Vector3,
 } from "three";
 import { useSceneStore } from "../../state/sceneStore";
+import { currentSample } from "../../story/currentSample";
 import { moonDirection, paletteAt, sunDirection } from "./timeOfDay";
 
 const LIGHT_DISTANCE = 60;
@@ -43,6 +44,7 @@ export function Lighting() {
 			// туман стелется по земле: с высоты над кронами видно дальше
 			const altitude = Math.min(Math.max((camera.position.y - 8) / 27, 0), 1);
 			scene.fog.density =
+				currentSample.fog *
 				palette.fogDensity *
 				(1 - 0.7 * altitude * altitude * (3 - 2 * altitude));
 		}

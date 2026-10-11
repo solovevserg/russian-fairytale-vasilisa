@@ -31,14 +31,13 @@ const STAND_SCALE = 1.5 / WITCH_HEIGHT;
 /** Верх клюки в координатах модели — туда насаживаем череп. */
 const STAFF_TOP: [number, number, number] = [-0.17, 0.95, 0.03];
 
-/** Полёт: заходит высоко с края неба и виражом снижается к избушке. */
+/** Полёт: заходит высоко с края неба, виражом снижается, пролетает мимо камеры и садится у избы. */
 const FLIGHT = new CatmullRomCurve3(
 	BABA_YAGA_FLIGHT.map((p) => new Vector3(...p)),
 	false,
 	"centripetal",
 );
-const FLIGHT_TIME = 9;
-const FLIGHT_PAUSE = 2.5;
+const FLIGHT_TIME = 10;
 /** Крен на вираже: радиан на радиан поворота курса за шаг выборки. */
 const BANK = 9;
 const MAX_BANK = 0.75;
@@ -134,19 +133,23 @@ export function BabaYaga() {
 			flightStart.current = -1;
 			return;
 		}
+		// полёт однократный: запускается при входе в главу и заканчивается
+		// посадкой у избушки; при повторном входе в главу — заново
 		if (flightStart.current < 0) flightStart.current = now;
-		const t =
-			((now - flightStart.current) % (FLIGHT_TIME + FLIGHT_PAUSE)) /
-			FLIGHT_TIME;
-		setShown(f, t <= 1);
-		if (glow.current) glow.current.intensity = t <= 1 ? 30 : 0;
-		if (t > 1) return;
+		const t = Math.min((now - flightStart.current) / FLIGHT_TIME, 1);
+		setShown(f, true);
+		if (glow.current) glow.current.intensity = 30;
 		flyingWitch.mixer.update(delta);
 
+		// к концу пути — плавно выравниваемся и встаём на землю
+		const landing = Math.min(Math.max((t - 0.82) / 0.18, 0), 1);
+		const settle = 1 - landing * landing * (3 - 2 * landing);
 		FLIGHT.getPointAt(t, f.position);
-		f.position.y += Math.sin(now * 2.3) * 0.2;
-		FLIGHT.getTangentAt(t, tangent);
-		FLIGHT.getTangentAt(Math.min(t + 0.02, 1), ahead);
+		f.position.y +=
+			Math.sin(now * 2.3) * 0.2 * settle +
+			heightAt(f.position.x, f.position.z) * (1 - settle);
+		FLIGHT.getTangentAt(Math.min(t, 0.95), tangent);
+		FLIGHT.getTangentAt(Math.min(t + 0.02, 0.97), ahead);
 		// крен — в сторону поворота, тангаж — носом вниз на снижении
 		const turn = Math.atan2(
 			Math.sin(heading(ahead) - heading(tangent)),
@@ -155,9 +158,9 @@ export function BabaYaga() {
 		const roll = Math.max(-MAX_BANK, Math.min(MAX_BANK, -turn * BANK));
 		const pitch = Math.asin(Math.max(-1, Math.min(1, -tangent.y))) * 0.8;
 		f.rotation.set(
-			pitch,
+			pitch * settle,
 			heading(tangent),
-			roll + Math.sin(now * 1.7) * 0.06,
+			(roll + Math.sin(now * 1.7) * 0.06) * settle,
 			"YXZ",
 		);
 		// пестом погоняет

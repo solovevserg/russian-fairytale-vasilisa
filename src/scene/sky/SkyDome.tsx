@@ -194,7 +194,7 @@ export function SkyDome() {
 		u.uCloudOffset.value.x += dir.x * drift;
 		u.uCloudOffset.value.y += dir.y * drift;
 		// днём облаков меньше, в сумерках и ночью — гуще
-		u.uCloudCover.value = 0.43 - palette.night * 0.04;
+		u.uCloudCover.value = 0.5 - palette.night * 0.03;
 		u.uCloudLit.value
 			.copy(scratch.set(palette.sunColor).lerp(WHITE, 0.55))
 			.lerp(NIGHT_CLOUD_LIT, palette.night);

@@ -48,7 +48,7 @@ describe("кадрирование ключевых кадров", () => {
 		});
 	}
 
-	test("«baba-yaga»: изба у края кадра, полёт Бабы Яги в кадре", () => {
+	test("«baba-yaga»: изба у края кадра, заход на посадку в кадре", () => {
 		const camera = cameraOf(byId("baba-yaga"));
 		const hut = new Vector3(0, heightAt(0, 0) + 4.5, 0).project(camera);
 		expect(Math.max(Math.abs(hut.x), Math.abs(hut.y))).toBeGreaterThan(0.45);
@@ -60,7 +60,7 @@ describe("кадрирование ключевых кадров", () => {
 			"centripetal",
 		);
 		const visible = Array.from({ length: 21 }, (_, i) =>
-			flight.getPointAt(i / 20),
+			flight.getPointAt((i / 20) * 0.6),
 		).filter((p) => inFrame(camera, p, 0)).length;
 		expect(visible / 21).toBeGreaterThan(0.6);
 	});

@@ -47,6 +47,8 @@ export interface SceneKeyframe {
 	skulls: number;
 	/** Волшебный свет куколки, 0..1. */
 	magic: number;
+	/** Множитель плотности тумана (1 — как в палитре времени суток). */
+	fog?: number;
 }
 
 /** Точка на высоте `height` над землёй. */
@@ -120,7 +122,7 @@ export const KEYFRAMES: SceneKeyframe[] = [
 		timeOfDay: 5.3,
 		camera: {
 			position: onPath(36, 1.75, 0.45),
-			target: onPath(29.5, 1.2),
+			target: onPath(30, 0.9, 2.6),
 			fov: 55,
 		},
 		wind: 0.3,
@@ -130,14 +132,15 @@ export const KEYFRAMES: SceneKeyframe[] = [
 		rider: "white",
 		skulls: 0,
 		magic: 0,
+		fog: 2.6,
 	},
 	{
 		// Василиса чуть дальше, камера за другим плечом, проносится красный всадник
 		id: "red-rider",
 		timeOfDay: 6.6,
 		camera: {
-			position: onPath(31.5, 1.75, -0.55),
-			target: onPath(25.5, 1.1),
+			position: onPath(31.5, 1.75, -0.2),
+			target: onPath(24, 1.0, 0),
 			fov: 55,
 		},
 		wind: 0.35,
@@ -147,6 +150,7 @@ export const KEYFRAMES: SceneKeyframe[] = [
 		rider: "red",
 		skulls: 0,
 		magic: 0,
+		fog: 2.4,
 	},
 	{
 		// камера чуть снизу показывает лицо Василисы, освещённое взошедшим солнцем
@@ -169,10 +173,11 @@ export const KEYFRAMES: SceneKeyframe[] = [
 		// с высоты птичьего полёта: Василиса выходит на поляну с избой, закат
 		id: "clearing",
 		timeOfDay: 17.3,
-		camera: { position: [-2, 24, 2], target: [6, 0, 10], fov: 55 },
+		// из-за избушки, с высоты: видны стены, вся поляна и Василиса у входа
+		camera: { position: [-10, 16, 2], target: [3, 0.5, 5], fov: 45 },
 		wind: 0.35,
 		music: { track: "catacombs", volume: 0.6 },
-		vasilisa: walker(14),
+		vasilisa: walker(12),
 		babaYaga: null,
 		rider: null,
 		skulls: 0,
@@ -184,7 +189,7 @@ export const KEYFRAMES: SceneKeyframe[] = [
 		id: "black-rider",
 		timeOfDay: 21,
 		camera: {
-			position: [8.8, heightAt(8.8, 3.4) + 0.45, 3.4],
+			position: [11.5, heightAt(11.5, 4.5) + 1.1, 4.5],
 			target: [0, 3.6, 0],
 			fov: 62,
 		},
@@ -251,28 +256,47 @@ export const KEYFRAMES: SceneKeyframe[] = [
 ];
 
 /** Где и как проносятся всадники (метры по тропе / от избушки). */
+/** Маршруты всадников (сплайн по точкам на земле) и длительность скачки, с. */
 export const RIDER_PATHS: Record<
 	RiderColor,
-	{ from: Vec3; to: Vec3; duration: number }
+	{ points: Vec3[]; duration: number }
 > = {
-	white: { from: onPath(27, 0, -16), to: onPath(27, 0, 16), duration: 3.5 },
-	red: { from: onPath(23, 0, 16), to: onPath(23, 0, -16), duration: 3.5 },
-	black: { from: [-9.5, 0, -11], to: [-10, 0, 11], duration: 4 },
+	white: { points: [onPath(27, 0, -16), onPath(27, 0, 16)], duration: 3.5 },
+	red: { points: [onPath(23, 0, 16), onPath(23, 0, -16)], duration: 3.5 },
+	// из леса — прямо перед камерой, кругом вокруг избы — и в чащу
+	black: {
+		points: [
+			[17, 0, -1],
+			[9, 0, 2.6],
+			[4.6, 0, 6.9],
+			[-2, 0, 8],
+			[-7.6, 0, 3],
+			[-7.2, 0, -4],
+			[-1, 0, -8.2],
+			[6, 0, -6],
+			[13, 0, -9],
+			[24, 0, -16],
+		],
+		duration: 9,
+	},
 };
 
 export { HUT };
 
 /**
  * Полёт Бабы Яги (глава «Баба Яга»): сплайн Катмулла-Рома — заходит высоко
- * с края неба и виражом снижается к избушке.
+ * с края неба, виражом снижается, пролетает мимо камеры и садится у избушки.
  */
 export const BABA_YAGA_FLIGHT: Vec3[] = [
 	[11, 19, -15],
 	[1, 17, -11],
 	[-7, 14, -6],
-	[-9, 11, 1],
-	[-4, 9, 5],
-	[1, 8, 3],
+	[-9, 10, 1],
+	[-3, 6.5, 6],
+	[4, 3.6, 9.2],
+	[6.6, 2.2, 6.2],
+	[4.4, 0.8, 3.6],
+	[3.2, 0, 3.4],
 ];
 
 /** Где стоит Баба Яга, протягивая череп (глава «Череп-светоч»). */

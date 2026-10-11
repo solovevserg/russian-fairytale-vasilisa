@@ -1,8 +1,9 @@
 import { useFrame } from "@react-three/fiber";
-import { useRef } from "react";
-import { DoubleSide, type Group } from "three";
+import { useMemo, useRef } from "react";
+import { CatmullRomCurve3, DoubleSide, type Group, Vector3 } from "three";
 import { useStoryStore } from "../../state/storyStore";
 import { KEYFRAMES, RIDER_PATHS, type RiderColor } from "../../story/keyframes";
+import { riderStarts } from "../../story/riderClock";
 import { heightAt } from "../terrain";
 
 const COLORS: Record<
@@ -30,6 +31,17 @@ function Rider({ color }: { color: RiderColor }) {
 	const palette = COLORS[color];
 	const path = RIDER_PATHS[color];
 	const chapterIndex = KEYFRAMES.findIndex((k) => k.rider === color);
+	const curve = useMemo(
+		() =>
+			new CatmullRomCurve3(
+				path.points.map((p) => new Vector3(...p)),
+				false,
+				"centripetal",
+			),
+		[path],
+	);
+	const point = useMemo(() => new Vector3(), []);
+	const tangent = useMemo(() => new Vector3(), []);
 
 	useFrame(({ clock }) => {
 		const r = root.current;
@@ -40,19 +52,25 @@ function Rider({ color }: { color: RiderColor }) {
 		if (active !== run.current.chapter) {
 			run.current.chapter = active;
 			run.current.start = active === chapterIndex ? now : -1;
+			if (run.current.start >= 0) riderStarts[color] = now;
+			else delete riderStarts[color];
 		}
 		const t =
 			run.current.start < 0 ? -1 : (now - run.current.start) / path.duration;
 		r.visible = t >= 0 && t <= 1;
 		if (!r.visible) return;
 
-		const x = path.from[0] + (path.to[0] - path.from[0]) * t;
-		const z = path.from[2] + (path.to[2] - path.from[2]) * t;
+		curve.getPointAt(t, point);
+		curve.getTangentAt(t, tangent);
 		const gallop = now * 11;
-		r.position.set(x, heightAt(x, z) + Math.abs(Math.sin(gallop)) * 0.08, z);
+		r.position.set(
+			point.x,
+			heightAt(point.x, point.z) + Math.abs(Math.sin(gallop)) * 0.08,
+			point.z,
+		);
 		r.rotation.set(
 			Math.sin(gallop) * 0.04,
-			Math.atan2(path.to[0] - path.from[0], path.to[2] - path.from[2]),
+			Math.atan2(tangent.x, tangent.z),
 			0,
 		);
 		legs.current.forEach((leg, i) => {

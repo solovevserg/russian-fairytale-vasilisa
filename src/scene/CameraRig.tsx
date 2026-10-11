@@ -6,7 +6,9 @@ import { useSceneStore } from "../state/sceneStore";
 import { useStoryStore } from "../state/storyStore";
 import { currentSample } from "../story/currentSample";
 import { KEYFRAMES } from "../story/keyframes";
-import { createTimeline, shapeProgress } from "../story/timeline";
+import { delayedTimeProgress } from "../story/lightDelay";
+import { riderStarts } from "../story/riderClock";
+import { createSample, createTimeline, shapeProgress } from "../story/timeline";
 import { PARALLAX_LOOK, PARALLAX_SHIFT, pointer } from "./pointerParallax";
 import { heightAt } from "./terrain";
 
@@ -22,6 +24,7 @@ const forward = new Vector3();
 const right = new Vector3();
 const up = new Vector3();
 const lookAt = new Vector3();
+const timeSample = createSample();
 
 // ?time=HH фиксирует время суток (для отладки освещения)
 const timeLocked =
@@ -39,7 +42,7 @@ export function CameraRig() {
 	const smoothed = useRef<number | null>(null);
 	const parallax = useRef({ x: 0, y: 0 });
 
-	useFrame((_, delta) => {
+	useFrame(({ clock }, delta) => {
 		const target = shapeProgress(useStoryStore.getState().progress);
 		// первый кадр — сразу на место, дальше — экспоненциальное сглаживание
 		const current = debugFlags.instant ? target : (smoothed.current ?? target);
@@ -48,6 +51,15 @@ export function CameraRig() {
 			(target - current) * (1 - Math.exp(-DAMPING * Math.min(delta, 0.1)));
 
 		timeline.sample(smoothed.current, sample);
+		// свет меняется не сразу, а после того как проскачет всадник
+		const timeProgress = delayedTimeProgress(
+			smoothed.current,
+			clock.elapsedTime,
+			riderStarts,
+		);
+		if (timeProgress !== smoothed.current) {
+			sample.timeOfDay = timeline.sample(timeProgress, timeSample).timeOfDay;
+		}
 
 		// лёгкий параллакс от мыши: камера сдвигается за курсором и чуть
 		// доворачивает взгляд; амплитуда — доля расстояния до цели
