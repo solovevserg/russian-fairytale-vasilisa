@@ -36,7 +36,7 @@
 понадобил, и копируются:
 
 | Что | Где сейчас |
-|---|---|
+| --- | --- |
 | `smoothstep` / `smooth` | `terrain.ts`, `terrainSplat.ts`, `timeline.ts`, `departure.ts`, `homecoming.ts` + ещё ~10 мест вписано вручную `t * t * (3 - 2 * t)` |
 | `lerpAngle` | `timeline.ts`, `homecoming.ts`, `intro.ts` |
 | `lerp`, `clamp` | `timeline.ts` и вручную `Math.min(Math.max(…))` повсюду |
@@ -51,7 +51,7 @@
 `i18n/`** (проверяется правилом biome `noRestrictedImports` или простым
 юнит-тестом по импортам). Всё там — чистые функции с тестами.
 
-```
+```text
 src/lib/
   math.ts        clamp, clamp01, lerp, inverseLerp, smoothstep, smoothstep01,
                  lerpAngle, wrapAngle, remap
@@ -150,7 +150,7 @@ src/lib/
 
 ### 3.1 Разбить `keyframes.ts` (546 строк)
 
-```
+```text
 story/
   types.ts            SceneKeyframe, VasilisaState, Vec3
   places.ts           места (2.2)
@@ -169,7 +169,7 @@ story/
 ```tsx
 <Presence when={(s) => s.hut}><Hut /><Torch /><Fence /></Presence>
 <Presence when={(s) => s.house}><House /><Garden /></Presence>
-```
+```text
 
 Свет внутри гасится интенсивностью (как сейчас) — это знание остаётся в
 одном месте, в `Presence`.
@@ -339,7 +339,7 @@ ESLint ради одного правила тащить не стоит.
 ## Порядок работ
 
 | # | Что | Риск | Проверка |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | 0 | Снимки, управляемые часы, инварианты | — | сами тесты |
 | 1 | `src/lib/`, адресные флаги, хранилище | низкий | юнит + снимки |
 | 2 | `ChapterId`, места, всадники, значения по умолчанию, замеры моделей | средний | типы + снимки |
