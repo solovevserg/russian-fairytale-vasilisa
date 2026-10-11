@@ -1,4 +1,5 @@
 import { createNoise2D } from "simplex-noise";
+import { KEYFRAMES } from "../../story/keyframes";
 import { createRandom } from "../random";
 import {
 	CLEARING_RADIUS,
@@ -48,13 +49,28 @@ export function tallGrassDensity(x: number, z: number): number {
 	return Math.min(1, (edge * 0.8 + roadside * 0.6 + 0.15) * patch);
 }
 
-/** Плотность кустов: у кромки леса, не на тропе и не у забора. */
+/** Низкие позиции камеры из ключевых кадров: рядом с ними кусты не сажаем — не закроют кадр. */
+const LOW_CAMERAS = KEYFRAMES.map((k) => k.camera.position).filter(
+	([x, y, z]) => y - heightAt(x, z) < 3,
+);
+
+/**
+ * Плотность кустов: полосы вдоль тропы, кольцо вокруг поляны, редко в чаще.
+ * Не на самой тропе, не внутри ограды и не перед камерами.
+ */
 export function bushDensity(x: number, z: number): number {
 	const r = Math.hypot(x, z);
-	if (r < CLEARING_RADIUS - 1.5) return 0;
-	if (distanceToPath(x, z) < 2.6) return 0;
-	const edge = 1 - Math.min(Math.abs(r - (CLEARING_RADIUS + 3)) / 5, 1);
-	return edge * 0.9 + (r > CLEARING_RADIUS + 8 ? 0.15 : 0);
+	const d = distanceToPath(x, z);
+	if (d < 2.4 || r < 7.5) return 0;
+	if (LOW_CAMERAS.some(([cx, , cz]) => Math.hypot(x - cx, z - cz) < 2.5))
+		return 0;
+	const roadside = d < 5.5 ? 1 - (d - 2.4) / 3.1 : 0;
+	const edge =
+		r >= CLEARING_RADIUS - 1.5
+			? 1 - Math.min(Math.abs(r - (CLEARING_RADIUS + 2)) / 5, 1)
+			: 0;
+	const deep = r > CLEARING_RADIUS + 8 ? 0.15 : 0;
+	return Math.min(1, roadside * 0.9 + edge * 0.95 + deep);
 }
 
 /**

@@ -8,14 +8,14 @@ import { bushDensity, grassDensity, scatter, tallGrassDensity } from "./layout";
 
 const SHORT_TUFT = {
 	blades: 7,
-	height: 0.3,
+	height: 0.5,
 	width: 0.05,
 	spread: 0.3,
 	seed: 11,
 };
 const TALL_TUFT = {
 	blades: 9,
-	height: 0.95,
+	height: 1.2,
 	width: 0.045,
 	spread: 0.35,
 	seed: 23,
@@ -62,8 +62,8 @@ function Bushes() {
 	const groups = useMemo(() => {
 		const plants = scatter({
 			seed: 3,
-			radius: 35,
-			spacing: 3.2,
+			radius: 42,
+			spacing: 2.2,
 			density: bushDensity,
 			scale: [0.7, 1.25],
 		});
@@ -112,8 +112,8 @@ export function Vegetation() {
 				density={grassDensity}
 				scale={SHORT_SCALE}
 				tuft={SHORT_TUFT}
-				tipColor="#c2cc82"
-				rootColor="#5d6e3c"
+				tipColor="#98a55c"
+				rootColor="#3b4924"
 			/>
 			<GrassField
 				seed={2}
@@ -122,8 +122,8 @@ export function Vegetation() {
 				density={tallGrassDensity}
 				scale={TALL_SCALE}
 				tuft={TALL_TUFT}
-				tipColor="#cdc489"
-				rootColor="#5e6a3a"
+				tipColor="#a8a166"
+				rootColor="#424f26"
 			/>
 			<Bushes />
 		</group>
