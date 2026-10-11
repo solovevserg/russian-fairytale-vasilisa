@@ -56,6 +56,11 @@ test("язык переключается на лету и запоминает�
 	await expect(title).toHaveText("Василиса Прекрасная");
 
 	await page.getByRole("button", { name: "Язык: Русский" }).click();
+	// список не уезжает за край экрана (на мобильных кнопка — справа)
+	const menu = await page.locator(".lang-menu__list").boundingBox();
+	const width = page.viewportSize()?.width ?? 0;
+	expect(menu?.x).toBeGreaterThanOrEqual(0);
+	expect((menu?.x ?? 0) + (menu?.width ?? 0)).toBeLessThanOrEqual(width);
 	await page.getByRole("button", { name: "English" }).click();
 	await expect(title).toHaveText("Vasilisa the Beautiful");
 	await expect(page.locator("html")).toHaveAttribute("lang", "en");

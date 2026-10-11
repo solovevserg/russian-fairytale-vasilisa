@@ -83,6 +83,8 @@ export interface Content {
 		soundDisable: string;
 		themeLight: string;
 		themeDark: string;
+		/** Подсказка на первом экране мобильной версии: как листать и что «Читать» — само. */
+		swipeHint: [action: string, alternative: string];
 		/** Подпись меню языков. */
 		language: string;
 		toolbar: string;
@@ -129,6 +131,10 @@ export const CONTENT: Record<Lang, Content> = {
 			soundDisable: "Выключить звук",
 			themeLight: "Светлая тема",
 			themeDark: "Тёмная тема",
+			swipeHint: [
+				"Листайте, чтобы смотреть сказку",
+				"или нажмите «Читать» — она пойдёт сама",
+			],
 			language: "Язык",
 			toolbar: "Управление чтением",
 			chaptersNav: "Главы",
@@ -171,6 +177,7 @@ export const CONTENT: Record<Lang, Content> = {
 			soundDisable: "Turn sound off",
 			themeLight: "Light theme",
 			themeDark: "Dark theme",
+			swipeHint: ["Swipe to watch the tale", "or tap “Read” to play it"],
 			language: "Language",
 			toolbar: "Reading controls",
 			chaptersNav: "Chapters",
@@ -213,6 +220,10 @@ export const CONTENT: Record<Lang, Content> = {
 			soundDisable: "Desactivar sonido",
 			themeLight: "Tema claro",
 			themeDark: "Tema oscuro",
+			swipeHint: [
+				"Desliza para ver el cuento",
+				"o pulsa «Leer» y avanzará solo",
+			],
 			language: "Idioma",
 			toolbar: "Controles de lectura",
 			chaptersNav: "Capítulos",
@@ -251,6 +262,7 @@ export const CONTENT: Record<Lang, Content> = {
 			soundDisable: "关闭声音",
 			themeLight: "浅色主题",
 			themeDark: "深色主题",
+			swipeHint: ["滑动观看故事", "或点击“阅读”自动播放"],
 			language: "语言",
 			toolbar: "阅读控制",
 			chaptersNav: "章节",

@@ -1,6 +1,7 @@
 import { SceneCanvas } from "./scene/SceneCanvas";
 import { ControlBar } from "./ui/ControlBar";
 import { StoryColumn } from "./ui/StoryColumn";
+import { SwipeHint } from "./ui/SwipeHint";
 
 export function App() {
 	return (
@@ -10,6 +11,7 @@ export function App() {
 			</div>
 			<ControlBar />
 			<StoryColumn />
+			<SwipeHint />
 		</div>
 	);
 }
