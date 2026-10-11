@@ -1,6 +1,7 @@
 import { useFrame } from "@react-three/fiber";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { type InstancedMesh, Object3D } from "three";
+
 import { debugFlags } from "../../debugFlags";
 import { useSceneStore } from "../../state/sceneStore";
 import {

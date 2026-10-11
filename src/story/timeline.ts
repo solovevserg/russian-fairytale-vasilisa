@@ -1,4 +1,5 @@
 import { CatmullRomCurve3, Vector3 } from "three";
+
 import {
 	clamp,
 	clamp01,

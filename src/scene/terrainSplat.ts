@@ -1,4 +1,5 @@
 import { createNoise2D } from "simplex-noise";
+
 import { smoothstep } from "../lib/math";
 import { createRandom } from "../lib/random";
 import { distanceToPath, TERRAIN_SIZE, wildness } from "./terrain";

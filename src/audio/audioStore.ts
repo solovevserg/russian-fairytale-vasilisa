@@ -1,4 +1,5 @@
 import { create } from "zustand";
+
 import { readStored, writeStored } from "../lib/storage";
 
 const STORAGE_KEY = "izbushka:sound";

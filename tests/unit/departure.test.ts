@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+
 import { distanceToPath } from "../../src/scene/terrain";
 import { DEPARTURE, departureAt } from "../../src/story/departure";
 

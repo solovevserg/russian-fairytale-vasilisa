@@ -1,4 +1,5 @@
 import { createNoise2D } from "simplex-noise";
+
 import { clamp01 } from "../../lib/math";
 import { createRandom } from "../../lib/random";
 import { KEYFRAMES } from "../../story/keyframes";

@@ -1,5 +1,7 @@
 import { describe, expect, test } from "bun:test";
+
 import { PerspectiveCamera, Vector3 } from "three";
+
 import { heightAt, pathFrame } from "../../src/scene/terrain";
 import { creditsCamera, HOMECOMING } from "../../src/story/homecoming";
 import { KEYFRAMES, type SceneKeyframe } from "../../src/story/keyframes";

@@ -1,5 +1,7 @@
 import { describe, expect, test } from "bun:test";
+
 import { CatmullRomCurve3, PerspectiveCamera, Vector3 } from "three";
+
 import { HOME, heightAt } from "../../src/scene/terrain";
 import {
 	BABA_YAGA_FLIGHT,

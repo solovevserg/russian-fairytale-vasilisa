@@ -13,6 +13,7 @@ import {
 	Vector3,
 } from "three";
 import { clone as cloneSkinned } from "three/examples/jsm/utils/SkeletonUtils.js";
+
 import { smoothstep } from "../../lib/math";
 import { currentSample } from "../../story/currentSample";
 import { BABA_YAGA_FLIGHT, BABA_YAGA_STAND } from "../../story/keyframes";

@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+
 import { chapters } from "../../src/story/chapters";
 
 test("страница открывается без ошибок и показывает сцену и текст", async ({

@@ -1,6 +1,7 @@
 import { useFrame, useThree } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
 import { type PerspectiveCamera, Vector3 } from "three";
+
 import { debugFlags } from "../debugFlags";
 import { damp, dampFactor, ramp } from "../lib/damp";
 import { smooth01 } from "../lib/math";

@@ -13,6 +13,7 @@ import {
 	SRGBColorSpace,
 	type Texture,
 } from "three";
+
 import { heightAt, TERRAIN_SIZE } from "./terrain";
 import { buildSplatMask } from "./terrainSplat";
 

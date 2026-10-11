@@ -8,6 +8,7 @@ import {
 	Object3D,
 	type PointLight,
 } from "three";
+
 import { createRandom } from "../lib/random";
 import { currentSample } from "../story/currentSample";
 import { SKULL_EYE, useSkullGeometry } from "./models";

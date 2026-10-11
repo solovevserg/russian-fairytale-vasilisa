@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from "react";
+
 import { createTreeVariant } from "../forest/createTreeVariant";
 import { VariantInstances } from "../forest/Forest";
 import type { TreeVariantSpec } from "../forest/variants";

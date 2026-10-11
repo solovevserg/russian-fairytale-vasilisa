@@ -1,5 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+
 import { App } from "./App";
 import "@fontsource/ruslan-display/cyrillic-400.css";
 import "@fontsource/ruslan-display/latin-400.css";

@@ -1,6 +1,7 @@
 import { useFrame } from "@react-three/fiber";
 import { useLayoutEffect, useMemo, useRef } from "react";
 import { type Group, type InstancedMesh, Object3D, Vector3 } from "three";
+
 import { createRandom } from "../lib/random";
 import { currentSample } from "../story/currentSample";
 import { HOME, heightAt } from "./terrain";

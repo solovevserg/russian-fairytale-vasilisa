@@ -1,4 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
+
 import { chapters } from "../../src/story/chapters";
 
 // Мобильная раскладка: главы — горизонтальная полоса карточек внизу экрана

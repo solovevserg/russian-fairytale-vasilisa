@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+
 import { CONTENT } from "../../src/i18n/content";
 import { LANGS, pickLang } from "../../src/i18n/lang";
 

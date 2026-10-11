@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+
 import { TREE_VARIANTS } from "../../src/scene/forest/variants";
 import { layoutForest } from "../../src/scene/forestLayout";
 import { CLEARING_RADIUS, distanceToPath } from "../../src/scene/terrain";

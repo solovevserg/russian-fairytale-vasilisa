@@ -7,6 +7,7 @@
  *   bun run models:prepare skull house — только перечисленные
  */
 import { mkdirSync } from "node:fs";
+
 import { type Document, NodeIO, type Primitive } from "@gltf-transform/core";
 import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
 import {
@@ -25,6 +26,7 @@ import {
 } from "@gltf-transform/functions";
 import { MeshoptEncoder, MeshoptSimplifier } from "meshoptimizer";
 import sharp from "sharp";
+
 import { paintVasilisa } from "./vasilisaPaint";
 
 const SRC = ".cache/models";

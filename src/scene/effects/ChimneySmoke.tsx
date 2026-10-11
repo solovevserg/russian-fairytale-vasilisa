@@ -1,4 +1,5 @@
 import { Color } from "three";
+
 import { currentSample } from "../../story/currentSample";
 import { windUniforms } from "../forest/wind";
 import { paletteAt } from "../sky/timeOfDay";

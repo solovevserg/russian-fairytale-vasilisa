@@ -1,6 +1,7 @@
 import { useFrame } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
 import { CatmullRomCurve3, DoubleSide, type Group, Vector3 } from "three";
+
 import { useStoryStore } from "../../state/storyStore";
 import { sceneProgress } from "../../story/currentSample";
 import { KEYFRAMES, RIDER_PATHS, type RiderColor } from "../../story/keyframes";

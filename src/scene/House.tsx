@@ -2,6 +2,7 @@ import { useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
 import type { MeshStandardMaterial, PointLight } from "three";
+
 import { useSceneStore } from "../state/sceneStore";
 import { currentSample } from "../story/currentSample";
 import { enableShadows, MODEL_URLS, materialsOf } from "./models";

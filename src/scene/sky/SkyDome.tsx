@@ -8,6 +8,7 @@ import {
 	Vector2,
 	Vector3,
 } from "three";
+
 import { frameDt } from "../../lib/damp";
 import { useSceneStore } from "../../state/sceneStore";
 import { windUniforms } from "../forest/wind";

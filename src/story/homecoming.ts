@@ -1,4 +1,5 @@
 import { CatmullRomCurve3, Vector3 } from "three";
+
 import { clamp, lerpAngle, smooth01 as smooth } from "../lib/math";
 import { HOME, heightAt, pathFrame } from "../scene/terrain";
 import { distanceAlongPath } from "./departure";

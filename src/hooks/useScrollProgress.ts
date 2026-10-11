@@ -1,4 +1,5 @@
 import { type RefObject, useEffect } from "react";
+
 import { useStoryStore } from "../state/storyStore";
 import { progressFromAnchors } from "../story/timeline";
 import {

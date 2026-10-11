@@ -2,6 +2,7 @@ import { useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
 import type { Group, PointLight } from "three";
+
 import { debugFlags } from "../../debugFlags";
 import { dampFactor } from "../../lib/damp";
 import { smooth01 } from "../../lib/math";

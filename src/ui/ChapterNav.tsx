@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+
 import { scrollToCenter } from "../lib/dom";
 import { useStoryStore } from "../state/storyStore";
 import { chapters } from "../story/chapters";

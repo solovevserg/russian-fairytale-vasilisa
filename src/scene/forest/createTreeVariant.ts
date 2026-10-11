@@ -6,6 +6,7 @@ import {
 	type MeshPhongMaterial,
 	RGBADepthPacking,
 } from "three";
+
 import { quality } from "../quality";
 import type { TreeVariantSpec } from "./variants";
 import { applyWind } from "./wind";

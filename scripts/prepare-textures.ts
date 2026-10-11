@@ -10,6 +10,7 @@
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, unlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+
 import ffmpegPath from "ffmpeg-static";
 
 const OUT = "public/textures/ground";

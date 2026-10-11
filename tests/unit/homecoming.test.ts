@@ -1,5 +1,7 @@
 import { describe, expect, test } from "bun:test";
+
 import { Vector3 } from "three";
+
 import { HOME, heightAt, pathFrame } from "../../src/scene/terrain";
 import {
 	HOMECOMING,

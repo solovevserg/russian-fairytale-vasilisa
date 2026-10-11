@@ -7,6 +7,7 @@ import {
 	type PointLight,
 	type SpotLight,
 } from "three";
+
 import { currentSample } from "../../story/currentSample";
 import {
 	type ParticleUniforms,

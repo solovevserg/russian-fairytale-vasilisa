@@ -1,6 +1,7 @@
 import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
 import { AdditiveBlending, type Group, type PointLight } from "three";
+
 import { useSceneStore } from "../state/sceneStore";
 import { currentSample } from "../story/currentSample";
 import { paletteAt } from "./sky/timeOfDay";
