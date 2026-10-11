@@ -5,6 +5,7 @@ import {defineConfig} from "vite";
 
 import {ezTreeTextures} from "./scripts/vite/ezTreeTextures";
 import {glslWhitespace} from "./scripts/vite/glslWhitespace";
+import {preloadFonts} from "./scripts/vite/preloadFonts";
 import {serviceWorker} from "./scripts/vite/serviceWorker";
 
 export default defineConfig({
@@ -16,10 +17,11 @@ export default defineConfig({
 					groups: [
 						// библиотеки — отдельным файлом: он меняется только при обновлении
 						// зависимостей, а не с каждым пушем, и остаётся в кэше браузера.
-						// ez-tree со своими текстурами грузится отдельно (по требованию).
+						// ez-tree со своими текстурами грузится отдельно (по требованию),
+						// стили (шрифты) — вместе с нашими: один CSS вместо двух.
 						{
 							name: "vendor",
-							test: /node_modules[\\/](?!@dgreenheck[\\/]ez-tree)/,
+							test: /node_modules[\\/](?!@dgreenheck[\\/]ez-tree).*\.[cm]?[jt]sx?$/,
 						},
 					],
 				},
@@ -34,6 +36,11 @@ export default defineConfig({
 			),
 		}),
 		glslWhitespace(),
+		// шрифты заголовков и текста на русском (язык по умолчанию)
+		preloadFonts([
+			/ruslan-display-cyrillic-400-normal-.+\.woff2$/,
+			/old-standard-tt-cyrillic-400-normal-.+\.woff2$/,
+		]),
 		serviceWorker({
 			entry: fileURLToPath(new URL("./src/sw/sw.ts", import.meta.url)),
 		}),

@@ -22,8 +22,12 @@ import {buildSplatMask} from "./terrainSplat";
 const SEGMENTS = 220;
 /** Размер плитки текстуры земли, м. */
 const TILE_METERS = 3.5;
-/** Разрешение маски весов: 1024 на 180 м — ~17 см на тексель. */
-const MASK_SIZE = 1024;
+/**
+ * Разрешение маски весов: 1024 на 180 м — ~17 см на тексель; на телефонах
+ * 512 (~34 см): считается вчетверо быстрее, а при облегчённых текстурах
+ * разницы не видно.
+ */
+const MASK_SIZE = quality.lightAssets ? 512 : 1024;
 
 // на телефонах — облегчённые копии (scripts/prepare-textures.ts)
 const base = `${import.meta.env.BASE_URL}textures/ground/${quality.lightAssets ? "mobile/" : ""}`;
@@ -35,6 +39,9 @@ const TEXTURES = {
 	forestNor: `${base}forest_nor.webp`,
 	pathNor: `${base}path_nor.webp`,
 };
+
+// грузим сразу при загрузке страницы, а не когда смонтируется сцена
+useTexture.preload(Object.values(TEXTURES));
 
 const SPLAT_PARS = /* glsl */ `
 uniform sampler2D uSplat;
