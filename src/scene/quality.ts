@@ -1,5 +1,6 @@
 import {debugFlags} from "../debugFlags";
 import {prefersReducedMotion} from "../lib/dom";
+import {readStored, writeStored} from "../lib/storage";
 import {urlString} from "../lib/url";
 
 /**
@@ -159,7 +160,11 @@ export function settingsFor(
 	};
 }
 
-function readGpu(): string | undefined {
+/** Ключ запомненного имени видеокарты в localStorage. */
+const GPU_KEY = "izbushka:gpu";
+
+/** Имя видеокарты — из отдельного WebGL-контекста (~10–100 мс). */
+function probeGpu(): string | undefined {
 	try {
 		const gl = document.createElement("canvas").getContext("webgl");
 		const ext = gl?.getExtension("WEBGL_debug_renderer_info");
@@ -171,6 +176,19 @@ function readGpu(): string | undefined {
 	} catch {
 		return undefined;
 	}
+}
+
+/**
+ * Имя видеокарты. Чтобы узнать его, нужен отдельный WebGL-контекст, а это
+ * время на старте, — поэтому оно запоминается: со второго визита берётся
+ * из localStorage.
+ */
+function readGpu(): string | undefined {
+	const saved = readStored(GPU_KEY);
+	if (saved) return saved;
+	const gpu = probeGpu();
+	if (gpu) writeStored(GPU_KEY, gpu);
+	return gpu;
 }
 
 function readDevice(): DeviceInfo {
