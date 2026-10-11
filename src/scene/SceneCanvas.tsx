@@ -10,6 +10,7 @@ import { Vasilisa } from "./actors/Vasilisa";
 import { CameraRig } from "./CameraRig";
 import { Fence } from "./Fence";
 import { Forest } from "./forest/Forest";
+import { Garden } from "./Garden";
 import { House } from "./House";
 import { Hut } from "./Hut";
 import { quality } from "./quality";
@@ -74,6 +75,7 @@ export function SceneCanvas() {
 			<Suspense fallback={null}>
 				<House />
 			</Suspense>
+			<Garden />
 			<Fence />
 			<Suspense fallback={null}>
 				<Vasilisa />
