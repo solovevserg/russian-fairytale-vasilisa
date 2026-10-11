@@ -48,6 +48,12 @@ const lookAt = new Vector3();
 const timeSample = createSample();
 const epiloguePosition = new Vector3();
 const epilogueTarget = new Vector3();
+/** Зачин: на сколько метров дальше (по той же линии взгляда) начинает камера. */
+const INTRO_BACK = 7;
+/** За сколько секунд подлетает; если листнули раньше — доводится за INTRO_SKIP. */
+const INTRO_FLY = 6;
+const INTRO_SKIP = 0.6;
+const back = new Vector3();
 /** Как быстро камера переходит на съёмку эпилога и обратно. */
 const EPILOGUE_BLEND = 1.2;
 
@@ -70,6 +76,8 @@ export function CameraRig() {
 	const staged = useRef<number | null>(null);
 	/** Доля съёмки эпилога (0 — камера по таймлайну, 1 — по homecoming.ts). */
 	const epilogue = useRef(0);
+	/** Сколько осталось подлёта при открытии сайта: 1 — в начале, 0 — на месте. */
+	const intro = useRef<number | null>(null);
 
 	useFrame(({ clock }, delta) => {
 		const progress = useStoryStore.getState().progress;
@@ -120,6 +128,24 @@ export function CameraRig() {
 		if (epilogue.current > 1e-3) {
 			sample.position.lerp(epiloguePosition, epilogue.current);
 			sample.target.lerp(epilogueTarget, epilogue.current);
+		}
+
+		// при открытии на прологе камера подлетает к дому издалека — по той же
+		// линии взгляда (угол обзора тот же)
+		if (intro.current === null)
+			intro.current = sceneProgress.value < 0.02 && !debugFlags.instant ? 1 : 0;
+		if (intro.current > 0) {
+			const atStart = sceneProgress.value < 0.02;
+			intro.current = Math.max(
+				intro.current -
+					Math.min(delta, 0.1) / (atStart ? INTRO_FLY : INTRO_SKIP),
+				0,
+			);
+			const k = intro.current;
+			// плавно тормозит у цели
+			const offset = INTRO_BACK * k * k * (3 - 2 * k);
+			back.subVectors(sample.position, sample.target).normalize();
+			sample.position.addScaledVector(back, offset);
 		}
 
 		// без мыши (телефон, планшет) — медленное покачивание вместо неё,
