@@ -8,6 +8,7 @@ import {
 	type PointLight,
 } from "three";
 import { currentSample } from "../story/currentSample";
+import { SKULL_EYE, useSkullGeometry } from "./models";
 import { createRandom } from "./random";
 import { heightAt } from "./terrain";
 
@@ -19,6 +20,9 @@ const STAKE_SPACING = 0.42;
 /** Череп на каждом N-м коле. */
 const SKULL_EVERY = 5;
 const BONE = "#c4b9a2";
+/** Черепа на кольях чуть крупнее натуральной величины — чтобы читались издали. */
+const SKULL_SCALE = 1.15;
+
 const EYES_OFF = new Color("#1a1208");
 const EYES_ON = new Color("#ffd24a");
 
@@ -62,6 +66,7 @@ function layoutStakes(): Stake[] {
  */
 export function Fence() {
 	const stakes = useMemo(layoutStakes, []);
+	const skullGeometry = useSkullGeometry();
 	const skulls = useMemo(
 		() => stakes.filter((_, i) => i % SKULL_EVERY === 2),
 		[stakes],
@@ -92,15 +97,15 @@ export function Fence() {
 			const top = s.y + s.height + 0.05;
 			dummy.position.set(s.x, top, s.z);
 			dummy.rotation.set(0, Math.PI / 2 - s.angle, 0);
-			dummy.scale.set(1, 1.15, 1.05);
+			dummy.scale.setScalar(SKULL_SCALE);
 			dummy.updateMatrix();
 			heads.current?.setMatrixAt(i, dummy.matrix);
 			for (const side of [-1, 1]) {
 				const local = dummy.clone();
 				local.scale.set(1, 1, 1);
-				local.translateX(side * 0.045);
-				local.translateY(0.02);
-				local.translateZ(0.1);
+				local.translateX(side * SKULL_EYE[0] * SKULL_SCALE);
+				local.translateY(SKULL_EYE[1] * SKULL_SCALE);
+				local.translateZ(SKULL_EYE[2] * SKULL_SCALE);
 				local.updateMatrix();
 				eyes.current?.setMatrixAt(i * 2 + (side > 0 ? 1 : 0), local.matrix);
 			}
@@ -146,17 +151,16 @@ export function Fence() {
 			</instancedMesh>
 			<instancedMesh
 				ref={heads}
-				args={[undefined, undefined, skulls.length]}
+				args={[skullGeometry, undefined, skulls.length]}
 				castShadow
 			>
-				<sphereGeometry args={[0.12, 12, 10]} />
-				<meshStandardMaterial color="#ddd3bd" roughness={0.7} />
+				<meshStandardMaterial color="#ddd3bd" roughness={0.7} flatShading />
 			</instancedMesh>
 			<instancedMesh
 				ref={eyes}
 				args={[undefined, undefined, skulls.length * 2]}
 			>
-				<sphereGeometry args={[0.028, 8, 6]} />
+				<sphereGeometry args={[0.022, 8, 6]} />
 				<meshBasicMaterial ref={eyeMaterial} toneMapped={false} />
 			</instancedMesh>
 			{/* общий отсвет от горящих глаз на избушку и землю */}

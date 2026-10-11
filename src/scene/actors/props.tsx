@@ -12,6 +12,7 @@ import {
 	type ParticleUniforms,
 	RisingParticles,
 } from "../effects/RisingParticles";
+import { SKULL_EYE, useSkullGeometry } from "../models";
 import { isShown } from "./presence";
 
 const SKIN = "#e8c3a4";
@@ -97,6 +98,7 @@ export function SkullLantern({
 	stick?: boolean;
 	beams?: boolean;
 }) {
+	const skull = useSkullGeometry();
 	const light = useRef<PointLight>(null);
 	const spot = useRef<SpotLight>(null);
 	const target = useRef<Object3D>(null);
@@ -118,15 +120,17 @@ export function SkullLantern({
 					<meshStandardMaterial color="#4a3524" roughness={1} />
 				</mesh>
 			)}
-			<group position={[0, stick ? length + 0.08 : 0.06, 0]}>
-				<mesh scale={[1, 1.15, 1.05]} castShadow>
-					<sphereGeometry args={[0.1, 12, 10]} />
-					<meshStandardMaterial color="#ddd3bd" roughness={0.7} />
+			<group position={[0, stick ? length + 0.1 : 0.08, 0]}>
+				<mesh geometry={skull} castShadow>
+					<meshStandardMaterial color="#ddd3bd" roughness={0.7} flatShading />
 				</mesh>
 				{[-1, 1].map((side) => (
-					<group key={side} position={[side * 0.038, 0.02, 0.085]}>
+					<group
+						key={side}
+						position={[side * SKULL_EYE[0], SKULL_EYE[1], SKULL_EYE[2]]}
+					>
 						<mesh>
-							<sphereGeometry args={[0.024, 8, 6]} />
+							<sphereGeometry args={[0.02, 8, 6]} />
 							<meshBasicMaterial color="#ffd24a" toneMapped={false} />
 						</mesh>
 						{beams && (
