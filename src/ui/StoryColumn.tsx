@@ -2,7 +2,12 @@ import { useRef } from "react";
 import { useScrollProgress } from "../hooks/useScrollProgress";
 import { useReaderStore } from "../reader/readerStore";
 import { useStoryStore } from "../state/storyStore";
-import { type Chapter, chapters } from "../story/chapters";
+import {
+	type Chapter,
+	chapters,
+	STORY_SUBTITLE,
+	STORY_TITLE,
+} from "../story/chapters";
 import { Divider, Tailpiece } from "./ornaments/Divider";
 import { DropCap } from "./ornaments/DropCap";
 
@@ -95,8 +100,8 @@ export function StoryColumn() {
 		<main className="story" ref={root}>
 			<header className="story__header">
 				<Divider large />
-				<p className="story__kicker">Русская народная сказка</p>
-				<h1>Василиса Прекрасная</h1>
+				<p className="story__kicker">{STORY_SUBTITLE}</p>
+				<h1>{STORY_TITLE}</h1>
 				<p className="story__subtitle">по мотивам собрания А. Н. Афанасьева</p>
 				<Divider large />
 			</header>
@@ -115,6 +120,7 @@ export function StoryColumn() {
 }
 
 const REPO = "https://github.com/solovevserg/russian-fairytale-vasilisa";
+const AUTHOR_URL = "https://sergsol.dev";
 
 /** Источники и лицензии — CC-BY требует указывать авторов прямо на сайте. */
 function Credits() {
@@ -140,6 +146,10 @@ function Credits() {
 					«Red Slavic Folk Dress»
 				</a>{" "}
 				— akot777.
+			</p>
+			<p className="story__author">
+				Сайт создан <a href={AUTHOR_URL}>Сергеем Соловьёвым</a> вместе с{" "}
+				<a href="https://claude.ai">Claude</a>.
 			</p>
 			<p>
 				<a href={`${REPO}/blob/master/docs/assets.md`}>

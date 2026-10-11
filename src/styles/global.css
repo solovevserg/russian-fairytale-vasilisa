@@ -239,6 +239,33 @@ body {
 	color: var(--accent);
 }
 
+/* ── фиксация на главах (только CSS) ──────────────────────────── */
+
+@media (min-width: 1024px) {
+	html {
+		scroll-snap-type: y mandatory;
+	}
+
+	/* автопрокрутка ведёт страницу сама — снап ей мешает */
+	html.is-autoscrolling {
+		scroll-snap-type: none;
+	}
+
+	.story__header,
+	.chapter {
+		scroll-snap-align: center;
+		scroll-snap-stop: always;
+	}
+
+	.story__credits {
+		scroll-snap-align: end;
+	}
+}
+
+.story__author {
+	color: var(--ink);
+}
+
 /* ── мобильные ───────────────────────────────────────────────── */
 
 @media (max-width: 1023px) {

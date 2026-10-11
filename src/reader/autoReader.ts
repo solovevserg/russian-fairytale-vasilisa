@@ -1,6 +1,6 @@
 import { audioEngine } from "../audio/AudioEngine";
 import { useStoryStore } from "../state/storyStore";
-import { chapters } from "../story/chapters";
+import { chapters, STORY_SUBTITLE, STORY_TITLE } from "../story/chapters";
 import { narrate } from "./narrator";
 import { useReaderStore } from "./readerStore";
 import { easeInOutCubic, readingSeconds } from "./timing";
@@ -78,6 +78,8 @@ class AutoReader {
 		const controller = new AbortController();
 		this.controller = controller;
 		useReaderStore.getState().setPlaying(true);
+		// CSS scroll-snap мешает плавной анимации прокрутки — на время чтения выключаем
+		document.documentElement.classList.add("is-autoscrolling");
 		this.listenForUser(controller.signal);
 		void this.run(controller.signal).finally(() => {
 			if (this.controller === controller) this.stop();
@@ -89,6 +91,7 @@ class AutoReader {
 		this.controller = null;
 		const reader = useReaderStore.getState();
 		reader.setPlaying(false);
+		document.documentElement.classList.remove("is-autoscrolling");
 		reader.setSpeaking(null);
 		audioEngine.setDucked(false);
 	}
@@ -104,6 +107,18 @@ class AutoReader {
 		let index = Math.round(progress);
 		const atChapter = Math.abs(progress - index) < 0.15 && window.scrollY > 0;
 		if (!atChapter) index = Math.ceil(progress);
+
+		// с самого начала — сперва звучит название сказки
+		if (
+			index === 0 &&
+			window.scrollY < 50 &&
+			useReaderStore.getState().narrate
+		) {
+			audioEngine.setDucked(true);
+			await narrate([`${STORY_TITLE}. ${STORY_SUBTITLE}.`], signal, () => {});
+			audioEngine.setDucked(false);
+			await wait(800, signal);
+		}
 
 		for (; index < chapters.length && !signal.aborted; index++) {
 			await scrollToChapter(index, signal);

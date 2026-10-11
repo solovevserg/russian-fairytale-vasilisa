@@ -1,3 +1,6 @@
+export const STORY_TITLE = "Василиса Прекрасная";
+export const STORY_SUBTITLE = "Русская народная сказка";
+
 export interface Chapter {
 	id: string;
 	title: string;
