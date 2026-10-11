@@ -6,6 +6,7 @@ import {
 	BABA_YAGA_STAND,
 	KEYFRAMES,
 	type SceneKeyframe,
+	TITLE_SHIFT,
 } from "../../src/story/keyframes";
 
 // Кадр сцены на десктопе: колонка 60% ширины, высота экрана
@@ -84,9 +85,16 @@ describe("кадрирование ключевых кадров", () => {
 		expect(inFrame(camera, onGround(x, z, 1.1))).toBe(true);
 	});
 
-	test("зачин и концовка: одна камера, в кадре изба и Василиса", () => {
+	test("зачин и концовка: камера у избы, в прологе — чуть ближе к Василисе", () => {
 		const prologue = byId("prologue");
-		expect(byId("epilogue").camera).toEqual(prologue.camera);
+		const epilogue = byId("epilogue");
+		expect(prologue.camera.target).toEqual(epilogue.camera.target);
+		// с титула (камера эпилога) пролог подлетает ближе
+		expect(
+			prologue.camera.position.map(
+				(v, i) => v + TITLE_SHIFT[i] - epilogue.camera.position[i],
+			),
+		).toEqual([0, 0, 0].map((v) => expect.closeTo(v, 6)));
 		const camera = cameraOf(prologue);
 		expect(inFrame(camera, onGround(HOME.x, HOME.z, 2.5))).toBe(true);
 		for (const id of ["prologue", "epilogue"]) {

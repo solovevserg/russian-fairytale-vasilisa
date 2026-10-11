@@ -77,6 +77,11 @@ export interface SceneKeyframe {
 	fog?: number;
 	/** Изба Василисы в сцене (только у начала и в конце пути). */
 	house?: boolean;
+	/**
+	 * Избушка Бабы Яги с факелами и частоколом в сцене (по умолчанию да). До
+	 * «Поляны» её нет вовсе — появляется сразу, как начался переход к ней.
+	 */
+	hut?: boolean;
 	/** Не быстрее чем за столько секунд меняется время суток при подходе к главе. */
 	timeFade?: number;
 	/** Не быстрее чем за столько секунд сцена (камера, герои) переходит к главе. */
@@ -181,6 +186,19 @@ const HOME_CAMERA = {
 	fov: 50,
 };
 
+/** Пролог — та же камера, но ближе к Василисе (с титула она подлетает). */
+const PROLOGUE_CLOSER = 0.3;
+const PROLOGUE_CAMERA = (() => {
+	const her = onPath(51, 1.2, -2.6);
+	const p = HOME_CAMERA.position;
+	const position = p.map((v, i) => v + (her[i] - v) * PROLOGUE_CLOSER) as Vec3;
+	return { ...HOME_CAMERA, position };
+})();
+/** На титульной карточке камера дальше, чем в прологе, на этот вектор. */
+export const TITLE_SHIFT = HOME_CAMERA.position.map(
+	(v, i) => v - PROLOGUE_CAMERA.position[i],
+) as Vec3;
+
 // Ключевые кадры по главам (см. docs/scenario.md).
 // Избушка в центре поляны (радиус ~13 м), окно смотрит на +Z, тропа уходит на +X+Z,
 // солнце встаёт со стороны избушки.
@@ -188,9 +206,10 @@ export const KEYFRAMES: SceneKeyframe[] = [
 	{
 		// Василиса с куколкой у своей избы, в начале тропы; день
 		id: "prologue",
+		hut: false,
 		timeOfDay: 13,
 		house: true,
-		camera: HOME_CAMERA,
+		camera: PROLOGUE_CAMERA,
 		wind: 0.6,
 		music: { track: "castle", volume: 0.55 },
 		vasilisa: atHome("doll"),
@@ -202,6 +221,7 @@ export const KEYFRAMES: SceneKeyframe[] = [
 	{
 		// девочка идёт по тропе при лунном свете с куколкой в руках; камера впереди
 		id: "fire",
+		hut: false,
 		timeOfDay: 1,
 		house: true,
 		// от избы по тропинке — шагом, а не рывком; ночь опускается не спеша
@@ -223,6 +243,7 @@ export const KEYFRAMES: SceneKeyframe[] = [
 	{
 		// камера за спиной Василисы, впереди проносится белый всадник, вдали светает
 		id: "white-rider",
+		hut: false,
 		timeOfDay: 5.3,
 		// она проходит мимо камеры, а камера облетает её справа и встаёт за спину
 		transition: 4.5,
@@ -248,6 +269,7 @@ export const KEYFRAMES: SceneKeyframe[] = [
 	{
 		// Василиса чуть дальше, камера за другим плечом, проносится красный всадник
 		id: "red-rider",
+		hut: false,
 		timeOfDay: 5.3,
 		camera: {
 			position: onPath(31.5, 1.75, -0.2),
@@ -266,6 +288,7 @@ export const KEYFRAMES: SceneKeyframe[] = [
 	{
 		// камера чуть снизу показывает лицо Василисы, освещённое взошедшим солнцем
 		id: "sunrise",
+		hut: false,
 		timeOfDay: 8,
 		// камера не сквозь неё, а облетает справа, не сводя с неё взгляда
 		transition: 3.5,

@@ -39,6 +39,12 @@ export const HOMECOMING = {
 	nightHour: 23,
 	/** Куда в конце смотрит камера — на избушку. */
 	finalTarget: [0, 3, 0] as [number, number, number],
+	/**
+	 * Титры: камера поднимается над избушкой ещё вдвое выше и ближе к ней по
+	 * горизонтали (доля от финальной), глядя вниз, на избушку среди леса.
+	 */
+	creditsHeight: 84,
+	creditsAcross: 0.55,
 };
 
 /**
@@ -241,4 +247,14 @@ export function homecomingCamera(
 	// взгляд — с Василисы на избушку
 	finalTarget.set(...HOMECOMING.finalTarget);
 	target.lerpVectors(her, finalTarget, smooth(r * 1.25 - 0.1));
+}
+
+/** Камера на титрах: высоко над избушкой (см. HOMECOMING.creditsHeight). */
+export function creditsCamera(position: Vector3, target: Vector3): void {
+	const f = pathFrame(HOMECOMING.finalDistance);
+	const fx = f.x + f.toHutZ * HOMECOMING.finalSide;
+	const fz = f.z - f.toHutX * HOMECOMING.finalSide;
+	const k = HOMECOMING.creditsAcross;
+	position.set(fx * k, heightAt(0, 0) + HOMECOMING.creditsHeight, fz * k);
+	target.set(...HOMECOMING.finalTarget);
 }

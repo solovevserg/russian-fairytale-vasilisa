@@ -6,12 +6,13 @@ import { useSceneStore } from "../state/sceneStore";
 import { useStoryStore } from "../state/storyStore";
 import { currentSample, sceneProgress } from "../story/currentSample";
 import {
+	creditsCamera,
 	HOMECOMING,
 	homecomingCamera,
 	homecomingClock,
 	homecomingNight,
 } from "../story/homecoming";
-import { KEYFRAMES } from "../story/keyframes";
+import { KEYFRAMES, TITLE_SHIFT } from "../story/keyframes";
 import {
 	delayedTimeProgress,
 	easeScene,
@@ -54,6 +55,8 @@ const INTRO_BACK = 7;
 const INTRO_FLY = 6;
 const INTRO_SKIP = 0.6;
 const back = new Vector3();
+const creditsPosition = new Vector3();
+const creditsTarget = new Vector3();
 /** Как быстро камера переходит на съёмку эпилога и обратно. */
 const EPILOGUE_BLEND = 1.2;
 
@@ -76,6 +79,8 @@ export function CameraRig() {
 	const staged = useRef<number | null>(null);
 	/** Доля съёмки эпилога (0 — камера по таймлайну, 1 — по homecoming.ts). */
 	const epilogue = useRef(0);
+	/** Сглаженные доли «на титуле» и «ушли к титрам» (см. storyStore). */
+	const edges = useRef<{ title: number; credits: number } | null>(null);
 	/** Сколько осталось подлёта при открытии сайта: 1 — в начале, 0 — на месте. */
 	const intro = useRef<number | null>(null);
 
@@ -128,6 +133,30 @@ export function CameraRig() {
 		if (epilogue.current > 1e-3) {
 			sample.position.lerp(epiloguePosition, epilogue.current);
 			sample.target.lerp(epilogueTarget, epilogue.current);
+		}
+
+		// титул — камера дальше от Василисы, к прологу подлетает ближе;
+		// титры — взлетает высоко над избушкой (даже если эпилог не досмотрен)
+		const story = useStoryStore.getState();
+		const e = edges.current ?? { title: story.title, credits: story.credits };
+		edges.current = e;
+		const ke = debugFlags.instant
+			? 1
+			: 1 - Math.exp(-DAMPING * Math.min(delta, 0.1));
+		e.title += (story.title - e.title) * ke;
+		e.credits += (story.credits - e.credits) * ke;
+		if (e.title > 1e-3) {
+			const k = e.title * e.title * (3 - 2 * e.title);
+			sample.position.x += TITLE_SHIFT[0] * k;
+			sample.position.y += TITLE_SHIFT[1] * k;
+			sample.position.z += TITLE_SHIFT[2] * k;
+		}
+		if (e.credits > 1e-3) {
+			creditsCamera(creditsPosition, creditsTarget);
+			// сначала набирает высоту, потом смещается к избушке
+			const k = e.credits * e.credits * (3 - 2 * e.credits);
+			sample.position.lerp(creditsPosition, k);
+			sample.target.lerp(creditsTarget, Math.min(k * 1.5, 1));
 		}
 
 		// при открытии на прологе камера подлетает к дому издалека — по той же
