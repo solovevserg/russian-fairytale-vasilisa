@@ -40,13 +40,17 @@ export function SceneCanvas() {
 			{!debugFlags.noForest && <Forest />}
 			{!debugFlags.noGrass && <Vegetation />}
 			<group position={[0, GROUND_Y, 0]}>
-				<Hut />
+				<Suspense fallback={null}>
+					<Hut />
+				</Suspense>
 				<Torch position={[-2.4, 0, 2.6]} />
 				<Torch position={[2.4, 0, 2.6]} phase={2.3} />
 			</group>
 			<Fence />
-			<Vasilisa />
-			<BabaYaga />
+			<Suspense fallback={null}>
+				<Vasilisa />
+				<BabaYaga />
+			</Suspense>
 			<Riders />
 			<Birds />
 		</Canvas>

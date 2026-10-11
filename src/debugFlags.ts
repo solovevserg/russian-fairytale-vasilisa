@@ -10,4 +10,6 @@ export const debugFlags = {
 	noBranches: params.has("nobranches"),
 	noForest: params.has("noforest"),
 	noGrass: params.has("nograss"),
+	/** Камера сразу встаёт в кадр главы, без сглаживания (снимки, тесты). */
+	instant: params.has("instant"),
 };

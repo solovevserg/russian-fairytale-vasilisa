@@ -1,83 +1,71 @@
+import { useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { useRef } from "react";
-import type { MeshStandardMaterial } from "three";
+import { useMemo, useRef } from "react";
+import type { MeshStandardMaterial, PointLight } from "three";
 import { useSceneStore } from "../state/sceneStore";
 import { ChimneySmoke } from "./effects/ChimneySmoke";
+import { enableShadows, MODEL_URLS, materialsOf } from "./models";
 import { paletteAt } from "./sky/timeOfDay";
 
-// Заглушка избушки на курьих ножках из примитивов. На этапе 5 заменяется моделью.
-const LEG_COLOR = "#c9a36b";
-const WOOD_COLOR = "#5b3d27";
-/** Труба на скате крыши (координаты внутри сруба). */
-const CHIMNEY: [number, number, number] = [0.8, 2.3, -0.55];
-
-function Leg({ x }: { x: number }) {
-	return (
-		<group position={[x, 0, 0]}>
-			{/* бедро и голень — «колено» назад, как у птицы */}
-			<mesh position={[0, 2.4, -0.3]} rotation-x={0.35} castShadow>
-				<cylinderGeometry args={[0.35, 0.25, 1.8, 8]} />
-				<meshStandardMaterial color={LEG_COLOR} roughness={0.8} />
-			</mesh>
-			<mesh position={[0, 0.9, -0.3]} rotation-x={-0.35} castShadow>
-				<cylinderGeometry args={[0.15, 0.12, 1.8, 8]} />
-				<meshStandardMaterial color={LEG_COLOR} roughness={0.8} />
-			</mesh>
-			{/* пальцы */}
-			{[-0.5, 0, 0.5].map((angle) => (
-				<mesh
-					key={angle}
-					position={[Math.sin(angle) * 0.45, 0.06, Math.cos(angle) * 0.45]}
-					rotation={[Math.PI / 2, 0, -angle]}
-					castShadow
-				>
-					<coneGeometry args={[0.08, 0.9, 6]} />
-					<meshStandardMaterial color={LEG_COLOR} roughness={0.8} />
-				</mesh>
-			))}
-		</group>
-	);
-}
+/**
+ * Избушка на курьих ножках — модель «A hut on chicken legs» (vet.doc, CC-BY 4.0).
+ * В исходнике ~34 единицы в высоту, дверь смотрит в −X, труба — на +X.
+ */
+const SCALE = 0.235;
+/** Нижняя точка модели (кончики когтей) в её единицах. */
+const MODEL_BOTTOM = -16.3;
+/** Поворот, при котором дверь (−X модели) смотрит на ворота и тропу. */
+const ROTATION_Y = Math.atan2(0.835, -0.55);
+/** Верх трубы в координатах модели. */
+const CHIMNEY_TOP: [number, number, number] = [5.9, 15, -5.9];
 
 export function Hut() {
-	const windowMaterial = useRef<MeshStandardMaterial>(null);
+	const { scene } = useGLTF(MODEL_URLS.hut);
+	const model = useMemo(() => {
+		const clone = scene.clone(true);
+		enableShadows(clone);
+		return clone;
+	}, [scene]);
+	// окна и фонари у двери нарисованы эмиссивной текстурой — их и «зажигаем» ночью
+	const glowing = useMemo(
+		() =>
+			materialsOf(model).filter(
+				(m): m is MeshStandardMaterial =>
+					"emissiveMap" in m && !!(m as MeshStandardMaterial).emissiveMap,
+			),
+		[model],
+	);
+	const doorLight = useRef<PointLight>(null);
 
 	useFrame(() => {
 		const night = paletteAt(useSceneStore.getState().timeOfDay).night;
-		if (windowMaterial.current)
-			windowMaterial.current.emissiveIntensity = 0.2 + night * 2.5;
+		for (const m of glowing) m.emissiveIntensity = 0.3 + night * 2.2;
+		if (doorLight.current) doorLight.current.intensity = night * 6;
 	});
 
+	const chimney: [number, number, number] = [
+		CHIMNEY_TOP[0] * SCALE,
+		(CHIMNEY_TOP[1] - MODEL_BOTTOM) * SCALE,
+		CHIMNEY_TOP[2] * SCALE,
+	];
+
 	return (
-		<group>
-			<Leg x={-0.9} />
-			<Leg x={0.9} />
-			<group position={[0, 4.6, 0]}>
-				<mesh castShadow receiveShadow>
-					<boxGeometry args={[3.6, 2.4, 3]} />
-					<meshStandardMaterial color={WOOD_COLOR} roughness={0.95} />
-				</mesh>
-				<mesh position={[0, 2, 0]} rotation-y={Math.PI / 4} castShadow>
-					<coneGeometry args={[3.1, 1.8, 4]} />
-					<meshStandardMaterial color="#3d3022" roughness={1} />
-				</mesh>
-				{/* окошко */}
-				<mesh position={[0, 0.1, 1.51]}>
-					<planeGeometry args={[0.8, 0.7]} />
-					<meshStandardMaterial
-						ref={windowMaterial}
-						color="#3a2410"
-						emissive="#ff9a2e"
-					/>
-				</mesh>
-				{/* труба */}
-				<mesh position={CHIMNEY} castShadow>
-					<boxGeometry args={[0.45, 1.3, 0.45]} />
-					<meshStandardMaterial color="#4a3b30" roughness={1} />
-				</mesh>
-				<group position={[CHIMNEY[0], CHIMNEY[1] + 0.7, CHIMNEY[2]]}>
-					<ChimneySmoke />
-				</group>
+		<group rotation-y={ROTATION_Y}>
+			<primitive
+				object={model}
+				scale={SCALE}
+				position-y={-MODEL_BOTTOM * SCALE}
+			/>
+			{/* тёплый свет из двери ночью */}
+			<pointLight
+				ref={doorLight}
+				position={[-3.4, 3.2, 0]}
+				color="#ffae5c"
+				distance={9}
+				decay={1.8}
+			/>
+			<group position={chimney}>
+				<ChimneySmoke />
 			</group>
 		</group>
 	);

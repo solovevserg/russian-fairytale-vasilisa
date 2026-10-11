@@ -1,36 +1,47 @@
+import { useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import {
+	AnimationMixer,
+	CatmullRomCurve3,
 	DoubleSide,
 	type Group,
 	LatheGeometry,
+	type Object3D,
 	type PointLight,
-	QuadraticBezierCurve3,
 	Vector2,
 	Vector3,
 } from "three";
+import { clone as cloneSkinned } from "three/examples/jsm/utils/SkeletonUtils.js";
 import { currentSample } from "../../story/currentSample";
 import { BABA_YAGA_FLIGHT, BABA_YAGA_STAND } from "../../story/keyframes";
+import { enableShadows, MODEL_URLS } from "../models";
 import { heightAt } from "../terrain";
 import { setShown } from "./presence";
 import { SkullLantern } from "./props";
 
-const SKIN = "#c9a98a";
-const ROBE = "#3b3328";
-const SHAWL = "#5a1f1a";
 const WOOD = "#6b4a2e";
 
-/** Полёт по небу: дуга над поляной, ~8 с пролёт и пауза. */
-const FLIGHT = new QuadraticBezierCurve3(
-	...(BABA_YAGA_FLIGHT.map((p) => new Vector3(...p)) as [
-		Vector3,
-		Vector3,
-		Vector3,
-	]),
+/**
+ * Модель «Witch» (MAXDESIGN, CC-BY 4.0): ~1.02 единицы роста, смотрит в +Z,
+ * клюка в правой руке. Анимация «Take 001» — спокойное покачивание.
+ */
+const WITCH_HEIGHT = 1.02;
+const STAND_SCALE = 1.5 / WITCH_HEIGHT;
+/** Верх клюки в координатах модели — туда насаживаем череп. */
+const STAFF_TOP: [number, number, number] = [-0.17, 0.95, 0.03];
+
+/** Полёт: заходит высоко с края неба и виражом снижается к избушке. */
+const FLIGHT = new CatmullRomCurve3(
+	BABA_YAGA_FLIGHT.map((p) => new Vector3(...p)),
+	false,
+	"centripetal",
 );
-const FLIGHT_TIME = 8;
+const FLIGHT_TIME = 9;
 const FLIGHT_PAUSE = 2.5;
-const STAND_AT = BABA_YAGA_STAND;
+/** Крен на вираже: радиан на радиан поворота курса за шаг выборки. */
+const BANK = 9;
+const MAX_BANK = 0.75;
 
 function Mortar() {
 	const geometry = useMemo(
@@ -55,56 +66,6 @@ function Mortar() {
 	);
 }
 
-/** Сгорбленная старуха: балахон, платок, длинный нос. */
-function Figure({ armForward = false }: { armForward?: boolean }) {
-	return (
-		<group>
-			<mesh position={[0, 0.55, 0]} castShadow>
-				<coneGeometry args={[0.32, 1.1, 12]} />
-				<meshStandardMaterial color={ROBE} roughness={1} />
-			</mesh>
-			<group position={[0, 1.15, 0.1]} rotation-x={0.35}>
-				<mesh castShadow>
-					<sphereGeometry args={[0.12, 14, 10]} />
-					<meshStandardMaterial color={SKIN} roughness={0.85} />
-				</mesh>
-				<mesh position={[0, 0.03, -0.01]} scale={[1.15, 1.1, 1.2]}>
-					<sphereGeometry
-						args={[0.125, 14, 10, 0, Math.PI * 2, 0, Math.PI * 0.6]}
-					/>
-					<meshStandardMaterial color={SHAWL} roughness={1} />
-				</mesh>
-				<mesh position={[0, -0.01, 0.15]} rotation-x={Math.PI / 2 + 0.3}>
-					<coneGeometry args={[0.025, 0.12, 8]} />
-					<meshStandardMaterial color={SKIN} roughness={0.85} />
-				</mesh>
-				{[-1, 1].map((side) => (
-					<mesh key={side} position={[side * 0.04, 0.03, 0.105]}>
-						<sphereGeometry args={[0.013, 8, 6]} />
-						<meshBasicMaterial color="#e6c040" />
-					</mesh>
-				))}
-			</group>
-			{/* правая рука: вперёд (протягивает череп) или вниз к песту */}
-			<group
-				position={[0.2, 0.95, 0.05]}
-				rotation-x={armForward ? -1.35 : -0.6}
-			>
-				<mesh position={[0, -0.22, 0]}>
-					<cylinderGeometry args={[0.05, 0.04, 0.45, 8]} />
-					<meshStandardMaterial color={ROBE} roughness={1} />
-				</mesh>
-			</group>
-			<group position={[-0.2, 0.95, 0.05]} rotation-x={-0.5}>
-				<mesh position={[0, -0.22, 0]}>
-					<cylinderGeometry args={[0.05, 0.04, 0.45, 8]} />
-					<meshStandardMaterial color={ROBE} roughness={1} />
-				</mesh>
-			</group>
-		</group>
-	);
-}
-
 function Broom() {
 	return (
 		<group>
@@ -120,23 +81,51 @@ function Broom() {
 	);
 }
 
+/** Экземпляр модели со своим скелетом и проигрывателем анимации. */
+function useWitch(): { object: Object3D; mixer: AnimationMixer } {
+	const { scene, animations } = useGLTF(MODEL_URLS.babaYaga);
+	const witch = useMemo(() => {
+		const object = cloneSkinned(scene);
+		enableShadows(object);
+		const mixer = new AnimationMixer(object);
+		if (animations[0]) mixer.clipAction(animations[0]).play();
+		return { object, mixer };
+	}, [scene, animations]);
+	useEffect(
+		() => () => {
+			witch.mixer.stopAllAction();
+		},
+		[witch],
+	);
+	return witch;
+}
+
+/** Курс (поворот вокруг Y) касательной. */
+function heading(v: Vector3) {
+	return Math.atan2(v.x, v.z);
+}
+
 /**
- * Баба Яга — заглушка из примитивов. Глава «Баба Яга»: летит в ступе,
- * пестом погоняет, помелом след заметает. Глава «Череп-светоч»: стоит у избы
- * и протягивает Василисе череп на палке.
+ * Баба Яга. Глава «Баба Яга»: летит в ступе, пестом погоняет, помелом след
+ * заметает — и виражом снижается к избушке. Глава «Череп-светоч»: стоит у
+ * избы и протягивает Василисе череп, насаженный на клюку.
  */
 export function BabaYaga() {
+	const flyingWitch = useWitch();
+	const standingWitch = useWitch();
 	const flying = useRef<Group>(null);
 	const standing = useRef<Group>(null);
 	const pestle = useRef<Group>(null);
 	const glow = useRef<PointLight>(null);
 	const flightStart = useRef(-1);
 	const tangent = useMemo(() => new Vector3(), []);
+	const ahead = useMemo(() => new Vector3(), []);
 
-	useFrame(({ clock }) => {
+	useFrame(({ clock }, delta) => {
 		const mode = currentSample.babaYaga;
 		const now = clock.elapsedTime;
 		if (standing.current) setShown(standing.current, mode === "stand");
+		if (mode === "stand") standingWitch.mixer.update(delta);
 		const f = flying.current;
 		if (!f) return;
 		if (mode !== "fly") {
@@ -152,20 +141,31 @@ export function BabaYaga() {
 		setShown(f, t <= 1);
 		if (glow.current) glow.current.intensity = t <= 1 ? 30 : 0;
 		if (t > 1) return;
-		FLIGHT.getPoint(t, f.position);
-		f.position.y += Math.sin(now * 2.3) * 0.25;
-		FLIGHT.getTangent(t, tangent);
+		flyingWitch.mixer.update(delta);
+
+		FLIGHT.getPointAt(t, f.position);
+		f.position.y += Math.sin(now * 2.3) * 0.2;
+		FLIGHT.getTangentAt(t, tangent);
+		FLIGHT.getTangentAt(Math.min(t + 0.02, 1), ahead);
+		// крен — в сторону поворота, тангаж — носом вниз на снижении
+		const turn = Math.atan2(
+			Math.sin(heading(ahead) - heading(tangent)),
+			Math.cos(heading(ahead) - heading(tangent)),
+		);
+		const roll = Math.max(-MAX_BANK, Math.min(MAX_BANK, -turn * BANK));
+		const pitch = Math.asin(Math.max(-1, Math.min(1, -tangent.y))) * 0.8;
 		f.rotation.set(
-			0.15,
-			Math.atan2(tangent.x, tangent.z),
-			Math.sin(now * 1.7) * 0.12,
+			pitch,
+			heading(tangent),
+			roll + Math.sin(now * 1.7) * 0.06,
+			"YXZ",
 		);
 		// пестом погоняет
 		if (pestle.current)
 			pestle.current.rotation.x = -0.5 + Math.sin(now * 3) * 0.35;
 	});
 
-	const standY = heightAt(STAND_AT.x, STAND_AT.z);
+	const standY = heightAt(BABA_YAGA_STAND.x, BABA_YAGA_STAND.z);
 
 	return (
 		<>
@@ -179,9 +179,7 @@ export function BabaYaga() {
 					decay={1.5}
 				/>
 				<Mortar />
-				<group position={[0, 0.3, 0]}>
-					<Figure />
-				</group>
+				<primitive object={flyingWitch.object} scale={1.2} position-y={0.2} />
 				<group ref={pestle} position={[0.3, 1.0, 0.1]}>
 					<mesh position={[0, 0.2, 0]}>
 						<cylinderGeometry args={[0.035, 0.05, 1.5, 8]} />
@@ -193,11 +191,18 @@ export function BabaYaga() {
 					<Broom />
 				</group>
 			</group>
-			<group ref={standing} position={[STAND_AT.x, standY, STAND_AT.z]}>
-				<Figure armForward />
-				{/* череп на палке в вытянутой руке, к Василисе */}
-				<group position={[0.22, 0.55, 0.42]} rotation-x={0.45}>
-					<SkullLantern length={1.3} />
+			<group
+				ref={standing}
+				position={[BABA_YAGA_STAND.x, standY, BABA_YAGA_STAND.z]}
+			>
+				<primitive object={standingWitch.object} scale={STAND_SCALE} />
+				{/* череп со светящимися глазами — на верхушке её клюки */}
+				<group
+					position={
+						STAFF_TOP.map((v) => v * STAND_SCALE) as [number, number, number]
+					}
+				>
+					<SkullLantern stick={false} />
 				</group>
 				<group position={[-0.9, 0, -0.3]}>
 					<Mortar />

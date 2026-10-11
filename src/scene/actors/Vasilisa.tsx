@@ -1,43 +1,40 @@
+import { useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import type { Group, PointLight } from "three";
 import { currentSample } from "../../story/currentSample";
+import { enableShadows, MODEL_URLS } from "../models";
 import { paletteAt } from "../sky/timeOfDay";
 import { heightAt } from "../terrain";
 import { setShown } from "./presence";
 import { Doll, DollMagic, SkullLantern } from "./props";
 
-const SKIN = "#e8c3a4";
-const SARAFAN = "#9b2b23";
-const BLOUSE = "#efe6d6";
-const HAIR = "#8a6534";
-const SHOULDER_Y = 1.17;
-const ARM_LENGTH = 0.45;
-
-function Arm({ side }: { side: -1 | 1 }) {
-	return (
-		<>
-			<mesh position={[0, -ARM_LENGTH / 2, 0]} castShadow>
-				<cylinderGeometry args={[0.045, 0.035, ARM_LENGTH, 8]} />
-				<meshStandardMaterial color={BLOUSE} roughness={0.9} />
-			</mesh>
-			<mesh position={[side * 0.005, -ARM_LENGTH - 0.02, 0]}>
-				<sphereGeometry args={[0.035, 8, 6]} />
-				<meshStandardMaterial color={SKIN} roughness={0.8} />
-			</mesh>
-		</>
-	);
-}
+/**
+ * Модель «Red Slavic Folk Dress» (akot777, CC-BY 4.0), раскрашена и упрощена
+ * в scripts/prepare-models.ts. В исходнике 1.9 единицы роста, центр — в
+ * середине фигуры, ось тела смещена на x ≈ 0.1, лицо смотрит в +Z.
+ */
+const HEIGHT = 1.5;
+const SOURCE_HEIGHT = 1.9;
+const SCALE = HEIGHT / SOURCE_HEIGHT;
+const MODEL_OFFSET: [number, number, number] = [-0.1 * SCALE, 0.95 * SCALE, 0];
+/** Правая кисть (где была веточка) в координатах фигуры. */
+const RIGHT_HAND: [number, number, number] = [0.22, 1.0, 0.05];
 
 /**
- * Василиса — заглушка из примитивов (сарафан, рубаха, коса), ~1.45 м.
- * Позу, положение и предмет в руках берёт из таймлайна; походка — от скорости.
+ * Василиса: положение, поворот, поза (идёт / стоит / спит) и предмет в руке —
+ * из таймлайна. Модель без скелета, поэтому шаг передаём покачиванием.
  */
 export function Vasilisa() {
+	const { scene } = useGLTF(MODEL_URLS.vasilisa);
+	const model = useMemo(() => {
+		const clone = scene.clone(true);
+		enableShadows(clone);
+		return clone;
+	}, [scene]);
+
 	const root = useRef<Group>(null);
 	const body = useRef<Group>(null);
-	const armL = useRef<Group>(null);
-	const armR = useRef<Group>(null);
 	const doll = useRef<Group>(null);
 	const lantern = useRef<Group>(null);
 	const magic = useRef<Group>(null);
@@ -47,7 +44,7 @@ export function Vasilisa() {
 	useFrame((_, delta) => {
 		const v = currentSample.vasilisa;
 		const r = root.current;
-		if (!r || !body.current || !armL.current || !armR.current) return;
+		if (!r || !body.current) return;
 		setShown(r, v.visible);
 		if (!v.visible) {
 			if (moonlight.current) moonlight.current.intensity = 0;
@@ -61,42 +58,30 @@ export function Vasilisa() {
 		m.speed += (Math.min(speed, 3) - m.speed) * Math.min(dt * 6, 1);
 		m.x = v.x;
 		m.z = v.z;
-		const walking = v.pose !== "sleep" && m.speed > 0.08;
+		const sleeping = v.pose === "sleep";
+		const walking = !sleeping && m.speed > 0.08;
 		m.phase += dt * (walking ? 4 + m.speed * 2 : 0);
 
 		r.position.set(v.x, heightAt(v.x, v.z), v.z);
 		r.rotation.y = v.heading;
 
-		const sleeping = v.pose === "sleep";
+		// шаг: лёгкое покачивание и подпрыгивание; во сне — лежит на спине
 		const step = Math.sin(m.phase);
 		const amount = Math.min(m.speed / 0.6, 1);
 		body.current.rotation.set(
 			sleeping ? -Math.PI / 2 : 0,
 			0,
-			walking ? step * 0.03 * amount : 0,
+			walking ? step * 0.035 * amount : 0,
 		);
 		body.current.position.set(
 			0,
-			sleeping ? 0.3 : Math.abs(step) * 0.025 * amount,
-			sleeping ? 0.6 : 0,
+			sleeping ? 0.3 : Math.abs(step) * 0.03 * amount,
+			sleeping ? 0.75 : 0,
 		);
 
-		// руки: держит куколку у груди, поднимает череп-светоч или машет при ходьбе
-		if (v.prop === "doll" && !sleeping) {
-			armL.current.rotation.set(-1.0, 0, 0.45);
-			armR.current.rotation.set(-1.0, 0, -0.45);
-		} else if (v.prop === "skull" && !sleeping) {
-			armL.current.rotation.set(walking ? step * 0.4 * amount : 0, 0, 0.08);
-			armR.current.rotation.set(-1.3, 0, 0);
-		} else {
-			const swing = sleeping ? 0 : step * 0.4 * amount;
-			armL.current.rotation.set(swing, 0, 0.08);
-			armR.current.rotation.set(-swing, 0, -0.08);
-		}
 		if (doll.current) doll.current.visible = v.prop === "doll" && !sleeping;
-		if (lantern.current) {
+		if (lantern.current)
 			setShown(lantern.current, v.prop === "skull" && !sleeping);
-		}
 		if (magic.current) setShown(magic.current, currentSample.magic > 0.01);
 		// ночью героиню мягко высвечивает «лунный луч» — иначе её не видно в чаще
 		if (moonlight.current) {
@@ -108,55 +93,15 @@ export function Vasilisa() {
 	return (
 		<group ref={root}>
 			<group ref={body}>
-				{/* сарафан */}
-				<mesh position={[0, 0.48, 0]} castShadow>
-					<cylinderGeometry args={[0.16, 0.34, 0.96, 14]} />
-					<meshStandardMaterial color={SARAFAN} roughness={0.85} />
-				</mesh>
-				{/* рубаха */}
-				<mesh position={[0, 1.08, 0]} castShadow>
-					<cylinderGeometry args={[0.13, 0.16, 0.26, 12]} />
-					<meshStandardMaterial color={BLOUSE} roughness={0.9} />
-				</mesh>
-				<mesh position={[0, 1.24, 0]}>
-					<cylinderGeometry args={[0.04, 0.05, 0.08, 8]} />
-					<meshStandardMaterial color={SKIN} roughness={0.8} />
-				</mesh>
-				{/* голова, глаза, волосы, лента и коса */}
-				<mesh position={[0, 1.36, 0]} castShadow>
-					<sphereGeometry args={[0.105, 16, 12]} />
-					<meshStandardMaterial color={SKIN} roughness={0.75} />
-				</mesh>
-				{[-1, 1].map((side) => (
-					<mesh key={side} position={[side * 0.035, 1.375, 0.093]}>
-						<sphereGeometry args={[0.012, 8, 6]} />
-						<meshStandardMaterial color="#2a1d14" roughness={0.4} />
-					</mesh>
-				))}
-				<mesh position={[0, 1.385, -0.012]} scale={[1.06, 1, 1.08]}>
-					<sphereGeometry
-						args={[0.108, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2]}
-					/>
-					<meshStandardMaterial color={HAIR} roughness={0.9} />
-				</mesh>
-				<mesh position={[0, 1.42, 0]} rotation-x={-0.25}>
-					<torusGeometry args={[0.105, 0.012, 6, 24]} />
-					<meshStandardMaterial color="#c8463a" roughness={0.8} />
-				</mesh>
-				<mesh position={[0, 1.08, -0.12]} rotation-x={0.12} castShadow>
-					<cylinderGeometry args={[0.03, 0.02, 0.5, 8]} />
-					<meshStandardMaterial color={HAIR} roughness={0.9} />
-				</mesh>
-				<group ref={armL} position={[-0.17, SHOULDER_Y, 0]}>
-					<Arm side={-1} />
-				</group>
-				<group ref={armR} position={[0.17, SHOULDER_Y, 0]}>
-					<Arm side={1} />
-				</group>
-				<group ref={doll} position={[0, 0.9, 0.3]}>
+				<primitive object={model} scale={SCALE} position={MODEL_OFFSET} />
+				<group ref={doll} position={RIGHT_HAND}>
 					<Doll />
 				</group>
-				<group ref={lantern} position={[0.19, 0.55, 0.43]}>
+				{/* череп-светоч: палка проходит через кисть */}
+				<group
+					ref={lantern}
+					position={[RIGHT_HAND[0], RIGHT_HAND[1] - 0.45, RIGHT_HAND[2] + 0.02]}
+				>
 					<SkullLantern length={1.4} />
 				</group>
 			</group>

@@ -1,6 +1,7 @@
 import { useFrame, useThree } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
 import { type PerspectiveCamera, Vector3 } from "three";
+import { debugFlags } from "../debugFlags";
 import { useSceneStore } from "../state/sceneStore";
 import { useStoryStore } from "../state/storyStore";
 import { currentSample } from "../story/currentSample";
@@ -41,7 +42,7 @@ export function CameraRig() {
 	useFrame((_, delta) => {
 		const target = shapeProgress(useStoryStore.getState().progress);
 		// первый кадр — сразу на место, дальше — экспоненциальное сглаживание
-		const current = smoothed.current ?? target;
+		const current = debugFlags.instant ? target : (smoothed.current ?? target);
 		smoothed.current =
 			current +
 			(target - current) * (1 - Math.exp(-DAMPING * Math.min(delta, 0.1)));

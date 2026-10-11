@@ -75,7 +75,14 @@ export function DollMagic() {
 }
 
 /** Череп на палке со светящимися глазами — светоч Бабы Яги. */
-export function SkullLantern({ length = 1.5 }: { length?: number }) {
+export function SkullLantern({
+	length = 1.5,
+	stick = true,
+}: {
+	length?: number;
+	/** false — только череп (насаживается на чужую палку, например клюку) */
+	stick?: boolean;
+}) {
 	const light = useRef<PointLight>(null);
 	useFrame(({ clock }) => {
 		const t = clock.elapsedTime;
@@ -86,11 +93,13 @@ export function SkullLantern({ length = 1.5 }: { length?: number }) {
 	});
 	return (
 		<group>
-			<mesh position={[0, length / 2, 0]} castShadow>
-				<cylinderGeometry args={[0.018, 0.022, length, 6]} />
-				<meshStandardMaterial color="#4a3524" roughness={1} />
-			</mesh>
-			<group position={[0, length + 0.08, 0]}>
+			{stick && (
+				<mesh position={[0, length / 2, 0]} castShadow>
+					<cylinderGeometry args={[0.018, 0.022, length, 6]} />
+					<meshStandardMaterial color="#4a3524" roughness={1} />
+				</mesh>
+			)}
+			<group position={[0, stick ? length + 0.08 : 0.06, 0]}>
 				<mesh scale={[1, 1.15, 1.05]} castShadow>
 					<sphereGeometry args={[0.1, 12, 10]} />
 					<meshStandardMaterial color="#ddd3bd" roughness={0.7} />

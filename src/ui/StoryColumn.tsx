@@ -127,6 +127,21 @@ function Credits() {
 				Ruslan Display и Old Standard TT (OFL).
 			</p>
 			<p>
+				3D-модели (CC BY 4.0, изменены: упрощены, сжаты, Василиса раскрашена):{" "}
+				<a href="https://sketchfab.com/3d-models/a-hut-on-chicken-legs-b0117d56bb9b401f91442a1ce7f81329">
+					«A hut on chicken legs»
+				</a>{" "}
+				— vet.doc,{" "}
+				<a href="https://sketchfab.com/3d-models/witch-2a7672475d514543b618b5a82fd5582b">
+					«Witch»
+				</a>{" "}
+				— MAXDESIGN,{" "}
+				<a href="https://sketchfab.com/3d-models/red-slavic-folk-dress-dc0fbf4dc6db4f3da414c5738ad02255">
+					«Red Slavic Folk Dress»
+				</a>{" "}
+				— akot777.
+			</p>
+			<p>
 				<a href={`${REPO}/blob/master/docs/assets.md`}>
 					Все источники и лицензии
 				</a>

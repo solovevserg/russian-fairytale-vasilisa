@@ -99,7 +99,7 @@
 | `forest_*` | Forest Ground 01 (1K) | [Poly Haven](https://polyhaven.com/a/forrest_ground_01) | CC0 |
 | `path_*` | Forest Ground 04 (2K) | [Poly Haven](https://polyhaven.com/a/forest_ground_04) | CC0 |
 
-### Модели (подготовлены, в сцену ещё не встроены)
+### Модели
 
 Исходники скачаны с Sketchfab в `.cache/models` (не в репозитории); `bun run models:prepare` (`scripts/prepare-models.ts`) упрощает геометрию, сжимает текстуры в WebP и геометрию Meshopt → `public/models/`.
 

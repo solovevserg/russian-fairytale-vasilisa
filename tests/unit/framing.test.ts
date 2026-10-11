@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { PerspectiveCamera, QuadraticBezierCurve3, Vector3 } from "three";
+import { CatmullRomCurve3, PerspectiveCamera, Vector3 } from "three";
 import { heightAt } from "../../src/scene/terrain";
 import {
 	BABA_YAGA_FLIGHT,
@@ -54,15 +54,13 @@ describe("кадрирование ключевых кадров", () => {
 		expect(Math.max(Math.abs(hut.x), Math.abs(hut.y))).toBeGreaterThan(0.45);
 		expect(Math.max(Math.abs(hut.x), Math.abs(hut.y))).toBeLessThan(1.05);
 
-		const flight = new QuadraticBezierCurve3(
-			...(BABA_YAGA_FLIGHT.map((p) => new Vector3(...p)) as [
-				Vector3,
-				Vector3,
-				Vector3,
-			]),
+		const flight = new CatmullRomCurve3(
+			BABA_YAGA_FLIGHT.map((p) => new Vector3(...p)),
+			false,
+			"centripetal",
 		);
 		const visible = Array.from({ length: 21 }, (_, i) =>
-			flight.getPoint(i / 20),
+			flight.getPointAt(i / 20),
 		).filter((p) => inFrame(camera, p, 0)).length;
 		expect(visible / 21).toBeGreaterThan(0.6);
 	});
