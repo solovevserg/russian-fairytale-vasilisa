@@ -18,7 +18,8 @@ export interface VasilisaState {
 	at: [number, number];
 	/** Поворот вокруг Y: 0 — лицом к +Z */
 	heading: number;
-	pose: "walk" | "stand" | "sleep";
+	/** leave — однократный уход по тропе (см. departure.ts) */
+	pose: "walk" | "stand" | "sleep" | "leave";
 	/** Что в руках */
 	prop: "doll" | "skull" | null;
 	/** Высота над землёй, м (например, на крыльце избушки). */
@@ -283,15 +284,17 @@ export const KEYFRAMES: SceneKeyframe[] = [
 		// из-за спины Бабы Яги: Василиса за воротами уходит прочь с черепом
 		camera: {
 			position: [-0.27, heightAt(-0.27, 3.9) + 2.2, 3.9],
-			target: [4.9, 1.2, 7.4],
+			// чуть правее места, где она стоит: тропа уводит её вправо, в лес
+			target: [6.4, 1.4, 8.4],
 			fov: 50,
 		},
 		wind: 0.6,
 		music: { track: "hut", volume: 0.75 },
+		// стоит лицом к Бабе Яге, затем разворачивается и уходит по тропе в лес
 		vasilisa: {
 			at: [4.9, 7.4],
-			heading: Math.atan2(3.1, 2.1),
-			pose: "stand",
+			heading: Math.atan2(-3.1, -2.1),
+			pose: "leave",
 			prop: "skull",
 		},
 		babaYaga: "stand",

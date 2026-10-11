@@ -3,6 +3,7 @@ import { useFrame } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
 import type { Group, PointLight } from "three";
 import { currentSample } from "../../story/currentSample";
+import { departureAt } from "../../story/departure";
 import { enableShadows, MODEL_URLS } from "../models";
 import { paletteAt } from "../sky/timeOfDay";
 import { heightAt } from "../terrain";
@@ -44,8 +45,9 @@ export function Vasilisa() {
 	const magic = useRef<Group>(null);
 	const motion = useRef({ x: 0, z: 0, phase: 0, speed: 0 });
 	const moonlight = useRef<PointLight>(null);
+	const departure = useRef({ start: -1, x: 0, z: 0, heading: 0 });
 
-	useFrame((_, delta) => {
+	useFrame(({ clock }, delta) => {
 		const v = currentSample.vasilisa;
 		const r = root.current;
 		if (!r || !body.current) return;
@@ -55,19 +57,31 @@ export function Vasilisa() {
 			return;
 		}
 
+		// «Череп-светоч»: уход по тропе идёт по часам с входа в главу
+		const d = departure.current;
+		const leaving = v.pose === "leave";
+		if (leaving) {
+			if (d.start < 0) d.start = clock.elapsedTime;
+			departureAt(clock.elapsedTime - d.start, [v.x, v.z], v.heading, d);
+		} else {
+			d.start = -1;
+		}
+		const x = leaving ? d.x : v.x;
+		const z = leaving ? d.z : v.z;
+
 		// скорость — по смещению за кадр, сглаженная
 		const m = motion.current;
 		const dt = Math.max(delta, 1e-3);
-		const speed = Math.hypot(v.x - m.x, v.z - m.z) / dt;
+		const speed = Math.hypot(x - m.x, z - m.z) / dt;
 		m.speed += (Math.min(speed, 3) - m.speed) * Math.min(dt * 6, 1);
-		m.x = v.x;
-		m.z = v.z;
+		m.x = x;
+		m.z = z;
 		const sleeping = v.pose === "sleep";
 		const walking = !sleeping && m.speed > 0.08;
 		m.phase += dt * (walking ? 4 + m.speed * 2 : 0);
 
-		r.position.set(v.x, heightAt(v.x, v.z) + v.elevation, v.z);
-		r.rotation.y = v.heading;
+		r.position.set(x, heightAt(x, z) + v.elevation, z);
+		r.rotation.y = leaving ? d.heading : v.heading;
 
 		// шаг: лёгкое покачивание и подпрыгивание; во сне — лежит на спине
 		const step = Math.sin(m.phase);
