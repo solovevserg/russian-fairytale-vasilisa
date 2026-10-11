@@ -70,6 +70,8 @@ export interface TimelineSample {
 	fog: number;
 	/** Изба Василисы в сцене */
 	house: boolean;
+	/** Избушка Бабы Яги (с факелами и частоколом) в сцене */
+	hut: boolean;
 	vasilisa: {
 		visible: boolean;
 		/** Позиция на земле (y считает сцена по рельефу) */
@@ -111,6 +113,7 @@ export function createSample(): TimelineSample {
 		magic: 0,
 		fog: 1,
 		house: false,
+		hut: true,
 		vasilisa: {
 			visible: false,
 			x: 0,
@@ -207,6 +210,8 @@ function sampleVasilisa(
 }
 
 const MIN_CAMERA_HEIGHT = 0.4;
+/** С какой доли перехода к главе с избушкой она уже в сцене. */
+const HUT_APPEAR = 0.02;
 
 /** Таймлайн сцены: камера по сплайнам Катмулла-Рома, остальное — линейно. */
 export function createTimeline(keyframes: SceneKeyframe[]): Timeline {
@@ -273,6 +278,8 @@ export function createTimeline(keyframes: SceneKeyframe[]): Timeline {
 			sampleVasilisa(k0.vasilisa, k1.vasilisa, t, out.vasilisa);
 			out.babaYaga = t < 0.5 ? k0.babaYaga : k1.babaYaga;
 			out.house = (t < 0.5 ? k0 : k1).house ?? false;
+			// избушка появляется сразу, как только начался переход к главе с ней
+			out.hut = (k0.hut ?? true) || ((k1.hut ?? true) && t > HUT_APPEAR);
 			return out;
 		},
 	};

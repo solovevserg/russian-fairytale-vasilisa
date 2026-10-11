@@ -1,8 +1,9 @@
 import { useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
-import type { MeshStandardMaterial, PointLight } from "three";
+import type { Group, MeshStandardMaterial, PointLight } from "three";
 import { useSceneStore } from "../state/sceneStore";
+import { currentSample } from "../story/currentSample";
 import { ChimneySmoke } from "./effects/ChimneySmoke";
 import { enableShadows, MODEL_URLS, materialsOf } from "./models";
 import { paletteAt } from "./sky/timeOfDay";
@@ -36,11 +37,15 @@ export function Hut() {
 		[model],
 	);
 	const doorLight = useRef<PointLight>(null);
+	const body = useRef<Group>(null);
 
 	useFrame(() => {
+		// до «Поляны» избушки нет; свет не прячем, а гасим (см. House.tsx)
+		const shown = currentSample.hut;
+		if (body.current) body.current.visible = shown;
 		const night = paletteAt(useSceneStore.getState().timeOfDay).night;
 		for (const m of glowing) m.emissiveIntensity = 0.3 + night * 2.2;
-		if (doorLight.current) doorLight.current.intensity = night * 6;
+		if (doorLight.current) doorLight.current.intensity = shown ? night * 6 : 0;
 	});
 
 	const chimney: [number, number, number] = [
@@ -51,11 +56,16 @@ export function Hut() {
 
 	return (
 		<group rotation-y={ROTATION_Y}>
-			<primitive
-				object={model}
-				scale={SCALE}
-				position-y={-MODEL_BOTTOM * SCALE}
-			/>
+			<group ref={body}>
+				<primitive
+					object={model}
+					scale={SCALE}
+					position-y={-MODEL_BOTTOM * SCALE}
+				/>
+				<group position={chimney}>
+					<ChimneySmoke />
+				</group>
+			</group>
 			{/* тёплый свет из двери ночью */}
 			<pointLight
 				ref={doorLight}
@@ -64,9 +74,6 @@ export function Hut() {
 				distance={9}
 				decay={1.8}
 			/>
-			<group position={chimney}>
-				<ChimneySmoke />
-			</group>
 		</group>
 	);
 }
