@@ -21,7 +21,10 @@ const LAYOUT = {
 	outerRadius: 65,
 	edgeWidth: 14,
 	minDistance: 3.2,
-	maxTrees: { edge: 90, deep: Math.round(200 * quality.deepTrees) },
+	maxTrees: {
+		edge: quality.edgeTrees,
+		deep: Math.round(200 * quality.deepTrees),
+	},
 };
 
 export function VariantInstances({

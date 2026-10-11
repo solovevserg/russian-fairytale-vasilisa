@@ -26,6 +26,10 @@ export interface QualitySettings {
 	branchShadows: boolean;
 	/** Качание деревьев и травы на ветру. */
 	wind: boolean;
+	/** Деревьев у кромки поляны (самая дорогая листва — в кадре почти всегда). */
+	edgeTrees: number;
+	/** Карта теней обновляется раз в столько кадров. */
+	shadowEvery: number;
 }
 
 export const QUALITY: Record<QualityTier, Omit<QualitySettings, "tier">> = {
@@ -41,6 +45,8 @@ export const QUALITY: Record<QualityTier, Omit<QualitySettings, "tier">> = {
 		branches: 1,
 		branchShadows: true,
 		wind: true,
+		edgeTrees: 90,
+		shadowEvery: 1,
 	},
 	medium: {
 		dpr: [0.75, 1.25],
@@ -54,6 +60,9 @@ export const QUALITY: Record<QualityTier, Omit<QualitySettings, "tier">> = {
 		branches: 0.65,
 		branchShadows: false,
 		wind: true,
+		// телефоны (и слабые компьютеры): реже деревья у поляны, тени через кадр
+		edgeTrees: 70,
+		shadowEvery: 2,
 	},
 	low: {
 		dpr: [0.6, 1],
@@ -67,6 +76,8 @@ export const QUALITY: Record<QualityTier, Omit<QualitySettings, "tier">> = {
 		branches: 0.45,
 		branchShadows: false,
 		wind: false,
+		edgeTrees: 55,
+		shadowEvery: 2,
 	},
 };
 

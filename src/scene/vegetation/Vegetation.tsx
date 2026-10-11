@@ -24,6 +24,9 @@ const TALL_TUFT = {
 const SHORT_SCALE: [number, number] = [0.7, 1.3];
 const TALL_SCALE: [number, number] = [0.75, 1.3];
 
+/** На сколько угловых секторов делятся кусты (для отсечения вне кадра). */
+const BUSH_SECTORS = 8;
+
 /** Кусты — пресеты ez-tree, с тем же ветром, что и деревья. */
 const BUSH_SPECS: TreeVariantSpec[] = [
 	{
@@ -71,12 +74,25 @@ function Bushes() {
 			density: (x, z) => bushDensity(x, z) * quality.bushes,
 			scale: [0.7, 1.25],
 		});
-		const byVariant = variants.map(() => [] as TreePlacement[]);
+		// по угловым секторам, как лес: иначе каждый InstancedMesh охватывает
+		// всю поляну и не отсекается, даже когда кусты за спиной камеры
+		const chunks = new Map<
+			string,
+			{ variantIndex: number; placements: TreePlacement[] }
+		>();
 		plants.forEach((p, i) => {
 			const variantIndex = i % variants.length;
-			byVariant[variantIndex].push({ ...p, tilt: 0, variantIndex });
+			const angle = Math.atan2(p.z, p.x) + Math.PI;
+			const sector = Math.min(
+				Math.floor((angle / (Math.PI * 2)) * BUSH_SECTORS),
+				BUSH_SECTORS - 1,
+			);
+			const key = `${variants[variantIndex].spec.id}-${sector}`;
+			const chunk = chunks.get(key) ?? { variantIndex, placements: [] };
+			chunk.placements.push({ ...p, tilt: 0, variantIndex });
+			chunks.set(key, chunk);
 		});
-		return byVariant;
+		return [...chunks.entries()].map(([key, chunk]) => ({ key, ...chunk }));
 	}, [variants]);
 
 	useEffect(
@@ -94,11 +110,11 @@ function Bushes() {
 
 	return (
 		<group>
-			{variants.map((assets, i) => (
+			{groups.map((chunk) => (
 				<VariantInstances
-					key={assets.spec.id}
-					assets={assets}
-					placements={groups[i]}
+					key={chunk.key}
+					assets={variants[chunk.variantIndex]}
+					placements={chunk.placements}
 					castShadow={false}
 				/>
 			))}

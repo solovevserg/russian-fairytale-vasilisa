@@ -94,10 +94,11 @@ export function Birds() {
 			// машет крыльями, время от времени планирует
 			const gliding = Math.sin(t * 0.5 + b.phase * 3) > 0.6;
 			const flap = gliding ? 0.08 : Math.sin(t * b.flapRate + b.phase) * 0.6;
-			wing.makeRotationZ(flap);
-			leftWings.current?.setMatrixAt(i, wing.clone().premultiply(base));
-			wing.makeRotationZ(-flap);
-			rightWings.current?.setMatrixAt(i, wing.clone().premultiply(base));
+			// без новых матриц в каждом кадре — одна рабочая на все крылья
+			wing.makeRotationZ(flap).premultiply(base);
+			leftWings.current?.setMatrixAt(i, wing);
+			wing.makeRotationZ(-flap).premultiply(base);
+			rightWings.current?.setMatrixAt(i, wing);
 		});
 		for (const mesh of [
 			bodies.current,

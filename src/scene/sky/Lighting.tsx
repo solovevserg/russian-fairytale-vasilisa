@@ -12,9 +12,58 @@ import { quality } from "../quality";
 import { moonDirection, paletteAt, sunDirection } from "./timeOfDay";
 
 const LIGHT_DISTANCE = 60;
+/**
+ * Полуширина области теней, м. Она не стоит на месте, а едет за камерой
+ * (центр — впереди, куда камера смотрит): так плотнее текселей на кадр, а в
+ * проход теней не попадает лес за спиной.
+ */
+const SHADOW_HALF = 32;
+/** Как далеко впереди камеры центр области теней, м. */
+const SHADOW_AHEAD = 18;
+const shadowCenter = new Vector3();
+const lightRight = new Vector3();
+const lightUp = new Vector3();
+const lightBack = new Vector3();
+const WORLD_UP = new Vector3(0, 1, 0);
 const MOON_COLOR = "#9db4ff";
 const sunDir = new Vector3();
 const moonDir = new Vector3();
+
+/**
+ * Область теней — вокруг точки впереди камеры. Центр сдвигается целыми
+ * текселями карты теней (в осях лампы), иначе тени «дрожат» при движении.
+ */
+function followCamera(
+	light: DirectionalLight,
+	eye: Vector3,
+	look: Vector3,
+): void {
+	shadowCenter.subVectors(look, eye);
+	shadowCenter.y = 0;
+	const ahead = Math.min(shadowCenter.length(), SHADOW_AHEAD);
+	shadowCenter.normalize().multiplyScalar(ahead).add(eye);
+	shadowCenter.y = look.y;
+
+	// оси лампы: «назад» — к лампе, вправо и вверх — плоскость карты теней
+	lightBack.copy(light.position).normalize();
+	lightRight.crossVectors(WORLD_UP, lightBack);
+	if (lightRight.lengthSq() < 1e-6) lightRight.set(1, 0, 0);
+	lightRight.normalize();
+	lightUp.crossVectors(lightBack, lightRight);
+	const texel = (SHADOW_HALF * 2) / quality.shadowMapSize;
+	const r = Math.round(shadowCenter.dot(lightRight) / texel) * texel;
+	const u = Math.round(shadowCenter.dot(lightUp) / texel) * texel;
+	const b = shadowCenter.dot(lightBack);
+	shadowCenter
+		.copy(lightRight)
+		.multiplyScalar(r)
+		.addScaledVector(lightUp, u)
+		.addScaledVector(lightBack, b);
+
+	light.target.position.copy(shadowCenter);
+	light.target.updateMatrixWorld();
+	light.position.add(shadowCenter);
+}
 
 /**
  * Солнце / луна, небесная подсветка и туман по времени суток.
@@ -23,6 +72,17 @@ const moonDir = new Vector3();
 export function Lighting() {
 	const scene = useThree((state) => state.scene);
 	const camera = useThree((state) => state.camera);
+	const gl = useThree((state) => state.gl);
+	const frame = useRef(0);
+
+	// на телефонах карта теней перерисовывается через кадр (quality.shadowEvery)
+	useLayoutEffect(() => {
+		if (quality.shadowEvery <= 1) return;
+		gl.shadowMap.autoUpdate = false;
+		return () => {
+			gl.shadowMap.autoUpdate = true;
+		};
+	}, [gl]);
 	const light = useRef<DirectionalLight>(null);
 	const hemi = useRef<HemisphereLight>(null);
 
@@ -51,6 +111,10 @@ export function Lighting() {
 		}
 
 		const l = light.current;
+		if (quality.shadowEvery > 1) {
+			frame.current = (frame.current + 1) % quality.shadowEvery;
+			if (frame.current === 0) gl.shadowMap.needsUpdate = true;
+		}
 		if (l) {
 			// у горизонта солнце гаснет плавно, затем лампа становится луной
 			const sunFade = Math.min(Math.max(sunDir.y / 0.12, 0), 1);
@@ -64,6 +128,7 @@ export function Lighting() {
 				l.color.set(MOON_COLOR);
 				l.intensity = palette.moonIntensity;
 			}
+			followCamera(l, camera.position, currentSample.target);
 		}
 
 		const h = hemi.current;
@@ -85,10 +150,10 @@ export function Lighting() {
 				shadow-normalBias={0.04}
 				shadow-camera-near={10}
 				shadow-camera-far={140}
-				shadow-camera-left={-40}
-				shadow-camera-right={40}
-				shadow-camera-top={40}
-				shadow-camera-bottom={-40}
+				shadow-camera-left={-SHADOW_HALF}
+				shadow-camera-right={SHADOW_HALF}
+				shadow-camera-top={SHADOW_HALF}
+				shadow-camera-bottom={-SHADOW_HALF}
 			/>
 		</>
 	);
