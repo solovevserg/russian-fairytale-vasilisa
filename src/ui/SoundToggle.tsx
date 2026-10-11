@@ -24,7 +24,7 @@ export function SoundToggle() {
 			onClick={toggle}
 		>
 			<span aria-hidden="true">{enabled ? "🔊" : "🔇"}</span>
-			<span className="sound-toggle__label">
+			<span className="control-button__label">
 				{enabled ? ui.soundOn : ui.soundOff}
 			</span>
 		</button>

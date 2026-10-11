@@ -46,7 +46,9 @@ export function ControlBar() {
 					onClick={() => setNarrate(!narrate)}
 				>
 					<span aria-hidden="true">🗣</span>
-					<span>{narrate ? ui.narrateOn : ui.narrate}</span>
+					<span className="control-button__label">
+						{narrate ? ui.narrateOn : ui.narrate}
+					</span>
 				</button>
 			)}
 			<SoundToggle />

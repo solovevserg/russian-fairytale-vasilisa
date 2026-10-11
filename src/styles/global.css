@@ -494,3 +494,10 @@ body {
 		right: 12px;
 	}
 }
+
+/* мобильные: у озвучки и звука — только иконки (подписи остаются для скринридеров через aria-label) */
+@media (max-width: 1023px) {
+	.control-button__label {
+		display: none;
+	}
+}
