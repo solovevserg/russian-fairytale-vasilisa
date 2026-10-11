@@ -1,5 +1,5 @@
 import {useFrame} from "@react-three/fiber";
-import {useEffect, useLayoutEffect, useMemo, useRef} from "react";
+import {useLayoutEffect, useMemo, useRef} from "react";
 import {type InstancedMesh, Object3D} from "three";
 
 import {debugFlags} from "../../debugFlags";
@@ -10,7 +10,8 @@ import {
 	type TreePlacement,
 } from "../forestLayout";
 import {quality} from "../quality";
-import {createTreeVariant, type TreeVariantAssets} from "./createTreeVariant";
+import type {TreeVariantAssets} from "./createTreeVariant";
+import {useTreeVariants} from "./useTreeVariants";
 import {TREE_VARIANTS} from "./variants";
 import {windUniforms} from "./wind";
 
@@ -84,21 +85,7 @@ export function VariantInstances({
 }
 
 export function Forest() {
-	const variants = useMemo(() => {
-		const started = performance.now();
-		const result = TREE_VARIANTS.map(createTreeVariant);
-		if (import.meta.env.DEV) {
-			console.info(
-				`[forest] ${result.length} вариантов за ${Math.round(performance.now() - started)} мс`,
-				JSON.stringify(
-					Object.fromEntries(
-						result.map((v) => [v.spec.id, Math.round(v.triangles)]),
-					),
-				),
-			);
-		}
-		return result;
-	}, []);
+	const variants = useTreeVariants(TREE_VARIANTS, "forest");
 
 	// Инстансы бьются на угловые секторы: InstancedMesh отсекается по фрустуму
 	// только целиком, а так деревья за спиной камеры не рисуются вовсе.
@@ -140,19 +127,6 @@ export function Forest() {
 		}
 		return [...bySector.entries()].map(([key, chunk]) => ({key, ...chunk}));
 	}, [variants]);
-
-	useEffect(
-		() => () => {
-			for (const v of variants) {
-				for (const part of [v.branches, v.leaves]) {
-					part.geometry.dispose();
-					part.material.dispose();
-					part.depthMaterial.dispose();
-				}
-			}
-		},
-		[variants],
-	);
 
 	useFrame((_, delta) => {
 		// на слабых устройствах лес и трава стоят неподвижно

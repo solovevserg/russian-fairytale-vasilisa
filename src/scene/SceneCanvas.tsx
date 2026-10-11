@@ -63,7 +63,8 @@ export function SceneCanvas() {
 			<Suspense fallback={null}>
 				<TerrainMesh />
 			</Suspense>
-			{!debugFlags.noForest && <Forest />}
+			{/* лес появится, когда загрузится генератор деревьев (отдельный чанк) */}
+			<Suspense fallback={null}>{!debugFlags.noForest && <Forest />}</Suspense>
 			{!debugFlags.noGrass && <Vegetation />}
 			<group position={[0, GROUND_Y, 0]}>
 				<Suspense fallback={null}>

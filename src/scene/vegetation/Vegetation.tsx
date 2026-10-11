@@ -1,8 +1,8 @@
-import {useEffect, useMemo} from "react";
+import {Suspense, useMemo} from "react";
 
-import {createTreeVariant} from "../forest/createTreeVariant";
 import {VariantInstances} from "../forest/Forest";
-import type {TreeVariantSpec} from "../forest/variants";
+import {useTreeVariants} from "../forest/useTreeVariants";
+import {BUSH_SPECS} from "../forest/variants";
 import type {TreePlacement} from "../forestLayout";
 import {quality} from "../quality";
 import {GrassField} from "./Grass";
@@ -28,45 +28,8 @@ const TALL_SCALE: [number, number] = [0.75, 1.3];
 /** На сколько угловых секторов делятся кусты (для отсечения вне кадра). */
 const BUSH_SECTORS = 8;
 
-/** Кусты — пресеты ez-tree, с тем же ветром, что и деревья. */
-const BUSH_SPECS: TreeVariantSpec[] = [
-	{
-		id: "bush-1",
-		preset: "Bush 1",
-		seed: 31,
-		height: 1.6,
-		weight: 1,
-		zone: "edge",
-		detail: 0.35,
-		branchDetail: 0.2,
-		leafTint: 0x6f8a4e,
-	},
-	{
-		id: "bush-2",
-		preset: "Bush 2",
-		seed: 32,
-		height: 1.2,
-		weight: 1,
-		zone: "edge",
-		detail: 0.35,
-		branchDetail: 0.2,
-		leafTint: 0x7d8f50,
-	},
-	{
-		id: "bush-3",
-		preset: "Bush 3",
-		seed: 33,
-		height: 2.0,
-		weight: 1,
-		zone: "edge",
-		detail: 0.35,
-		branchDetail: 0.2,
-		leafTint: 0x5f7a48,
-	},
-];
-
 function Bushes() {
-	const variants = useMemo(() => BUSH_SPECS.map(createTreeVariant), []);
+	const variants = useTreeVariants(BUSH_SPECS, "bushes");
 	const groups = useMemo(() => {
 		const plants = scatter({
 			seed: 3,
@@ -95,19 +58,6 @@ function Bushes() {
 		});
 		return [...chunks.entries()].map(([key, chunk]) => ({key, ...chunk}));
 	}, [variants]);
-
-	useEffect(
-		() => () => {
-			for (const v of variants) {
-				for (const part of [v.branches, v.leaves]) {
-					part.geometry.dispose();
-					part.material.dispose();
-					part.depthMaterial.dispose();
-				}
-			}
-		},
-		[variants],
-	);
 
 	return (
 		<group>
@@ -147,7 +97,10 @@ export function Vegetation() {
 				tipColor="#a8a166"
 				rootColor="#424f26"
 			/>
-			<Bushes />
+			{/* кусты появятся, когда загрузится генератор деревьев */}
+			<Suspense fallback={null}>
+				<Bushes />
+			</Suspense>
 		</group>
 	);
 }

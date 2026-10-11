@@ -101,3 +101,40 @@ export const TREE_VARIANTS: TreeVariantSpec[] = [
 		leafTint: 0x56704f,
 	},
 ];
+
+/** Кусты — пресеты ez-tree, с тем же ветром, что и деревья. */
+export const BUSH_SPECS: TreeVariantSpec[] = [
+	{
+		id: "bush-1",
+		preset: "Bush 1",
+		seed: 31,
+		height: 1.6,
+		weight: 1,
+		zone: "edge",
+		detail: 0.35,
+		branchDetail: 0.2,
+		leafTint: 0x6f8a4e,
+	},
+	{
+		id: "bush-2",
+		preset: "Bush 2",
+		seed: 32,
+		height: 1.2,
+		weight: 1,
+		zone: "edge",
+		detail: 0.35,
+		branchDetail: 0.2,
+		leafTint: 0x7d8f50,
+	},
+	{
+		id: "bush-3",
+		preset: "Bush 3",
+		seed: 33,
+		height: 2.0,
+		weight: 1,
+		zone: "edge",
+		detail: 0.35,
+		branchDetail: 0.2,
+		leafTint: 0x5f7a48,
+	},
+];
