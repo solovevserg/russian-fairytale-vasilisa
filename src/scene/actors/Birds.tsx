@@ -24,6 +24,10 @@ interface Bird {
 	speed: number;
 	phase: number;
 	flapRate: number;
+	/** Размах взмаха и своя фаза ритма планирования — у каждой птицы свои. */
+	flapAmount: number;
+	glidePhase: number;
+	glideRate: number;
 	centerX: number;
 	centerZ: number;
 	direction: 1 | -1;
@@ -86,7 +90,10 @@ export function Birds() {
 			height: i % 2 ? 10 + random() * 6 : 28 + random() * 8,
 			speed: 5 + random() * 3,
 			phase: random() * Math.PI * 2,
-			flapRate: 7 + random() * 4,
+			flapRate: 6 + random() * 6,
+			flapAmount: 0.45 + random() * 0.3,
+			glidePhase: random() * 100,
+			glideRate: 0.25 + random() * 0.5,
 			centerX: i % 2 ? 0 : (random() - 0.5) * 20,
 			centerZ: i % 2 ? 0 : (random() - 0.5) * 20,
 			direction: random() < 0.75 ? 1 : -1,
@@ -139,8 +146,14 @@ export function Birds() {
 			bodies.current?.setMatrixAt(i, base);
 
 			// машет крыльями, время от времени планирует
-			const gliding = Math.sin(t * 0.5 + b.phase * 3) > 0.6;
-			const flap = gliding ? 0.08 : Math.sin(t * b.flapRate + b.phase) * 0.6;
+			// ритм у каждой свой: частота чуть «плавает», планирование — в своё время
+			const gliding =
+				Math.sin(t * b.glideRate + b.glidePhase) +
+					0.5 * Math.sin(t * b.glideRate * 2.3 + b.glidePhase * 1.7) >
+				0.9;
+			const beat =
+				t * b.flapRate + b.phase + 0.6 * Math.sin(t * 0.7 + b.glidePhase);
+			const flap = gliding ? 0.08 : Math.sin(beat) * b.flapAmount;
 			// без новых матриц в каждом кадре — одна рабочая на все крылья
 			// крыло поворачивается у «плеча» — на краю тела
 			wing.makeRotationZ(flap);
