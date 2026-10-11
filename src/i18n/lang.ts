@@ -2,16 +2,14 @@ import {create} from "zustand";
 
 import {readStored, writeStored} from "../lib/storage";
 import {urlString} from "../lib/url";
+import {type Lang, LOCALES} from "./locales/index";
 
-export type Lang = "ru" | "en" | "es" | "zh";
+export type {Lang} from "./locales/index";
 
-/** Языки в меню: флаг и самоназвание (не переводятся). */
-export const LANGS: {id: Lang; flag: string; name: string}[] = [
-	{id: "ru", flag: "🇷🇺", name: "Русский"},
-	{id: "en", flag: "🇬🇧", name: "English"},
-	{id: "es", flag: "🇪🇸", name: "Español"},
-	{id: "zh", flag: "🇨🇳", name: "中文"},
-];
+/** Языки в меню: флаг и самоназвание — из файлов переводов (`language`). */
+export const LANGS: {id: Lang; flag: string; name: string}[] = (
+	Object.keys(LOCALES) as Lang[]
+).map((id) => ({id, ...LOCALES[id].language}));
 
 const LANG_KEY = "izbushka:lang";
 

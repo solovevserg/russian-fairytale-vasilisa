@@ -261,9 +261,10 @@ src/
                            # random, url, storage, dom, roman, hooks/ (см. refactoring.md)
   i18n/
     locales/               # переводы: ru.json, en.json, es.json, zh.json — по файлу
-                           # на язык: главы, подписи, интерфейс, титры
+                           # на язык: язык в меню, главы (по id), подписи, интерфейс, титры
+      index.ts             # LOCALES — единственный список языков; из него Lang и LANGS
     types.ts               # интерфейс Locale — каждый JSON проверяется на него
-    content.ts             # импорт JSON (satisfies Record<Lang, Locale>), подписи глав
+    content.ts             # тексты по языкам: главы по CHAPTER_IDS, подписи глав
   story/
     chapters.ts            # CHAPTER_IDS — порядок и id глав; главы с русским текстом
     keyframes.ts           # ключевые кадры сцены
@@ -284,6 +285,10 @@ src/
     Effects.tsx            # постобработка
   audio/
     AudioDirector.tsx      # слои, кроссфейды, события по таймлайну
+  sw/                      # сервис-воркер: работа без сети после первого визита
+    policy.ts              # правила кэша, файлы для устройства (чистые — покрыты bun test)
+    sw.ts                  # воркер; список файлов вшивается при сборке
+    register.ts            # регистрация и фоновая докачка для офлайна
   ui/
     StoryColumn.tsx
     Chapter.tsx
@@ -291,9 +296,11 @@ src/
     SoundToggle.tsx
     Fallback.tsx           # без WebGL
   styles/
+scripts/vite/              # плагины сборки: текстуры ez-tree в файлы (полные и 512 для
+                           # телефонов), сжатие GLSL, сборка сервис-воркера
 public/
-  models/                  # сжатые glb
-  textures/
+  models/                  # сжатые glb; *-mobile.glb — облегчённые для телефонов
+  textures/                # ground/mobile — облегчённые текстуры земли
   audio/
   fonts/
 docs/

@@ -1,19 +1,9 @@
 import {CHAPTER_IDS} from "../story/chapters";
 import {type Lang, useLangStore} from "./lang";
-import en from "./locales/en.json" with {type: "json"};
-import es from "./locales/es.json" with {type: "json"};
-import ru from "./locales/ru.json" with {type: "json"};
-import zh from "./locales/zh.json" with {type: "json"};
+import {LOCALES} from "./locales/index";
 import type {Chapter, Locale} from "./types";
 
 export type {Chapter, ChapterText, Locale} from "./types";
-
-/**
- * Переводы по языкам. `satisfies` проверяет при компиляции, что каждый
- * JSON соответствует интерфейсу Locale: нет недостающих полей и полей не
- * того типа.
- */
-const LOCALES = {ru, en, es, zh} satisfies Record<Lang, Locale>;
 
 /** Тексты сказки и интерфейса на одном языке — перевод и выведенное из него. */
 export interface Content extends Omit<Locale, "chapters"> {
@@ -40,12 +30,9 @@ function toContent(locale: Locale): Content {
 }
 
 /** Тексты на всех языках. */
-export const CONTENT: Record<Lang, Content> = {
-	ru: toContent(LOCALES.ru),
-	en: toContent(LOCALES.en),
-	es: toContent(LOCALES.es),
-	zh: toContent(LOCALES.zh),
-};
+export const CONTENT = Object.fromEntries(
+	Object.entries(LOCALES).map(([lang, locale]) => [lang, toContent(locale)]),
+) as Record<Lang, Content>;
 
 /** Тексты на текущем языке (для компонентов — перерисовка при смене языка). */
 export function useContent(): Content {
