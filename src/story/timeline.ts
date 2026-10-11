@@ -80,6 +80,10 @@ export interface TimelineSample {
 		prop: VasilisaState["prop"];
 		/** Высота над землёй, м */
 		elevation: number;
+		/** Сколько ещё пройти по тропе, стоя на кадре (см. VasilisaState.onward). */
+		onward: number;
+		/** Где она на тропе, м от избушки (NaN — не на тропе). */
+		path: number;
 	};
 	babaYaga: SceneKeyframe["babaYaga"];
 }
@@ -115,6 +119,8 @@ export function createSample(): TimelineSample {
 			pose: "stand",
 			prop: null,
 			elevation: 0,
+			onward: 0,
+			path: Number.NaN,
 		},
 		babaYaga: null,
 	};
@@ -156,11 +162,16 @@ function sampleVasilisa(
 	out: TimelineSample["vasilisa"],
 ) {
 	const s = b?.window ? within(t, ...b.window) : t;
+	// стоит на кадре a (прогресс догоняет экспоненциально — не ровно 0)
+	const rest = s < 1e-3;
 	const nearest = s < 0.5 ? a : b;
 	if (a && b) {
 		out.visible = true;
 		if (a.path !== undefined && b.path !== undefined) {
-			const d = pathDistance(a.path, b.path, s, b.stop);
+			// с кадра, где она шла дальше (onward), — оттуда, куда дошла
+			const from = rest ? a.path : a.path - (a.onward ?? 0);
+			const d = pathDistance(from, b.path, s, b.stop);
+			out.path = d;
 			const side = lerp(a.side ?? 0, b.side ?? 0, s);
 			const f = pathFrame(d);
 			out.x = f.x - f.toHutZ * side;
@@ -171,6 +182,7 @@ function sampleVasilisa(
 					? Math.atan2(f.toHutX, f.toHutZ)
 					: lerpAngle(a.heading, b.heading, s);
 		} else {
+			out.path = Number.NaN;
 			out.x = lerp(a.at[0], b.at[0], s);
 			out.z = lerp(a.at[1], b.at[1], s);
 			out.heading = lerpAngle(a.heading, b.heading, s);
@@ -178,6 +190,7 @@ function sampleVasilisa(
 		out.elevation = lerp(a.elevation ?? 0, b.elevation ?? 0, s);
 	} else if (nearest) {
 		out.visible = true;
+		out.path = nearest.path ?? Number.NaN;
 		out.x = nearest.at[0];
 		out.z = nearest.at[1];
 		out.heading = nearest.heading;
@@ -189,6 +202,8 @@ function sampleVasilisa(
 		out.pose = nearest.pose;
 		out.prop = nearest.prop;
 	}
+	// идёт дальше только стоя на кадре
+	out.onward = rest && a ? (a.onward ?? 0) : 0;
 }
 
 const MIN_CAMERA_HEIGHT = 0.4;

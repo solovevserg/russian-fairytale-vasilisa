@@ -40,6 +40,11 @@ export interface VasilisaState {
 	stop?: { at: number; from: number; to: number };
 	/** В какой доле перехода к этому кадру она перемещается (до — на месте). */
 	window?: [number, number];
+	/**
+	 * Дойдя до кадра, не замирает, а медленно идёт дальше по тропе ещё столько
+	 * метров (к избушке).
+	 */
+	onward?: number;
 }
 
 export interface SceneKeyframe {
@@ -209,7 +214,7 @@ export const KEYFRAMES: SceneKeyframe[] = [
 		},
 		wind: 0.4,
 		music: { track: "cum-mortuis", volume: 0.6 },
-		vasilisa: walker(40),
+		vasilisa: { ...walker(40), onward: 2 },
 		babaYaga: null,
 		rider: null,
 		skulls: 0,
@@ -349,6 +354,8 @@ export const KEYFRAMES: SceneKeyframe[] = [
 		id: "tasks",
 		// работа — на весь день: Баба Яга улетает с утра, куколка всё делает
 		timeOfDay: 13,
+		// ночь — рассвет — день: не вспышкой, а за несколько секунд
+		timeFade: 6,
 		// сверху на крыльцо: Василиса спит, перед ней колдует куколка
 		camera: {
 			position: [
@@ -398,6 +405,8 @@ export const KEYFRAMES: SceneKeyframe[] = [
 			heading: Math.atan2(-3.1, -2.1),
 			pose: "leave",
 			prop: "skull",
+			// с крыльца к воротам — сразу, без медленного переезда
+			window: [0.5, 0.5],
 		},
 		babaYaga: "stand",
 		rider: null,

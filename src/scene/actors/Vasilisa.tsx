@@ -2,16 +2,18 @@ import { useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
 import type { Group, PointLight } from "three";
-import { currentSample } from "../../story/currentSample";
+import { debugFlags } from "../../debugFlags";
+import { currentSample, sceneProgress } from "../../story/currentSample";
 import { departureAt } from "../../story/departure";
 import {
 	homecomingAt,
 	homecomingClock,
 	homecomingRoute,
 } from "../../story/homecoming";
+import { INTRO_TIME, introAt } from "../../story/intro";
 import { enableShadows, MODEL_URLS } from "../models";
 import { paletteAt } from "../sky/timeOfDay";
-import { heightAt } from "../terrain";
+import { heightAt, pathFrame } from "../terrain";
 import { setShown } from "./presence";
 import { Doll, DollMagic, SkullLantern } from "./props";
 
@@ -35,6 +37,8 @@ const LEFT_PALM: [number, number, number] = [0.226, 1.045, 0.2];
  * крыльца (ближе к камере), и парит над настилом — не задевает доски.
  */
 const DOLL_MAGIC_OFFSET: [number, number, number] = [-0.42, 0.2, 0.12];
+/** Как медленно идёт дальше, дойдя до кадра (onward), м/с. */
+const ONWARD_SPEED = 0.35;
 /** Где палка черепа-светоча проходит через руку. */
 const LANTERN_GRIP: [number, number, number] = [0.22, 1.0, 0.05];
 
@@ -63,6 +67,20 @@ export function Vasilisa() {
 	const moonlight = useRef<PointLight>(null);
 	const departure = useRef({ start: -1, x: 0, z: 0, heading: 0 });
 	const homecoming = useRef({ x: 0, z: 0, heading: 0, walked: 0 });
+	/** Зачин: выход из-за избы при открытии сайта (start < 0 — ещё не начат). */
+	const intro = useRef({
+		start: -1,
+		done: debugFlags.instant,
+		x: 0,
+		z: 0,
+		heading: 0,
+	});
+	/** Дошла до кадра и идёт дальше (onward): с какого времени. */
+	const onward = useRef(-1);
+	/** Сглаживание скачков (например, листнули, пока она шла дальше), м. */
+	const jump = useRef({ x: 0, z: 0 });
+	/** В прошлом кадре шла дальше (onward) или выходила из-за избы. */
+	const wasSpecial = useRef(false);
 	/** Где героиня была в прошлом кадре (null — не была видна). */
 	const last = useRef<{ x: number; z: number; heading: number } | null>(null);
 
@@ -103,9 +121,66 @@ export function Vasilisa() {
 			home.start = -1;
 		}
 
-		const x = leaving ? d.x : returning ? h.x : v.x;
-		const z = leaving ? d.z : returning ? h.z : v.z;
-		const heading = leaving ? d.heading : returning ? h.heading : v.heading;
+		// зачин: только при открытии на прологе, один раз; листнули — сразу в кадр главы
+		const it = intro.current;
+		if (!it.done) {
+			const atStart = sceneProgress.value < 0.02;
+			if (it.start < 0) {
+				if (atStart) it.start = clock.elapsedTime;
+				else it.done = true;
+			}
+			const t = clock.elapsedTime - it.start;
+			if (!atStart || t > INTRO_TIME) it.done = true;
+			else introAt(t, v.heading, it);
+		}
+		const entering = !it.done;
+
+		// дошла до кадра — медленно идёт дальше по тропе (onward)
+		let vx = v.x;
+		let vz = v.z;
+		if (v.onward > 0 && !Number.isNaN(v.path)) {
+			if (onward.current < 0) onward.current = clock.elapsedTime;
+			const k = Math.min(
+				(clock.elapsedTime - onward.current) / (v.onward / ONWARD_SPEED),
+				1,
+			);
+			// шаг понемногу затихает
+			const f = pathFrame(v.path - v.onward * (1 - (1 - k) * (1 - k)));
+			const dx = v.x - pathFrame(v.path).x;
+			const dz = v.z - pathFrame(v.path).z;
+			vx = f.x + dx;
+			vz = f.z + dz;
+		} else {
+			onward.current = -1;
+		}
+
+		let x = entering ? it.x : leaving ? d.x : returning ? h.x : vx;
+		let z = entering ? it.z : leaving ? d.z : returning ? h.z : vz;
+		// листнули, пока она шла дальше (onward) или выходила из-за избы, —
+		// разовый скачок к положению по таймлайну: догоняет его плавно
+		const special = entering || onward.current >= 0;
+		const jx = jump.current;
+		const shown = last.current;
+		if (wasSpecial.current && !special && shown) {
+			const gap = Math.hypot(shown.x - x, shown.z - z);
+			if (gap < 3) {
+				jx.x = shown.x - x;
+				jx.z = shown.z - z;
+			}
+		}
+		wasSpecial.current = special;
+		const decay = Math.exp(-Math.min(delta, 0.1) * 3);
+		jx.x *= decay;
+		jx.z *= decay;
+		x += jx.x;
+		z += jx.z;
+		const heading = entering
+			? it.heading
+			: leaving
+				? d.heading
+				: returning
+					? h.heading
+					: v.heading;
 		last.current = { x, z, heading };
 
 		// скорость — по смещению за кадр, сглаженная
