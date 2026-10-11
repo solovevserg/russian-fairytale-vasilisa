@@ -29,7 +29,8 @@ test("ссылка ?lang= открывает версию на языке; ме�
 	await expect(page.getByRole("heading", {level: 1})).toHaveText(
 		"Vasilisa la Hermosa",
 	);
-	await expect(page).toHaveTitle(/Vasilisa la Hermosa/);
+	// \s — и неразрывный пробел (тексты типографированы, см. scripts/typography.ts)
+	await expect(page).toHaveTitle(/Vasilisa la\sHermosa/);
 	await expect(page.locator('meta[name="description"]')).toHaveAttribute(
 		"content",
 		/cuento popular ruso/,

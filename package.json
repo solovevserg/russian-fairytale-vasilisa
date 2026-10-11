@@ -16,6 +16,7 @@
 		"audio:prepare": "bun scripts/prepare-audio.ts",
 		"textures:prepare": "bun scripts/prepare-textures.ts",
 		"models:prepare": "bun scripts/prepare-models.ts",
+		"typograph": "bun scripts/typography.ts",
 		"prepare": "husky"
 	},
 	"dependencies": {
