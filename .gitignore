@@ -13,3 +13,6 @@ Thumbs.db
 .idea/
 .playwright-mcp/
 .cache/
+
+# эталонные снимки глав — локальные (bun run test:visual)
+tests/visual/__screenshots__/
