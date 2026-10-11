@@ -15,6 +15,7 @@ import {Forest} from "./forest/Forest";
 import {Garden} from "./Garden";
 import {House} from "./House";
 import {Hut} from "./Hut";
+import {Presence} from "./Presence";
 import {quality} from "./quality";
 import {Lighting} from "./sky/Lighting";
 import {SkyDome} from "./sky/SkyDome";
@@ -125,15 +126,20 @@ export function SceneCanvas() {
 				<TerrainMesh />
 				{!debugFlags.noForest && <Forest />}
 				{!debugFlags.noGrass && <Vegetation />}
-				<group position={[0, GROUND_Y, 0]}>
-					<Hut />
-					<Torch position={[-2.4, 0, 2.6]} />
-					<Torch position={[2.4, 0, 2.6]} phase={2.3} />
-				</group>
-				{/* изба Василисы стоит на своём дворе, высота — по рельефу */}
-				<House />
-				<Garden />
-				<Fence />
+				{/* избушка с факелами и частоколом — с «Поляны» */}
+				<Presence when={(s) => s.hut}>
+					<group position={[0, GROUND_Y, 0]}>
+						<Hut />
+						<Torch position={[-2.4, 0, 2.6]} />
+						<Torch position={[2.4, 0, 2.6]} phase={2.3} />
+					</group>
+					<Fence />
+				</Presence>
+				{/* изба Василисы с огородом — в начале и в конце пути */}
+				<Presence when={(s) => s.house}>
+					<House />
+					<Garden />
+				</Presence>
 				<Vasilisa />
 				<BabaYaga />
 				<Riders />

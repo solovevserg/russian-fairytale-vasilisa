@@ -33,13 +33,7 @@ export function House() {
 	const glow = useRef<PointLight>(null);
 
 	useFrame(() => {
-		// с середины пути избы нет вовсе — иначе видна в ракурсах на тропе;
-		// свет не прячем, а гасим: смена числа ламп пересобирает шейдеры
-		model.visible = currentSample.house;
-		if (!currentSample.house) {
-			if (glow.current) glow.current.intensity = 0;
-			return;
-		}
+		// есть ли изба в сцене — решает Presence (SceneCanvas)
 		const night = currentSample.houseLit
 			? paletteAt(useSceneStore.getState().timeOfDay).night
 			: 0;

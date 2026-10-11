@@ -1,10 +1,9 @@
 import {useGLTF} from "@react-three/drei";
 import {useFrame} from "@react-three/fiber";
 import {useMemo, useRef} from "react";
-import type {Group, MeshStandardMaterial, PointLight} from "three";
+import type {MeshStandardMaterial, PointLight} from "three";
 
 import {useSceneStore} from "../state/sceneStore";
-import {currentSample} from "../story/currentSample";
 import {Deferred} from "./Deferred";
 import {ChimneySmoke} from "./effects/ChimneySmoke";
 import {enableShadows, MODEL_URLS, materialsOf} from "./models";
@@ -46,17 +45,13 @@ function HutModel() {
 			),
 		[model],
 	);
-	const body = useRef<Group>(null);
-
 	useFrame(() => {
-		// до «Поляны» избушки нет
-		if (body.current) body.current.visible = currentSample.hut;
 		const night = paletteAt(useSceneStore.getState().timeOfDay).night;
 		for (const m of glowing) m.emissiveIntensity = 0.3 + night * 2.2;
 	});
 
 	return (
-		<group ref={body}>
+		<group>
 			<primitive
 				object={model}
 				scale={SCALE}
@@ -71,16 +66,15 @@ function HutModel() {
 
 /**
  * Избушка. Свет из двери — с первого кадра (новый свет перекомпилировал бы
- * все шейдеры сцены), до «Поляны» он погашен; модель грузится позже.
+ * все шейдеры сцены), модель грузится позже; есть ли избушка в сцене —
+ * решает Presence (SceneCanvas).
  */
 export function Hut() {
 	const doorLight = useRef<PointLight>(null);
 
 	useFrame(() => {
 		const night = paletteAt(useSceneStore.getState().timeOfDay).night;
-		if (doorLight.current) {
-			doorLight.current.intensity = currentSample.hut ? night * 6 : 0;
-		}
+		if (doorLight.current) doorLight.current.intensity = night * 6;
 	});
 
 	return (

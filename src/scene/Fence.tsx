@@ -2,7 +2,6 @@ import {useFrame} from "@react-three/fiber";
 import {useLayoutEffect, useMemo, useRef} from "react";
 import {
 	Color,
-	type Group,
 	type InstancedMesh,
 	type MeshBasicMaterial,
 	Object3D,
@@ -80,8 +79,6 @@ export function Fence() {
 	const eyes = useRef<InstancedMesh>(null);
 	const eyeMaterial = useRef<MeshBasicMaterial>(null);
 	const glow = useRef<PointLight>(null);
-	const body = useRef<Group>(null);
-	const bars = useRef<Group>(null);
 
 	useLayoutEffect(() => {
 		const dummy = new Object3D();
@@ -131,16 +128,13 @@ export function Fence() {
 		// глаза тлеют и чуть мерцают, как угли
 		const flicker = 0.9 + 0.1 * Math.sin(clock.elapsedTime * 7.3);
 		eyeMaterial.current?.color.copy(EYES_OFF).lerp(EYES_ON, lit * flicker);
-		// частокол — у избушки: до «Поляны» его нет (свет гасим, а не прячем)
-		const shown = currentSample.hut;
-		if (body.current) body.current.visible = shown;
-		if (bars.current) bars.current.visible = shown;
-		if (glow.current) glow.current.intensity = shown ? lit * 14 * flicker : 0;
+		// есть ли частокол в сцене — решает Presence (SceneCanvas)
+		if (glow.current) glow.current.intensity = lit * 14 * flicker;
 	});
 
 	return (
 		<group>
-			<group ref={body}>
+			<group>
 				<instancedMesh
 					ref={posts}
 					args={[undefined, undefined, stakes.length]}
@@ -182,7 +176,7 @@ export function Fence() {
 				decay={1.6}
 			/>
 			{/* перекладины частокола с разрывом под ворота */}
-			<group ref={bars}>
+			<group>
 				{[0.55, 1.2].map((y) => (
 					<mesh
 						key={y}

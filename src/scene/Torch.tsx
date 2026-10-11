@@ -3,7 +3,6 @@ import {useRef} from "react";
 import {AdditiveBlending, type Group, type PointLight} from "three";
 
 import {useSceneStore} from "../state/sceneStore";
-import {currentSample} from "../story/currentSample";
 import {paletteAt} from "./sky/timeOfDay";
 
 const POLE_HEIGHT = 2.2;
@@ -18,7 +17,6 @@ interface TorchProps {
 export function Torch({position, phase = 0}: TorchProps) {
 	const light = useRef<PointLight>(null);
 	const flame = useRef<Group>(null);
-	const body = useRef<Group>(null);
 
 	useFrame(({clock}) => {
 		const t = clock.elapsedTime + phase;
@@ -30,11 +28,8 @@ export function Torch({position, phase = 0}: TorchProps) {
 			0.06 * Math.sin(t * 4.3 + 1.7);
 		const night = paletteAt(useSceneStore.getState().timeOfDay).night;
 		const glow = 0.25 + 0.75 * night;
-		// факелы — у избушки: до «Поляны» их нет (свет гасим, а не прячем)
-		const shown = currentSample.hut;
-		if (body.current) body.current.visible = shown;
-		if (light.current)
-			light.current.intensity = shown ? 22 * flicker * glow : 0;
+		// есть ли факелы в сцене — решает Presence (SceneCanvas)
+		if (light.current) light.current.intensity = 22 * flicker * glow;
 		if (flame.current) {
 			flame.current.scale.set(1, flicker * 1.1, 1);
 			flame.current.rotation.y = t * 0.7;
@@ -43,7 +38,7 @@ export function Torch({position, phase = 0}: TorchProps) {
 
 	return (
 		<group position={position}>
-			<group ref={body}>
+			<group>
 				<mesh position={[0, POLE_HEIGHT / 2, 0]} castShadow>
 					<cylinderGeometry args={[0.05, 0.07, POLE_HEIGHT, 6]} />
 					<meshStandardMaterial color="#3a2818" roughness={1} />

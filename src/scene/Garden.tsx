@@ -1,9 +1,7 @@
-import {useFrame} from "@react-three/fiber";
 import {useLayoutEffect, useMemo, useRef} from "react";
-import {type Group, type InstancedMesh, Object3D, Vector3} from "three";
+import {type InstancedMesh, Object3D, Vector3} from "three";
 
 import {createRandom} from "../lib/random";
-import {currentSample} from "../story/currentSample";
 import {HOME, heightAt} from "./terrain";
 
 /**
@@ -67,7 +65,6 @@ function wattlePosts(): {x: number; z: number}[] {
 }
 
 export function Garden() {
-	const root = useRef<Group>(null);
 	const heads = useRef<InstancedMesh>(null);
 	const stakes = useRef<InstancedMesh>(null);
 	const plants = useMemo(cabbages, []);
@@ -100,11 +97,6 @@ export function Garden() {
 		}
 	}, [plants, posts]);
 
-	// огород — при избе: виден только там, где в сцене она сама
-	useFrame(() => {
-		if (root.current) root.current.visible = currentSample.house;
-	});
-
 	const beds = BEDS.map((row) => fromHouse(GARDEN.x, GARDEN.z + row));
 	const {width, depth} = GARDEN;
 	// плетень: три полосы прутьев по сторонам
@@ -123,7 +115,7 @@ export function Garden() {
 	const scarecrow = fromHouse(GARDEN.x + width / 2 - 0.9, GARDEN.z - 0.4);
 
 	return (
-		<group ref={root}>
+		<group>
 			{beds.map((p, i) => (
 				<mesh
 					key={BEDS[i]}
