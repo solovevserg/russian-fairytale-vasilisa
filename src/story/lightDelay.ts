@@ -3,14 +3,15 @@ import { KEYFRAMES, RIDER_PATHS, type RiderColor } from "./keyframes";
 /**
  * Когда меняется свет относительно скачки: `after` — доля пути всадника до
  * начала смены, `fade` — длительность смены, с. Белый — светает вместе со
- * скачкой; чёрный — ночь опускается, когда он проскакал; красный время не
+ * скачкой; чёрный — темнеет, пока он кружит, и к его уходу в чащу — ночь;
+ * красный время не
  * меняет вовсе (рассвет — в следующей главе «Восход»).
  */
 export const RIDER_LIGHT: Record<RiderColor, { after: number; fade: number }> =
 	{
 		white: { after: 0, fade: RIDER_PATHS.white.duration },
 		red: { after: 0, fade: 0.01 },
-		black: { after: 0.88, fade: 2.5 },
+		black: { after: 0.05, fade: RIDER_PATHS.black.duration * 0.9 },
 	};
 const RIDER_CHAPTERS = KEYFRAMES.flatMap((k, i) =>
 	k.rider ? [{ index: i, color: k.rider }] : [],
