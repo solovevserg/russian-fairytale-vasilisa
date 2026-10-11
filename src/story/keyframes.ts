@@ -109,17 +109,31 @@ const PORCH_CENTER: [number, number] = [
 const ALONG_PORCH = Math.atan2(PORCH.dir[1], -PORCH.dir[0]);
 const AT_GATE = walker(8.5, { pose: "stand", prop: "doll" });
 
+/** Василиса у своей избы (в начале тропы), лицом к лесу и избушке. */
+function atHome(prop: VasilisaState["prop"]): VasilisaState {
+	const [x, , z] = onPath(51, 0, -2.6);
+	return { ...walker(51, { pose: "stand", prop }), at: [x, z] };
+}
+
+/** Зачин и концовка снимаются одной камерой: тропа у избы Василисы. */
+const HOME_CAMERA = {
+	position: onPath(43, 2.3, 2.4),
+	target: onPath(52.5, 1.9, -4.8),
+	fov: 50,
+};
+
 // Ключевые кадры по главам (см. docs/scenario.md).
 // Избушка в центре поляны (радиус ~13 м), окно смотрит на +Z, тропа уходит на +X+Z,
 // солнце встаёт со стороны избушки.
 export const KEYFRAMES: SceneKeyframe[] = [
 	{
+		// Василиса с куколкой у своей избы, в начале тропы; в окнах — свет
 		id: "prologue",
 		timeOfDay: 22,
-		camera: { position: [26, 30, 34], target: [0, 2, 0], fov: 45 },
+		camera: HOME_CAMERA,
 		wind: 0.6,
 		music: { track: "castle", volume: 0.55 },
-		vasilisa: null,
+		vasilisa: atHome("doll"),
 		babaYaga: null,
 		rider: null,
 		skulls: 0,
@@ -303,13 +317,13 @@ export const KEYFRAMES: SceneKeyframe[] = [
 		magic: 0,
 	},
 	{
-		// с высоты птичьего полёта: Василиса уходит на краю сцены, дымок над избой
+		// к вечеру следующего дня Василиса дома — та же камера, что в зачине
 		id: "epilogue",
-		timeOfDay: 7.5,
-		camera: { position: [-8, 28, 16], target: [4, 0, 7], fov: 50 },
+		timeOfDay: 19.5,
+		camera: HOME_CAMERA,
 		wind: 0.3,
 		music: { track: "castle", volume: 0.6 },
-		vasilisa: walker(11, { away: true, prop: "skull" }),
+		vasilisa: atHome("skull"),
 		babaYaga: null,
 		rider: null,
 		skulls: 0.3,

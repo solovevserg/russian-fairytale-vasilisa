@@ -3,7 +3,9 @@ import { KEYFRAMES } from "../../story/keyframes";
 import { createRandom } from "../random";
 import {
 	CLEARING_RADIUS,
+	distanceToHome,
 	distanceToPath,
+	HOME_YARD,
 	heightAt,
 	wildness,
 } from "../terrain";
@@ -61,7 +63,7 @@ const LOW_CAMERAS = KEYFRAMES.map((k) => k.camera.position).filter(
 export function bushDensity(x: number, z: number): number {
 	const r = Math.hypot(x, z);
 	const d = distanceToPath(x, z);
-	if (d < 2.4 || r < 7.5) return 0;
+	if (d < 2.4 || r < 7.5 || distanceToHome(x, z) < HOME_YARD) return 0;
 	if (LOW_CAMERAS.some(([cx, , cz]) => Math.hypot(x - cx, z - cz) < 2.5))
 		return 0;
 	const roadside = d < 5.5 ? 1 - (d - 2.4) / 3.1 : 0;

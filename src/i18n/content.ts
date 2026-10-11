@@ -107,9 +107,9 @@ export const CONTENT: Record<Lang, Content> = {
 			nextChapter: "Следующая глава",
 			credits: {
 				music:
-					"Музыка — М. П. Мусоргский, «Картинки с выставки» (записи Musopen, общественное достояние). Звуки леса — OpenGameArt и BigSoundBank (CC0). Текстуры земли — Poly Haven (CC0). Деревья — ez-tree (MIT). Шрифты — Ruslan Display и Old Standard TT (OFL).",
+					"Музыка — М. П. Мусоргский, «Картинки с выставки» (записи Musopen, общественное достояние). Звуки леса — OpenGameArt и BigSoundBank (CC0). Текстуры земли — Poly Haven (CC0). Деревья — ez-tree (MIT). Черепа — Quaternius (CC0). Шрифты — Ruslan Display и Old Standard TT (OFL).",
 				models:
-					"3D-модели (CC BY 4.0, изменены: упрощены, сжаты, Василиса раскрашена):",
+					"3D-модели (изменены: упрощены, сжаты, Василиса раскрашена, изба перекрашена):",
 				author: ["Сайт создан ", "Сергеем Соловьёвым", " вместе с "],
 				allSources: "Все источники и лицензии",
 				sourceCode: "Исходный код",
@@ -149,9 +149,9 @@ export const CONTENT: Record<Lang, Content> = {
 			nextChapter: "Next chapter",
 			credits: {
 				music:
-					"Music — Modest Mussorgsky, “Pictures at an Exhibition” (Musopen recordings, public domain). Forest sounds — OpenGameArt and BigSoundBank (CC0). Ground textures — Poly Haven (CC0). Trees — ez-tree (MIT). Fonts — Ruslan Display and Old Standard TT (OFL).",
+					"Music — Modest Mussorgsky, “Pictures at an Exhibition” (Musopen recordings, public domain). Forest sounds — OpenGameArt and BigSoundBank (CC0). Ground textures — Poly Haven (CC0). Trees — ez-tree (MIT). Skulls — Quaternius (CC0). Fonts — Ruslan Display and Old Standard TT (OFL).",
 				models:
-					"3D models (CC BY 4.0, modified: simplified, compressed, Vasilisa painted):",
+					"3D models (modified: simplified, compressed, Vasilisa painted, cabin recoloured):",
 				author: ["Made by ", "Sergei Solovev", " together with "],
 				allSources: "All sources and licenses",
 				sourceCode: "Source code",

@@ -153,17 +153,21 @@ const MODELS = [
 		"https://sketchfab.com/3d-models/a-hut-on-chicken-legs-b0117d56bb9b401f91442a1ce7f81329",
 		"A hut on chicken legs",
 		"vet.doc",
+		"CC BY 4.0",
 	],
 	[
 		"https://sketchfab.com/3d-models/witch-2a7672475d514543b618b5a82fd5582b",
 		"Witch",
 		"MAXDESIGN",
+		"CC BY 4.0",
 	],
 	[
 		"https://sketchfab.com/3d-models/red-slavic-folk-dress-dc0fbf4dc6db4f3da414c5738ad02255",
 		"Red Slavic Folk Dress",
 		"akot777",
+		"CC BY 4.0",
 	],
+	["https://poly.pizza/m/5xli1AZx7tL", "Cabin", "Poly by Google", "CC BY 3.0"],
 ] as const;
 
 /** Источники и лицензии — CC-BY требует указывать авторов прямо на сайте. */
@@ -174,9 +178,9 @@ function Credits({ content }: { content: Content }) {
 			<p>{c.music}</p>
 			<p>
 				{c.models}{" "}
-				{MODELS.map(([url, title, author], i) => (
+				{MODELS.map(([url, title, author, license], i) => (
 					<span key={url}>
-						<a href={url}>«{title}»</a> — {author}
+						<a href={url}>«{title}»</a> — {author} ({license})
 						{i < MODELS.length - 1 ? ", " : "."}
 					</span>
 				))}

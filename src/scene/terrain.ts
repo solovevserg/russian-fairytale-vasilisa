@@ -71,11 +71,17 @@ export function pathFrame(distance: number): PathFrame {
 	return { ...p, toHutX: (q.x - p.x) / len, toHutZ: (q.z - p.z) / len };
 }
 
-export function heightAt(x: number, z: number): number {
+function rawHeight(x: number, z: number): number {
 	const hills = fbm(x, z) * 3.2 + Math.max(0, Math.hypot(x, z) - 45) * 0.12;
+	return hills * wildness(x, z);
+}
+
+export function heightAt(x: number, z: number): number {
 	const pathDip =
 		(1 - smoothstep(0, PATH_HALF_WIDTH * 2, distanceToPath(x, z))) * 0.25;
-	return hills * wildness(x, z) - pathDip;
+	// у избы Василисы земля ровная — двор
+	const yard = 1 - smoothstep(HOME_YARD, HOME_YARD + 8, distanceToHome(x, z));
+	return rawHeight(x, z) + (HOME.ground - rawHeight(x, z)) * yard - pathDip;
 }
 
 /** Плотность леса в точке: 0 — деревьев нет (поляна, тропа), 1 — чаща. */
@@ -90,5 +96,30 @@ export function forestDensity(x: number, z: number): number {
 		CLEARING_RADIUS + 3,
 		Math.hypot(x, z),
 	);
-	return nearPath * clearing;
+	const yard = smoothstep(HOME_YARD, HOME_YARD + 5, distanceToHome(x, z));
+	return nearPath * clearing * yard;
+}
+
+/** Радиус двора вокруг избы Василисы: без деревьев и кустов, земля ровная. */
+export const HOME_YARD = 8;
+
+/**
+ * Изба Василисы — там, где тропа начинается: в 52 м от избушки, слева от тропы
+ * (если смотреть на избушку). `heading` — поворот фасада к тропе.
+ */
+export const HOME = (() => {
+	const f = pathFrame(52);
+	const side = -8;
+	const x = f.x - f.toHutZ * side;
+	const z = f.z + f.toHutX * side;
+	return {
+		x,
+		z,
+		ground: rawHeight(x, z),
+		heading: Math.atan2(f.x - x, f.z - z),
+	};
+})();
+
+export function distanceToHome(x: number, z: number): number {
+	return Math.hypot(x - HOME.x, z - HOME.z);
 }

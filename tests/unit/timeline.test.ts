@@ -101,8 +101,8 @@ describe("Василиса в таймлайне", () => {
 	const timeline = createTimeline(KEYFRAMES);
 	const index = (id: string) => KEYFRAMES.findIndex((k) => k.id === id);
 
-	test("нет в прологе, есть с куколкой в «Огонь погас»", () => {
-		expect(timeline.sample(index("prologue")).vasilisa.visible).toBe(false);
+	test("с куколкой и в зачине, и в «Огонь погас»", () => {
+		expect(timeline.sample(index("prologue")).vasilisa.prop).toBe("doll");
 		const { vasilisa } = timeline.sample(index("fire"));
 		expect(vasilisa.visible).toBe(true);
 		expect(vasilisa.prop).toBe("doll");

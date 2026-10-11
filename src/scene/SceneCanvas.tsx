@@ -9,6 +9,7 @@ import { Vasilisa } from "./actors/Vasilisa";
 import { CameraRig } from "./CameraRig";
 import { Fence } from "./Fence";
 import { Forest } from "./forest/Forest";
+import { House } from "./House";
 import { Hut } from "./Hut";
 import { Lighting } from "./sky/Lighting";
 import { SkyDome } from "./sky/SkyDome";
@@ -42,6 +43,7 @@ export function SceneCanvas() {
 			<group position={[0, GROUND_Y, 0]}>
 				<Suspense fallback={null}>
 					<Hut />
+					<House />
 				</Suspense>
 				<Torch position={[-2.4, 0, 2.6]} />
 				<Torch position={[2.4, 0, 2.6]} phase={2.3} />

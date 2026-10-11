@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { CatmullRomCurve3, PerspectiveCamera, Vector3 } from "three";
-import { heightAt } from "../../src/scene/terrain";
+import { HOME, heightAt } from "../../src/scene/terrain";
 import {
 	BABA_YAGA_FLIGHT,
 	BABA_YAGA_STAND,
@@ -84,7 +84,14 @@ describe("кадрирование ключевых кадров", () => {
 		expect(inFrame(camera, onGround(x, z, 1.1))).toBe(true);
 	});
 
-	test("«epilogue»: видно избушку", () => {
-		expect(inFrame(cameraOf(byId("epilogue")), onGround(0, 0, 5))).toBe(true);
+	test("зачин и концовка: одна камера, в кадре изба и Василиса", () => {
+		const prologue = byId("prologue");
+		expect(byId("epilogue").camera).toEqual(prologue.camera);
+		const camera = cameraOf(prologue);
+		expect(inFrame(camera, onGround(HOME.x, HOME.z, 2.5))).toBe(true);
+		for (const id of ["prologue", "epilogue"]) {
+			const [x, z] = byId(id).vasilisa?.at ?? [0, 0];
+			expect(inFrame(camera, onGround(x, z, 1))).toBe(true);
+		}
 	});
 });
