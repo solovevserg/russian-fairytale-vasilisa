@@ -36,7 +36,7 @@ const LEFT_PALM: [number, number, number] = [0.226, 1.045, 0.2];
  * Куколка колдует рядом со спящей: −X — от стены избы, к переднему краю
  * крыльца (ближе к камере), и парит над настилом — не задевает доски.
  */
-const DOLL_MAGIC_OFFSET: [number, number, number] = [-0.42, 0.2, 0.12];
+const DOLL_MAGIC_OFFSET: [number, number, number] = [-0.5, 0.2, 0.5];
 /** Как медленно идёт дальше, дойдя до кадра (onward), м/с. */
 const ONWARD_SPEED = 0.35;
 /**
@@ -214,8 +214,8 @@ export function Vasilisa() {
 				(clock.elapsedTime - onward.current) / (v.onward / ONWARD_SPEED),
 				1,
 			);
-			// шаг понемногу затихает
-			const f = pathFrame(v.path - v.onward * (1 - (1 - k) * (1 - k)));
+			// трогается и останавливается мягко
+			const f = pathFrame(v.path - v.onward * k * k * (3 - 2 * k));
 			const dx = v.x - pathFrame(v.path).x;
 			const dz = v.z - pathFrame(v.path).z;
 			vx = f.x + dx;

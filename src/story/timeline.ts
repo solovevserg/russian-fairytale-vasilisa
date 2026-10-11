@@ -70,6 +70,8 @@ export interface TimelineSample {
 	fog: number;
 	/** Изба Василисы в сцене */
 	house: boolean;
+	/** Горит ли в избе Василисы свет */
+	houseLit: boolean;
 	/** Избушка Бабы Яги (с факелами и частоколом) в сцене */
 	hut: boolean;
 	vasilisa: {
@@ -113,6 +115,7 @@ export function createSample(): TimelineSample {
 		magic: 0,
 		fog: 1,
 		house: false,
+		houseLit: true,
 		hut: true,
 		vasilisa: {
 			visible: false,
@@ -166,7 +169,7 @@ function sampleVasilisa(
 ) {
 	const s = b?.window ? within(t, ...b.window) : t;
 	// стоит на кадре a (прогресс догоняет экспоненциально — не ровно 0)
-	const rest = s < 1e-3;
+	const rest = s < 0.03;
 	const nearest = s < 0.5 ? a : b;
 	if (a && b) {
 		out.visible = true;
@@ -278,6 +281,8 @@ export function createTimeline(keyframes: SceneKeyframe[]): Timeline {
 			sampleVasilisa(k0.vasilisa, k1.vasilisa, t, out.vasilisa);
 			out.babaYaga = t < 0.5 ? k0.babaYaga : k1.babaYaga;
 			out.house = (t < 0.5 ? k0 : k1).house ?? false;
+			// погас — так на весь переход: окна не вспыхивают, пока темнеет
+			out.houseLit = (k0.houseLit ?? true) && (k1.houseLit ?? true);
 			// избушка появляется сразу, как только начался переход к главе с ней
 			out.hut = (k0.hut ?? true) || ((k1.hut ?? true) && t > HUT_APPEAR);
 			return out;

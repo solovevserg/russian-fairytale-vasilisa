@@ -49,6 +49,8 @@ const lookAt = new Vector3();
 const timeSample = createSample();
 const epiloguePosition = new Vector3();
 const epilogueTarget = new Vector3();
+/** Как быстро камера переходит с титула к прологу (меньше — плавнее). */
+const TITLE_DAMPING = 0.9;
 /** Зачин: на сколько метров дальше (по той же линии взгляда) начинает камера. */
 const INTRO_BACK = 7;
 /** За сколько секунд подлетает; если листнули раньше — доводится за INTRO_SKIP. */
@@ -145,9 +147,10 @@ export function CameraRig() {
 		const story = useStoryStore.getState();
 		const e = edges.current ?? { title: story.title };
 		edges.current = e;
+		// с титула к прологу — не спеша
 		const ke = debugFlags.instant
 			? 1
-			: 1 - Math.exp(-DAMPING * Math.min(delta, 0.1));
+			: 1 - Math.exp(-TITLE_DAMPING * Math.min(delta, 0.1));
 		e.title += (story.title - e.title) * ke;
 		if (e.title > 1e-3) {
 			const k = e.title * e.title * (3 - 2 * e.title);

@@ -1,4 +1,5 @@
-import { KEYFRAMES, RIDER_PATHS, type RiderColor } from "./keyframes";
+import { KEYFRAMES, type RiderColor } from "./keyframes";
+import { riderDuration } from "./riderClock";
 
 /**
  * Когда меняется свет относительно скачки: `after` — доля пути всадника до
@@ -9,9 +10,9 @@ import { KEYFRAMES, RIDER_PATHS, type RiderColor } from "./keyframes";
  */
 export const RIDER_LIGHT: Record<RiderColor, { after: number; fade: number }> =
 	{
-		white: { after: 0, fade: RIDER_PATHS.white.duration },
+		white: { after: 0, fade: riderDuration("white") },
 		red: { after: 0, fade: 0.01 },
-		black: { after: 0.05, fade: RIDER_PATHS.black.duration * 0.9 },
+		black: { after: 0.05, fade: riderDuration("black") * 0.9 },
 	};
 const RIDER_CHAPTERS = KEYFRAMES.flatMap((k, i) =>
 	k.rider ? [{ index: i, color: k.rider }] : [],
@@ -35,9 +36,7 @@ export function delayedTimeProgress(
 		const start = starts[color];
 		const { after, fade } = RIDER_LIGHT[color];
 		const lightStart =
-			start === undefined
-				? Infinity
-				: start + RIDER_PATHS[color].duration * after;
+			start === undefined ? Infinity : start + riderDuration(color) * after;
 		const t = Math.min(Math.max((now - lightStart) / fade, 0), 1);
 		result = Math.min(result, index - 1 + t * t * (3 - 2 * t));
 	}

@@ -45,6 +45,11 @@ export const HOMECOMING = {
 	 */
 	creditsHeight: 59,
 	creditsAcross: 0.55,
+	/**
+	 * Взгляд — не в избушку, а на столько метров ближе к камере: избушка
+	 * встаёт ближе к верху кадра (на телефоне низ закрыт текстом).
+	 */
+	creditsLookAhead: 12,
 };
 
 /**
@@ -256,5 +261,8 @@ export function creditsCamera(position: Vector3, target: Vector3): void {
 	const fz = f.z - f.toHutX * HOMECOMING.finalSide;
 	const k = HOMECOMING.creditsAcross;
 	position.set(fx * k, heightAt(0, 0) + HOMECOMING.creditsHeight, fz * k);
-	target.set(...HOMECOMING.finalTarget);
+	const toCamera = Math.hypot(position.x, position.z) || 1;
+	const ahead = HOMECOMING.creditsLookAhead / toCamera;
+	const [hx, hy, hz] = HOMECOMING.finalTarget;
+	target.set(hx + position.x * ahead, hy, hz + position.z * ahead);
 }

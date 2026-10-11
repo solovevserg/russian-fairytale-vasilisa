@@ -39,7 +39,9 @@ export function House() {
 			if (glow.current) glow.current.intensity = 0;
 			return;
 		}
-		const night = paletteAt(useSceneStore.getState().timeOfDay).night;
+		const night = currentSample.houseLit
+			? paletteAt(useSceneStore.getState().timeOfDay).night
+			: 0;
 		for (const m of windows) {
 			m.emissive.set("#ffb45c");
 			m.emissiveIntensity = night * 1.6;

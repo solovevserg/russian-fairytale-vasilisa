@@ -4,7 +4,7 @@ import { CatmullRomCurve3, DoubleSide, type Group, Vector3 } from "three";
 import { useStoryStore } from "../../state/storyStore";
 import { sceneProgress } from "../../story/currentSample";
 import { KEYFRAMES, RIDER_PATHS, type RiderColor } from "../../story/keyframes";
-import { riderStarts } from "../../story/riderClock";
+import { riderDuration, riderStarts } from "../../story/riderClock";
 import { heightAt } from "../terrain";
 
 const COLORS: Record<
@@ -32,6 +32,7 @@ function Rider({ color }: { color: RiderColor }) {
 	const palette = COLORS[color];
 	const path = RIDER_PATHS[color];
 	const chapterIndex = KEYFRAMES.findIndex((k) => k.rider === color);
+	const duration = riderDuration(color);
 	const curve = useMemo(
 		() =>
 			new CatmullRomCurve3(
@@ -60,8 +61,7 @@ function Rider({ color }: { color: RiderColor }) {
 			run.current.start = -1;
 			delete riderStarts[color];
 		}
-		const t =
-			run.current.start < 0 ? -1 : (now - run.current.start) / path.duration;
+		const t = run.current.start < 0 ? -1 : (now - run.current.start) / duration;
 		r.visible = t >= 0 && t <= 1;
 		if (!r.visible) return;
 

@@ -88,7 +88,6 @@ describe("кадрирование ключевых кадров", () => {
 	test("зачин и концовка: камера у избы, в прологе — чуть ближе к Василисе", () => {
 		const prologue = byId("prologue");
 		const epilogue = byId("epilogue");
-		expect(prologue.camera.target).toEqual(epilogue.camera.target);
 		// с титула (камера эпилога) пролог подлетает ближе
 		expect(
 			prologue.camera.position.map(

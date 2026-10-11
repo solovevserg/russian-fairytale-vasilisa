@@ -77,6 +77,8 @@ export interface SceneKeyframe {
 	fog?: number;
 	/** Изба Василисы в сцене (только у начала и в конце пути). */
 	house?: boolean;
+	/** Горит ли в избе Василисы свет (по умолчанию да; «Огонь погас» — нет). */
+	houseLit?: boolean;
 	/**
 	 * Избушка Бабы Яги с факелами и частоколом в сцене (по умолчанию да). До
 	 * «Поляны» её нет вовсе — появляется сразу, как начался переход к ней.
@@ -192,7 +194,8 @@ const PROLOGUE_CAMERA = (() => {
 	const her = onPath(51, 1.2, -2.6);
 	const p = HOME_CAMERA.position;
 	const position = p.map((v, i) => v + (her[i] - v) * PROLOGUE_CLOSER) as Vec3;
-	return { ...HOME_CAMERA, position };
+	// взгляд ниже — Василиса ближе к верху кадра: низ на телефоне закрыт текстом
+	return { ...HOME_CAMERA, position, target: onPath(52.5, -0.2, -4.8) };
 })();
 /** На титульной карточке камера дальше, чем в прологе, на этот вектор. */
 export const TITLE_SHIFT = HOME_CAMERA.position.map(
@@ -224,9 +227,10 @@ export const KEYFRAMES: SceneKeyframe[] = [
 		hut: false,
 		timeOfDay: 1,
 		house: true,
-		// от избы по тропинке — шагом, а не рывком; ночь опускается не спеша
+		// от избы по тропинке — шагом, а не рывком; огонь в избе погас
 		transition: 6,
-		timeFade: 7,
+		timeFade: 4.5,
+		houseLit: false,
 		camera: {
 			position: onPath(35, 1.5, 0.7),
 			target: onPath(40, 1.0),
@@ -234,7 +238,8 @@ export const KEYFRAMES: SceneKeyframe[] = [
 		},
 		wind: 0.4,
 		music: { track: "cum-mortuis", volume: 0.6 },
-		vasilisa: { ...walker(40), onward: 2 },
+		// останавливается чуть раньше середины кадра и медленно доходит до неё
+		vasilisa: { ...walker(41.5), onward: 2.5 },
 		babaYaga: null,
 		rider: null,
 		skulls: 0,
@@ -272,8 +277,10 @@ export const KEYFRAMES: SceneKeyframe[] = [
 		hut: false,
 		timeOfDay: 5.3,
 		camera: {
-			position: onPath(31.5, 1.75, -0.2),
-			target: onPath(24, 1.0, 0),
+			// на узком экране телефона она не уходит за край при покачивании,
+			// и над карточкой с текстом — а всаднику хватает места
+			position: onPath(31.5, 1.75, 0.6),
+			target: onPath(24, 0.1, 0.3),
 			fov: 55,
 		},
 		wind: 0.35,
@@ -322,7 +329,8 @@ export const KEYFRAMES: SceneKeyframe[] = [
 		camera: { position: [-10, 16, 2], target: [3, 0.5, 5], fov: 45 },
 		wind: 0.35,
 		music: { track: "catacombs", volume: 0.6 },
-		vasilisa: { ...walker(9.8), stop: { at: 13.5, from: 0.6, to: 0.76 } },
+		// идёт не спеша — не обгоняет камеру
+		vasilisa: { ...walker(13.5), stop: { at: 18, from: 0.55, to: 0.65 } },
 		babaYaga: null,
 		rider: null,
 		skulls: 0,
@@ -415,7 +423,9 @@ export const KEYFRAMES: SceneKeyframe[] = [
 		camera: {
 			// подальше назад и повыше: Баба Яга не заслоняет Василису, а на
 			// телефоне обе — над карточкой с текстом
-			position: [-1.9, heightAt(-1.9, 2.8) + 2.1, 2.8],
+			// левее (относительно взгляда): Баба Яга — справа в кадре, слева —
+			// тропа, по которой уходит Василиса
+			position: [-1.0, heightAt(-1.0, 1.5) + 2.1, 1.5],
 			// чуть правее места, где она стоит: тропа уводит её вправо, в лес
 			target: [6.4, 0.6, 8.4],
 			fov: 50,
@@ -499,7 +509,7 @@ export const RIDER_PATHS: Record<
 		delay: 0,
 	},
 	// секунда — чтобы камера успела встать туда, где он проскачет
-	black: { points: blackRiderPoints(), duration: 17, delay: 1 },
+	black: { points: blackRiderPoints(), duration: 17, delay: 0.3 },
 };
 
 export { HUT };
